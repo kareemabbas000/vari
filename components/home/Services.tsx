@@ -1,7 +1,10 @@
 'use client';
 
+import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
+import dynamic from 'next/dynamic';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
+import { useDeviceTier } from '@/lib/device';
 import { copy, services } from '@/lib/content';
 import RevealText from '../RevealText';
 
@@ -9,7 +12,7 @@ type Drawing = (typeof services)[number]['drawing'];
 
 /** Line drawings in the language of a construction set — one per service. */
 function ServiceDrawing({ kind }: { kind: Drawing }) {
-  const common = { fill: 'none', stroke: 'currentColor', strokeWidth: 1, vectorEffect: 'non-scaling-stroke' as const };
+  const common = { fill: 'none', stroke: 'currentColor', strokeWidth: 1 };
   const paths: Record<Drawing, string[]> = {
     product: ['M100 40 L160 72 L160 140 L100 172 L40 140 L40 72 Z', 'M40 72 L100 104 L160 72', 'M100 104 V172', 'M70 56 L130 88 M130 56 L70 88'],
     tour: ['M20 160 L100 120 L180 160', 'M60 140 V60 L100 40 L140 60 V140', 'M100 40 V120', 'M84 150 Q100 132 116 150', 'M100 150 m-6 0 a6 6 0 1 0 12 0 a6 6 0 1 0 -12 0'],
@@ -29,39 +32,64 @@ function ServiceDrawing({ kind }: { kind: Drawing }) {
   );
 }
 
+const ServicesModel = dynamic(() => import('../three/ServicesModel'), { ssr: false });
+
+const STATE_NOTES = [
+  'Object study — a single piece, modelled to the millimetre',
+  'Eye level — walking inside the space before it exists',
+  'Roof lifted — the furnished interior concept',
+  'The complete building — the design resolved',
+  'Fly-around — the camera follows a choreographed path',
+  'Exploded axonometric — every layer of the model',
+  'Night render — light, glass and atmosphere',
+  'Plan view — the drawing everything starts from',
+];
+
 /**
- * "Unleashing the Power of 3D Visualization" — the eight services as a drawing set.
- * Each service is a sheet: hover / focus (or scroll on touch) draws its plate in gold.
+ * "Unleashing the Power of 3D Visualization".
+ * One live architectural model shows each service: hover / focus a service (or, on
+ * touch, scroll it into the middle of the screen) and the model transforms — object
+ * study, walk-in, cut-away, exploded BIM layers, night render, back to the 2D plan.
  */
-export default function Services() {
+const DESIGN_DRAWINGS = ['interior', 'design', 'draft'];
+
+export default function Services({ standalone = false }: { standalone?: boolean }) {
   const root = useRef<HTMLElement>(null);
-  const [active, setActive] = useState(0);
+  const [active, setActive] = useState(3);
+  const activeRef = useRef(3);
+  const tier = useDeviceTier();
   const plate = useRef<HTMLDivElement>(null);
 
-  // Redraw the plate whenever the active service changes.
+  const select = (i: number) => {
+    activeRef.current = i;
+    setActive(i);
+  };
+
+  // Static fallback plate (no WebGL / reduced motion): draw the sheet's lines.
   useEffect(() => {
     const el = plate.current;
     if (!el) return;
     const lines = el.querySelectorAll<SVGPathElement>('[data-line]');
+    const reduce = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     lines.forEach((p) => {
       const len = p.getTotalLength();
       p.style.strokeDasharray = `${len}`;
-      p.style.strokeDashoffset = window.matchMedia('(prefers-reduced-motion: reduce)').matches ? '0' : `${len}`;
+      p.style.strokeDashoffset = reduce ? '0' : `${len}`;
     });
+    if (reduce) return;
     const t = gsap.to(lines, { strokeDashoffset: 0, duration: 1.4, ease: 'power2.inOut', stagger: 0.08 });
     return () => {
       t.kill();
     };
-  }, [active]);
+  }, [active, tier]);
 
   useEffect(() => {
     const el = root.current!;
     const ctx = gsap.context(() => {
-      gsap.fromTo('[data-row]', { opacity: 0, y: 30 }, { opacity: 1, y: 0, stagger: 0.07, duration: 1.2, scrollTrigger: { trigger: '[data-rows]', start: 'top 80%', once: true } });
-      // On touch screens there is no hover: the row crossing the middle of the screen becomes active.
+      gsap.fromTo('[data-row]', { opacity: 0, y: 30 }, { opacity: 1, y: 0, stagger: 0.07, duration: 1.2, scrollTrigger: { trigger: '[data-rows]', start: 'top 85%', once: true } });
       if (window.matchMedia('(hover: none)').matches) {
         gsap.utils.toArray<HTMLElement>('[data-row]').forEach((row, i) => {
-          ScrollTrigger.create({ trigger: row, start: 'top 55%', end: 'bottom 55%', onEnter: () => setActive(i), onEnterBack: () => setActive(i) });
+          ScrollTrigger.create({ trigger: row, start: 'top 70%', end: 'bottom 70%', onEnter: () => select(i), onEnterBack: () => select(i) });
         });
       }
     }, el);
@@ -69,60 +97,81 @@ export default function Services() {
   }, []);
 
   const current = services[active];
+  const live = tier === 'high' || tier === 'low';
+
+  const Stage = (
+    <div className="relative h-full w-full overflow-hidden border border-gold/25 bg-night/80">
+      {live ? (
+        <ServicesModel active={activeRef} tier={tier} />
+      ) : (
+        <div ref={plate} key={current.drawing} className="h-full w-full p-10 text-gold">
+          <ServiceDrawing kind={current.drawing} />
+        </div>
+      )}
+      <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between bg-gradient-to-b from-night/85 to-transparent p-4 pb-10">
+        <span className="label text-gold">Sheet {String(active + 1).padStart(2, '0')} / 08</span>
+        <span className="label hidden text-bone/40 sm:block">VARI — live model</span>
+      </div>
+      <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-night via-night/70 to-transparent p-4 pt-10">
+        <p className="label text-bone/80">{current.title}</p>
+        <p className="mt-1 text-xs text-bone/50 sm:text-sm">{STATE_NOTES[active]}</p>
+      </div>
+    </div>
+  );
 
   return (
-    <section ref={root} id="services" aria-labelledby="services-title" className="blueprint relative scroll-mt-20 border-y border-gold/10 py-28 md:py-40">
+    <section ref={root} id="services" aria-labelledby="services-title" className="blueprint relative scroll-mt-20 border-y border-gold/10 py-24 md:py-40">
       <div className="wrap">
-        <div className="mb-16 grid gap-8 md:mb-24 md:grid-cols-12">
-          <p className="label text-gold md:col-span-3">Chapter III — Services</p>
+        <div className="mb-12 grid gap-6 md:mb-24 md:grid-cols-12 md:gap-8">
+          <p className="label text-gold md:col-span-3">{standalone ? 'Sheets 01 — 08' : 'Chapter III — Services'}</p>
           <div className="md:col-span-9">
             <RevealText as="h2" text={copy.servicesTitle} className="display h-xl max-w-[16ch]" italic={['Power']} />
           </div>
         </div>
 
+        {/* Mobile: the model docks under the header while the list scrolls */}
+        <div className="sticky top-[calc(var(--header-h)-8px)] z-10 -mx-[var(--gutter)] mb-6 h-[42svh] px-[var(--gutter)] md:hidden">{Stage}</div>
+
         <div className="grid gap-12 md:grid-cols-12">
-          <ol data-rows className="md:col-span-7" aria-label="Services">
+          <ol data-rows className="md:col-span-6 lg:col-span-7" aria-label="Services">
             {services.map((s, i) => (
               <li key={s.title} data-row>
                 <button
                   type="button"
-                  onMouseEnter={() => setActive(i)}
-                  onFocus={() => setActive(i)}
-                  onClick={() => setActive(i)}
+                  onMouseEnter={() => select(i)}
+                  onFocus={() => select(i)}
+                  onClick={() => select(i)}
                   aria-pressed={active === i}
-                  className={`group grid w-full grid-cols-[3rem_1fr] items-baseline gap-x-4 border-b border-bone/10 py-6 text-left transition-colors duration-500 md:grid-cols-[4rem_1fr] md:py-8 ${
+                  className={`group grid w-full grid-cols-[2.5rem_1fr] items-baseline gap-x-3 border-b border-bone/10 py-5 text-left transition-colors duration-500 md:grid-cols-[4rem_1fr] md:py-7 ${
                     active === i ? 'text-bone' : 'text-bone/45 hover:text-bone/80'
                   }`}
                 >
                   <span className={`label transition-colors ${active === i ? 'text-gold' : ''}`}>{String(i + 1).padStart(2, '0')}</span>
-                  <span className="display text-[1.7rem] leading-tight md:text-[2.6rem]">
-                    <span className={`inline-block transition-transform duration-700 ease-expo ${active === i ? 'md:translate-x-4' : ''}`}>{s.title}</span>
+                  <span className="display text-[1.55rem] leading-tight sm:text-[2rem] lg:text-[2.6rem]">
+                    <span className={`inline-block transition-transform duration-700 ease-expo ${active === i ? 'md:translate-x-3' : ''}`}>{s.title}</span>
                   </span>
-                  <span
-                    className={`col-start-2 grid transition-[grid-template-rows,opacity] duration-700 ease-expo ${
-                      active === i ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'
-                    }`}
-                  >
+                  <span className={`col-start-2 grid transition-[grid-template-rows,opacity] duration-700 ease-expo ${active === i ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
                     <span className="overflow-hidden">
-                      <span className="block pt-3 text-base text-bone/70 md:pl-4 md:text-lg">{s.body}</span>
+                      <span className="block pt-3 text-base text-bone/70 md:pl-3 md:text-lg">{s.body}</span>
                     </span>
                   </span>
                 </button>
               </li>
             ))}
+            <li className="flex flex-wrap items-center gap-x-8 gap-y-4 pt-8">
+              <Link href={`/contact?intent=${DESIGN_DRAWINGS.includes(current.drawing) ? 'design' : 'visualize'}`} className="btn btn-solid">
+                <span>Discuss {current.title}</span>
+              </Link>
+              {!standalone && (
+                <Link href="/services" className="label link-line text-gold">
+                  All services →
+                </Link>
+              )}
+            </li>
           </ol>
 
-          <div className="hidden md:col-span-5 md:block">
-            <div className="sticky top-28">
-              <div className="relative aspect-square border border-gold/25 bg-night/60 p-10 backdrop-blur-sm">
-                <div className="absolute left-4 top-4 label text-gold/70">Sheet {String(active + 1).padStart(2, '0')} / 08</div>
-                <div className="absolute bottom-4 right-4 label text-bone/40">VARI — Scale 1:1</div>
-                <div ref={plate} key={current.drawing} className="h-full w-full text-gold">
-                  <ServiceDrawing kind={current.drawing} />
-                </div>
-              </div>
-              <p className="mt-6 text-bone/60">{current.body}</p>
-            </div>
+          <div className="hidden md:col-span-6 md:block lg:col-span-5">
+            <div className="sticky top-28 aspect-[4/5] w-full">{Stage}</div>
           </div>
         </div>
       </div>

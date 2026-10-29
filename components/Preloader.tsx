@@ -1,9 +1,8 @@
 'use client';
 
-import Image from 'next/image';
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from '@/lib/gsap';
-import { brandAssets } from '@/lib/content';
+import Logo from './Logo';
 
 export const INTRO_EVENT = 'vari:intro-done';
 
@@ -107,8 +106,8 @@ export default function Preloader() {
         <path data-draw d="M80 330 L282 262 M520 330 L318 262" strokeOpacity="0.4" />
       </svg>
 
-      <div data-emblem className="relative z-10 w-[min(42vw,220px)] overflow-hidden opacity-0">
-        <Image src={brandAssets.emblem.id} alt="VARI Studio" width={440} height={440} priority sizes="220px" className="h-auto w-full" />
+      <div data-emblem className="relative z-10 w-[min(56vw,300px)] overflow-hidden opacity-0">
+        <Logo priority sizes="300px" className="h-auto w-full" />
         <span data-sweep aria-hidden className="pointer-events-none absolute inset-y-0 w-1/2 bg-gradient-to-r from-transparent via-white/40 to-transparent mix-blend-overlay" />
       </div>
 

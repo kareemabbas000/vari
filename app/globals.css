@@ -90,7 +90,8 @@ img {
   }
 
   .h-hero {
-    font-size: clamp(2.75rem, 9vw, 9.5rem);
+    /* bounded by both width and height so the headline never collides with the header */
+    font-size: clamp(2.5rem, min(8.4vw, 12.5svh), 8.75rem);
   }
   .h-xl {
     font-size: clamp(2.4rem, 6.5vw, 6.5rem);
@@ -231,6 +232,15 @@ img {
   .field textarea:not(:placeholder-shown) + span {
     transform: translateY(-1.35rem) scale(0.85);
     color: var(--gold);
+  }
+  .field[data-invalid] input {
+    border-color: #e8a598;
+  }
+  .field[data-invalid] span {
+    color: #e8a598;
+  }
+  .btn:disabled {
+    @apply cursor-wait opacity-60;
   }
 }
 

@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
-import Image from 'next/image';
+import Logo from '@/components/Logo';
 import Link from 'next/link';
 import RevealText from '@/components/RevealText';
 import Story from '@/components/home/Story';
-import { brandAssets, copy, services } from '@/lib/content';
+import { copy, services } from '@/lib/content';
 
 export const metadata: Metadata = {
   title: 'Our Concept',
@@ -20,8 +20,13 @@ export default function StudioPage() {
           <RevealText as="h1" trigger="mount" text={copy.pillars[0].title} className="display h-xl mt-6 max-w-[16ch]" italic={['Vision', 'Imagination']} />
           <p className="body-lg mt-10 max-w-2xl text-bone/75">{copy.pillars[0].body}</p>
         </div>
-        <div className="relative mx-auto aspect-square w-[60vw] max-w-[340px] md:col-span-4 md:w-full">
-          <Image src={brandAssets.emblem.id} alt={brandAssets.emblem.alt} fill sizes="340px" className="object-contain" priority />
+        <div className="blueprint relative mx-auto flex aspect-square w-full max-w-[380px] items-center justify-center border border-gold/25 md:col-span-4">
+          <span aria-hidden className="absolute left-3 top-3 h-4 w-4 border-l border-t border-gold/70" />
+          <span aria-hidden className="absolute right-3 top-3 h-4 w-4 border-r border-t border-gold/70" />
+          <span aria-hidden className="absolute bottom-3 left-3 h-4 w-4 border-b border-l border-gold/70" />
+          <span aria-hidden className="absolute bottom-3 right-3 h-4 w-4 border-b border-r border-gold/70" />
+          <Logo className="h-auto w-[72%]" priority sizes="280px" />
+          <span className="label absolute bottom-6 text-[0.6rem] text-gold/70">VARI Design Studio · Cairo</span>
         </div>
       </section>
 

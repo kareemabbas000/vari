@@ -9,7 +9,7 @@ export async function POST(req: Request) {
   }
   try {
     const sent = await sendMail({ subject: 'Newsletter sign-up', replyTo: email, text: `New newsletter subscriber: ${email}` });
-    if (!sent) return NextResponse.json({ ok: false, fallback: 'mailto' }, { status: 503 });
+    if (!sent) return NextResponse.json({ ok: false, fallback: 'mailto' }, { status: 200 });
     return NextResponse.json({ ok: true });
   } catch {
     return NextResponse.json({ ok: false, fallback: 'mailto' }, { status: 502 });

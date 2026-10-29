@@ -10,7 +10,7 @@ import { copy, projects } from '@/lib/content';
 import RevealText from '../RevealText';
 import { INTRO_EVENT } from '../Preloader';
 
-const HeroScene = dynamic(() => import('../three/HeroScene'), { ssr: false });
+const HeroTiles = dynamic(() => import('../three/HeroTiles'), { ssr: false });
 
 const feature = projects.find((p) => p.slug === 'the-urban-nest')!;
 const featureMedia = feature.media[0];
@@ -51,7 +51,7 @@ export default function Hero() {
       gsap.fromTo(
         '[data-hero-caption]',
         { opacity: 0, y: 30 },
-        { opacity: 1, y: 0, ease: 'none', scrollTrigger: { trigger: el, start: '62% bottom', end: '82% bottom', scrub: true } },
+        { opacity: 1, y: 0, ease: 'none', scrollTrigger: { trigger: el, start: '55% bottom', end: '75% bottom', scrub: true } },
       );
       // Static fallback composition gets a slow push-in instead of the 3D dolly.
       gsap.to('[data-hero-still]', {
@@ -64,7 +64,7 @@ export default function Hero() {
   }, []);
 
   return (
-    <section ref={section} className="relative h-[320vh] md:h-[360vh]" aria-label="Introduction">
+    <section ref={section} className="relative h-[240vh] md:h-[260vh]" aria-label="Introduction">
       <div className="sticky top-0 h-[100svh] w-full overflow-hidden">
         {/* Stage: real-time 3D for capable devices, a still render otherwise */}
         <div className="absolute inset-0">
@@ -81,24 +81,24 @@ export default function Hero() {
               />
             </div>
           ) : (
-            <HeroScene progress={progress} started={started} tier={tier} imageId={featureMedia.id} imageAspect={featureMedia.width / featureMedia.height} />
+            <HeroTiles progress={progress} started={started} tier={tier} imageId={featureMedia.id} imageAspect={featureMedia.width / featureMedia.height} />
           )}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(12,11,10,0.75)_100%)]" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-night to-transparent" />
         </div>
 
         {/* Headline */}
-        <div data-hero-copy className="wrap relative flex h-full flex-col justify-end pb-[14vh] md:justify-center md:pb-0">
-          <p className="label mb-6 text-gold">Architecture · Interior Design · 3D Visualization</p>
+        <div data-hero-copy className="wrap relative flex h-full flex-col justify-end pb-[max(9vh,4.5rem)] pt-[calc(var(--header-h)+1.5rem)]">
+          <p className="label mb-5 text-gold md:mb-7">Architecture · Interior Design · 3D Visualization</p>
           <RevealText
             as="h1"
             trigger="event"
             eventName={INTRO_EVENT}
-            className="display h-hero max-w-[14ch] text-bone"
+            className="display h-hero max-w-[16ch] text-bone [text-shadow:0_4px_40px_rgba(12,11,10,0.55)]"
             text={`Where Elegant ${copy.hero.italicWord}\nMeet Elemental Harmony`}
             italic={[copy.hero.italicWord]}
           />
-          <div className={`mt-10 flex flex-wrap gap-4 transition-[opacity,transform] delay-700 duration-1000 ease-expo ${started ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'}`}>
+          <div className={`mt-8 flex flex-wrap gap-3 sm:gap-4 md:mt-10 transition-[opacity,transform] delay-700 duration-1000 ease-expo ${started ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'}`}>
             <Link href="/contact?intent=design" className="btn">
               <span>{copy.hero.ctaDesign}</span>
             </Link>
@@ -115,7 +115,7 @@ export default function Hero() {
           className="absolute bottom-8 left-[var(--gutter)] right-[var(--gutter)] flex items-end justify-between gap-6 opacity-0"
         >
           <span>
-            <span className="label block text-gold">Featured · {feature.discipline}</span>
+            <span className="label block text-gold">On the façade · {feature.discipline}</span>
             <span className="display h-md mt-2 block">
               {feature.title} — {feature.location}
             </span>

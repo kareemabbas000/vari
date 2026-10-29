@@ -1,20 +1,27 @@
 import Link from 'next/link';
-import Logo from './Logo';
+import FooterSignature from './FooterSignature';
 import Newsletter from './Newsletter';
 import BackToTop from './BackToTop';
 import { contact, nav, site } from '@/lib/content';
 
 export default function Footer() {
   return (
-    <footer className="relative overflow-hidden border-t border-gold/15 bg-night pt-20 md:pt-28">
-      <div className="wrap grid gap-16 md:grid-cols-12">
+    <footer className="relative overflow-hidden border-t border-gold/15 bg-night pt-16 md:pt-24">
+      <div className="wrap">
+        <Link href="/contact" className="group flex flex-col gap-6 border-b border-gold/20 pb-12 md:flex-row md:items-end md:justify-between md:pb-16">
+          <span className="display h-lg max-w-[18ch]">
+            Begin your <span className="display-italic text-gold">design journey</span>
+          </span>
+          <span className="label flex items-center gap-4 text-gold">
+            Start a project
+            <span className="block h-px w-12 bg-gold transition-[width] duration-700 ease-expo group-hover:w-24" />
+          </span>
+        </Link>
+      </div>
+
+      <div className="wrap mt-16 grid gap-16 md:mt-20 md:grid-cols-12">
         <div className="md:col-span-5">
-          <Link href="/" aria-label="VARI Studio — home" className="block w-[130px]">
-            <Logo className="h-auto w-full" />
-          </Link>
-          <div className="mt-10">
-            <Newsletter />
-          </div>
+          <Newsletter />
         </div>
 
         <div className="grid grid-cols-2 gap-10 md:col-span-7 md:grid-cols-3">
@@ -57,11 +64,11 @@ export default function Footer() {
         </div>
       </div>
 
-      <div aria-hidden className="pointer-events-none mt-20 select-none overflow-hidden">
-        <p className="display gold-text whitespace-nowrap text-center text-[28vw] leading-[0.78] opacity-90">VARI</p>
+      <div className="wrap mt-16 md:mt-24">
+        <FooterSignature />
       </div>
 
-      <div className="wrap flex flex-col items-start justify-between gap-4 border-t border-bone/10 py-6 text-xs text-bone/50 sm:flex-row sm:items-center">
+      <div className="wrap flex flex-col items-start justify-between gap-4 border-t border-bone/10 mt-10 py-6 text-xs text-bone/50 sm:flex-row sm:items-center">
         <p>{site.copyright}</p>
         <BackToTop />
       </div>

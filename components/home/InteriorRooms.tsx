@@ -4,29 +4,17 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
-import { getProject, interiors } from '@/lib/content';
+import { getProject } from '@/lib/content';
+import MoreRooms from './MoreRooms';
 
 const FEATURED = ['hearthstone-haven', 'sophisticated-home-office', 'penthouse-in-dark-mood', 'timeless-english-roof-architecture'];
 const featured = FEATURED.map((s) => getProject(s)!);
-const rest = interiors.filter((p) => !FEATURED.includes(p.slug));
-
-/** Layout recipe for the floating gallery: column span, start column, depth speed. */
-const LAYOUT = [
-  { cls: 'md:col-span-5 md:col-start-1', ratio: 'aspect-[4/3]', speed: -12 },
-  { cls: 'md:col-span-4 md:col-start-8 md:mt-40', ratio: 'aspect-[4/5]', speed: 10 },
-  { cls: 'md:col-span-4 md:col-start-2 md:-mt-10', ratio: 'aspect-[1/1]', speed: 6 },
-  { cls: 'md:col-span-6 md:col-start-7 md:mt-24', ratio: 'aspect-[16/10]', speed: -8 },
-  { cls: 'md:col-span-5 md:col-start-1 md:mt-10', ratio: 'aspect-[3/2]', speed: 12 },
-  { cls: 'md:col-span-4 md:col-start-8 md:mt-32', ratio: 'aspect-[3/4]', speed: -10 },
-  { cls: 'md:col-span-6 md:col-start-3 md:mt-16', ratio: 'aspect-[16/9]', speed: 8 },
-  { cls: 'md:col-span-4 md:col-start-9 md:-mt-24', ratio: 'aspect-[4/5]', speed: -6 },
-];
 
 /**
  * "Interiors With Soul Connect".
  * A doorway opens onto a sequence of rooms: each featured interior grows from a
  * window into the whole viewport while the room behind recedes. The remaining
- * interiors then float past at different depths.
+ * interiors follow as an enfilade of doors (see MoreRooms).
  */
 export default function InteriorRooms() {
   const root = useRef<HTMLElement>(null);
@@ -73,15 +61,6 @@ export default function InteriorRooms() {
         }
       });
 
-      gsap.utils.toArray<HTMLElement>('[data-depth]').forEach((card) => {
-        const speed = Number(card.dataset.depth);
-        gsap.fromTo(card, { yPercent: speed }, { yPercent: -speed, ease: 'none', scrollTrigger: { trigger: card, start: 'top bottom', end: 'bottom top', scrub: true } });
-        gsap.fromTo(
-          card.querySelector('[data-reveal]'),
-          { clipPath: 'inset(100% 0% 0% 0%)' },
-          { clipPath: 'inset(0% 0% 0% 0%)', duration: 1.6, ease: 'expo.out', scrollTrigger: { trigger: card, start: 'top 88%', once: true } },
-        );
-      });
     });
     return () => mm.revert();
   }, []);
@@ -141,42 +120,7 @@ export default function InteriorRooms() {
         })}
       </div>
 
-      {/* Floating gallery */}
-      <div className="relative z-10 bg-night py-28 md:py-40">
-        <div className="wrap">
-          <div className="mb-16 flex flex-col justify-between gap-6 md:mb-24 md:flex-row md:items-end">
-            <h3 className="display h-lg max-w-[14ch]">
-              More rooms, <span className="display-italic text-gold">more souls</span>
-            </h3>
-            <Link href="/work?filter=interior" className="label link-line self-start text-gold md:self-auto">
-              All {interiors.length} interiors →
-            </Link>
-          </div>
-          <div className="grid grid-cols-1 gap-14 md:grid-cols-12 md:gap-x-6 md:gap-y-0">
-            {rest.map((p, i) => {
-              const m = p.media[0];
-              const l = LAYOUT[i % LAYOUT.length];
-              return (
-                <Link key={p.slug} href={`/work/${p.slug}`} data-depth={l.speed} className={`group block ${l.cls}`}>
-                  <div data-reveal className={`frame grain ${l.ratio}`}>
-                    <Image
-                      src={m.id}
-                      alt={m.alt}
-                      fill
-                      sizes="(max-width: 768px) 100vw, 45vw"
-                      className="object-cover transition-transform duration-[1.6s] ease-expo group-hover:scale-105"
-                    />
-                  </div>
-                  <div className="mt-4 flex items-baseline justify-between gap-4">
-                    <h4 className="display text-xl md:text-2xl">{p.title}</h4>
-                    <span className="label text-bone/40">{p.location ?? p.label}</span>
-                  </div>
-                </Link>
-              );
-            })}
-          </div>
-        </div>
-      </div>
+      <MoreRooms exclude={FEATURED} />
     </section>
   );
 }

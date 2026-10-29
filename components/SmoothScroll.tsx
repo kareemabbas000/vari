@@ -21,6 +21,7 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       smoothWheel: true,
       // Native touch scrolling feels best on phones; Lenis only syncs ScrollTrigger there.
       syncTouch: false,
+      anchors: { offset: -80 },
     });
     instance.on('scroll', ScrollTrigger.update);
     const tick = (time: number) => instance.raf(time * 1000);

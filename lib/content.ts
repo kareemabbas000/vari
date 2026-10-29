@@ -355,7 +355,7 @@ export function adjacentProjects(slug: string) {
 
 export const nav = [
   { label: 'Work', href: '/work' },
-  { label: 'Services', href: '/#services' },
+  { label: 'Services', href: '/services' },
   { label: 'Studio', href: '/studio' },
   { label: 'Contact', href: '/contact' },
 ];
