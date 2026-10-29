@@ -8,8 +8,7 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "typecheck": "tsc --noEmit",
-    "assets:pull": "node scripts/pull-assets.mjs"
+    "typecheck": "tsc --noEmit"
   },
   "engines": {
     "node": ">=18.18"

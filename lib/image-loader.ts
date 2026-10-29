@@ -5,8 +5,9 @@
  * resize and re-encode on the fly. We keep the original media IDs as the source of truth
  * and ask the CDN for exactly the width each breakpoint needs.
  *
- * After `npm run assets:pull`, set NEXT_PUBLIC_MEDIA_SOURCE=local to serve the downloaded
- * originals from /public/media instead.
+ * To self-host, copy the originals into /public/media (named by media id) and set
+ * NEXT_PUBLIC_MEDIA_SOURCE=local to serve them
+ * from there instead of the CDN.
  */
 const WIX_MEDIA = 'https://static.wixstatic.com/media/';
 
