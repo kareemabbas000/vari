@@ -20,6 +20,8 @@ type Props = {
   tier: Exclude<Tier, 'none'>;
   imageId: string;
   imageAspect: number;
+  /** false once the façade has dispersed: rendering stops (battery, thermals). */
+  live?: boolean;
 };
 
 const vertex = /* glsl */ `
@@ -219,9 +221,11 @@ function Facade({ progress, started, tier, imageId, imageAspect }: Props) {
 
       const T = targets[i];
       const S = scatter[i];
-      const x = THREE.MathUtils.lerp(S.x, T.x, a) + T.x * out * 0.9;
-      const y = THREE.MathUtils.lerp(S.y, T.y, a) + T.y * out * 0.9;
-      let z = THREE.MathUtils.lerp(S.z, T.z, a) + out * (6 + (i % 7));
+      // Tiles spread outward and drift forward, but never reach the camera (z = 10):
+      // they shrink away as they leave, so nothing is left hanging in front of the lens.
+      const x = THREE.MathUtils.lerp(S.x, T.x, a) + T.x * out * 1.4;
+      const y = THREE.MathUtils.lerp(S.y, T.y, a) + T.y * out * 1.4;
+      let z = THREE.MathUtils.lerp(S.z, T.z, a) + out * (1.5 + (i % 5) * 0.6);
 
       // Relief under the cursor once assembled
       if (a > 0.98 && s < 0.05) {
@@ -234,7 +238,7 @@ function Facade({ progress, started, tier, imageId, imageAspect }: Props) {
       qT.setFromEuler(e);
       q.copy(qT);
       dummy.quaternion.copy(q);
-      const sc = 0.0001 + Math.min(1, a * 1.4);
+      const sc = (0.0001 + Math.min(1, a * 1.4)) * Math.max(0, 1 - out * 1.15);
       dummy.scale.setScalar(sc);
       dummy.updateMatrix();
       m.setMatrixAt(i, dummy.matrix);
@@ -256,6 +260,7 @@ export default function HeroTiles(props: Props) {
   const high = props.tier === 'high';
   return (
     <Canvas
+      frameloop={props.live === false ? 'never' : 'always'}
       dpr={high ? [1, 1.75] : [1, 1.5]}
       gl={{ antialias: true, powerPreference: 'high-performance', alpha: false }}
       camera={{ fov: 35, near: 0.1, far: 100, position: [0, 0, 10] }}

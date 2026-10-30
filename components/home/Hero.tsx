@@ -16,6 +16,7 @@ export default function Hero() {
   const section = useRef<HTMLElement>(null);
   const progress = useRef(0);
   const [started, setStarted] = useState(false);
+  const [live, setLive] = useState(true);
   const tier = useDeviceTier();
   const { t, href, projects } = useI18n();
   const feature = projects.find((p) => p.slug === 'the-urban-nest')!;
@@ -37,7 +38,12 @@ export default function Hero() {
         start: 'top top',
         end: 'bottom bottom',
         scrub: true,
-        onUpdate: (self) => (progress.current = self.progress),
+        onUpdate: (self) => {
+          progress.current = self.progress;
+          // The 3D façade is fully dispersed past ~80%: stop rendering it.
+          const next = self.progress < 0.82;
+          setLive((prev) => (prev === next ? prev : next));
+        },
       });
 
       // Headline drifts back into the space as the camera moves in.
@@ -53,6 +59,14 @@ export default function Hero() {
         { opacity: 0, y: 30 },
         { opacity: 1, y: 0, ease: 'none', scrollTrigger: { trigger: el, start: '55% bottom', end: '75% bottom', scrub: true } },
       );
+      // As the façade disperses, the finished render resolves behind it — the scroll ends
+      // on the real building (where the caption belongs), never on an empty screen.
+      // Positions are fractions of the hero's whole scroll (top top → bottom bottom).
+      gsap
+        .timeline({ scrollTrigger: { trigger: el, start: 'top top', end: 'bottom bottom', scrub: true } })
+        .fromTo('[data-hero-resolve]', { opacity: 0, scale: 1.12 }, { opacity: 1, scale: 1, duration: 0.35, ease: 'none' }, 0.22)
+        .fromTo('[data-hero-canvas]', { opacity: 1 }, { opacity: 0, duration: 0.3, ease: 'none' }, 0.38)
+        .set({}, {}, 1);
       // Static fallback composition gets a slow push-in instead of the 3D dolly.
       gsap.to('[data-hero-still]', {
         scale: 1.18,
@@ -61,7 +75,7 @@ export default function Hero() {
       });
     }, el);
     return () => ctx.revert();
-  }, []);
+  }, [tier]);
 
   return (
     <section ref={section} className="relative h-[240vh] md:h-[260vh]" aria-label={t.hero.aria}>
@@ -81,7 +95,21 @@ export default function Hero() {
               />
             </div>
           ) : (
-            <HeroTiles progress={progress} started={started} tier={tier} imageId={featureMedia.id} imageAspect={featureMedia.width / featureMedia.height} />
+            <>
+              <div data-hero-resolve className="absolute inset-0 opacity-0">
+                <Image src={featureMedia.id} alt="" fill sizes="100vw" className="object-cover" />
+              </div>
+              <div data-hero-canvas className="absolute inset-0">
+                <HeroTiles
+                  progress={progress}
+                  started={started}
+                  tier={tier}
+                  imageId={featureMedia.id}
+                  imageAspect={featureMedia.width / featureMedia.height}
+                  live={live}
+                />
+              </div>
+            </>
           )}
           <div className="pointer-events-none absolute inset-0 bg-[radial-gradient(ellipse_at_center,transparent_30%,rgba(12,11,10,0.75)_100%)]" />
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-night to-transparent" />
