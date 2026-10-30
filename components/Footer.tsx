@@ -5,6 +5,7 @@ import FooterSignature from './FooterSignature';
 import Newsletter from './Newsletter';
 import BackToTop from './BackToTop';
 import { contact } from '@/lib/content';
+import { fmt } from '@/lib/i18n';
 import { useI18n } from './I18nProvider';
 
 export default function Footer() {
@@ -79,7 +80,8 @@ export default function Footer() {
       </div>
 
       <div className="wrap flex flex-col items-start justify-between gap-4 border-t border-bone/10 mt-8 py-5 text-xs text-bone/50 sm:flex-row sm:items-center">
-        <p>{t.common.copyright}</p>
+        {/* Year is computed, so it never goes stale. */}
+        <p suppressHydrationWarning>{fmt(t.common.copyright, { year: new Date().getFullYear() })}</p>
         <BackToTop />
       </div>
     </footer>

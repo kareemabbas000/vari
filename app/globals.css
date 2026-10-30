@@ -14,6 +14,11 @@
   --header-h: 72px;
   color-scheme: dark;
 }
+@media (min-width: 768px) {
+  :root {
+    --header-h: 84px;
+  }
+}
 
 html {
   background: var(--night);

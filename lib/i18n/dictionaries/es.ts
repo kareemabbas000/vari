@@ -25,7 +25,7 @@ const es: Dictionary = {
   common: {
     skip: 'Saltar al contenido',
     homeAria: 'VARI Studio — inicio',
-    copyright: '© 2025 VARI Design Studio. Todos los derechos reservados.',
+    copyright: '© {year} VARI Design Studio. Todos los derechos reservados.',
     goUp: 'Subir',
     email: 'Correo electrónico',
     studio: 'Estudio',

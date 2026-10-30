@@ -82,7 +82,7 @@ export default function Header() {
         } ${scrolled && !open ? 'bg-night/70 backdrop-blur-md' : 'bg-transparent'}`}
       >
         <div className="wrap flex h-[var(--header-h)] items-center justify-between">
-          <Link href={href('/')} aria-label={t.common.homeAria} className="relative z-10 block w-[96px] md:w-[118px]">
+          <Link href={href('/')} aria-label={t.common.homeAria} className="relative z-10 block w-[84px] md:w-[100px]">
             <Logo priority className="h-auto w-full" />
           </Link>
 

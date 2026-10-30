@@ -24,7 +24,7 @@ const en = {
   common: {
     skip: 'Skip to content',
     homeAria: 'VARI Studio — home',
-    copyright: '© 2025 All rights are reserved by VARI design studio',
+    copyright: '© {year} All rights are reserved by VARI design studio',
     goUp: 'Go up',
     email: 'Email',
     studio: 'Studio',
