@@ -5,31 +5,29 @@ import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from '@/lib/gsap';
-import { projects, type Discipline } from '@/lib/content';
+import { type Discipline } from '@/lib/content';
+import { useI18n } from '../I18nProvider';
 
 type Filter = 'all' | 'exterior' | 'interior';
-const FILTERS: { key: Filter; label: string }[] = [
-  { key: 'all', label: 'All' },
-  { key: 'exterior', label: 'Exteriors' },
-  { key: 'interior', label: 'Interiors' },
-];
+const FILTERS: Filter[] = ['all', 'exterior', 'interior'];
 
 /**
  * Index of every project. Desktop: a typographic list where hovering a title projects
  * its render into a floating viewer that follows the pointer. Mobile: image cards.
  */
 export default function WorkIndex() {
+  const { t, href, projects } = useI18n();
   const params = useSearchParams();
   const router = useRouter();
   const initial = (params.get('filter') as Filter) || 'all';
-  const [filter, setFilter] = useState<Filter>(FILTERS.some((f) => f.key === initial) ? initial : 'all');
+  const [filter, setFilter] = useState<Filter>(FILTERS.includes(initial) ? initial : 'all');
   const [hover, setHover] = useState<number | null>(null);
   const viewer = useRef<HTMLDivElement>(null);
   const list = useRef<HTMLOListElement>(null);
 
   const items = useMemo(
     () => projects.filter((p) => filter === 'all' || p.discipline === ((filter === 'exterior' ? 'Exterior' : 'Interior') as Discipline)),
-    [filter],
+    [filter, projects],
   );
 
   useEffect(() => {
@@ -56,25 +54,25 @@ export default function WorkIndex() {
 
   const select = (f: Filter) => {
     setFilter(f);
-    router.replace(f === 'all' ? '/work' : `/work?filter=${f}`, { scroll: false });
+    router.replace(href(f === 'all' ? '/work' : `/work?filter=${f}`), { scroll: false });
   };
 
   return (
     <>
-      <div className="flex flex-wrap gap-3" role="tablist" aria-label="Filter projects">
-        {FILTERS.map((f) => {
-          const count = f.key === 'all' ? projects.length : projects.filter((p) => p.discipline.toLowerCase() === f.key).length;
+      <div className="flex flex-wrap gap-3" role="tablist" aria-label={t.work.filterAria}>
+        {FILTERS.map((key) => {
+          const count = key === 'all' ? projects.length : projects.filter((p) => p.discipline.toLowerCase() === key).length;
           return (
             <button
-              key={f.key}
+              key={key}
               role="tab"
-              aria-selected={filter === f.key}
-              onClick={() => select(f.key)}
+              aria-selected={filter === key}
+              onClick={() => select(key)}
               className={`label border px-5 py-3 transition-colors duration-500 ${
-                filter === f.key ? 'border-gold bg-gold text-night' : 'border-bone/20 text-bone/70 hover:border-gold hover:text-gold'
+                filter === key ? 'border-gold bg-gold text-night' : 'border-bone/20 text-bone/70 hover:border-gold hover:text-gold'
               }`}
             >
-              {f.label} <span className="opacity-60">({count})</span>
+              {t.work.filters[key]} <span className="opacity-60">({count})</span>
             </button>
           );
         })}
@@ -84,7 +82,7 @@ export default function WorkIndex() {
         {items.map((p, i) => (
           <li key={p.slug} data-row>
             <Link
-              href={`/work/${p.slug}`}
+              href={href(`/work/${p.slug}`)}
               onMouseEnter={() => setHover(projects.indexOf(p))}
               onFocus={() => setHover(projects.indexOf(p))}
               className="group grid grid-cols-[2.5rem_1fr] items-center gap-x-4 gap-y-4 border-b border-bone/10 py-6 md:grid-cols-[4rem_1fr_14rem_10rem] md:py-7"
@@ -97,7 +95,7 @@ export default function WorkIndex() {
                 <Image src={p.media[0].id} alt={p.media[0].alt} fill sizes="100vw" className="object-cover" />
               </div>
               <span className="label col-start-2 text-bone/50 md:col-start-auto">{p.location ?? p.label}</span>
-              <span className="label col-start-2 text-gold/80 md:col-start-auto md:text-right">{p.discipline}</span>
+              <span className="label col-start-2 text-gold/80 md:col-start-auto md:text-right">{t.disciplines[p.discipline]}</span>
             </Link>
           </li>
         ))}

@@ -1,17 +1,24 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import ContactForm from '@/components/ContactForm';
-import { contact, copy, getProject } from '@/lib/content';
+import { contact, getProject } from '@/lib/content';
+import { isLocale, type Locale } from '@/lib/i18n/config';
+import { alternatesFor, getDictionary } from '@/lib/i18n';
 
-export const metadata: Metadata = {
-  title: 'Contact Us',
-  description: copy.contact.body,
-  alternates: { canonical: '/contact' },
-};
+type Params = { locale: string };
+
+export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
+  const { locale } = await params;
+  if (!isLocale(locale)) return {};
+  const t = getDictionary(locale);
+  return { title: t.meta.contactTitle, description: t.contact.body, alternates: alternatesFor(locale, '/contact') };
+}
 
 const still = getProject('elysian-aura')!.media[0];
 
-export default function ContactPage() {
+export default async function ContactPage({ params }: { params: Promise<Params> }) {
+  const { locale } = await params;
+  const t = getDictionary(locale as Locale);
   return (
     <section className="relative min-h-[100svh] pt-[var(--header-h)]">
       <div className="absolute inset-0 -z-10">
@@ -20,15 +27,16 @@ export default function ContactPage() {
       </div>
       <div className="wrap grid gap-16 py-20 md:grid-cols-12 md:py-28">
         <div className="md:col-span-5">
-          <p className="label text-gold">Contact Us</p>
+          <p className="label text-gold">{t.contact.pageLabel}</p>
           <h1 className="display h-xl mt-6">
-            Begin Your <span className="display-italic text-gold">Exceptional</span> Design Journey Now
+            {t.contact.pageA} <span className="display-italic text-gold">{t.contact.pageItalic}</span>
+            {t.contact.pageB}
           </h1>
-          <p className="body-lg mt-8 text-bone/75">{copy.contact.body}</p>
+          <p className="body-lg mt-8 text-bone/75">{t.contact.body}</p>
 
           <dl className="mt-14 space-y-8">
             <div>
-              <dt className="label text-bone/40">Email</dt>
+              <dt className="label text-bone/40">{t.common.email}</dt>
               <dd className="mt-2 space-y-1 text-lg">
                 <a href={`mailto:${contact.email}`} className="link-line block w-fit text-gold">
                   {contact.email}
@@ -39,11 +47,11 @@ export default function ContactPage() {
               </dd>
             </div>
             <div>
-              <dt className="label text-bone/40">Studio</dt>
+              <dt className="label text-bone/40">{t.common.studio}</dt>
               <dd className="mt-2 text-lg">{contact.address}</dd>
             </div>
             <div>
-              <dt className="label text-bone/40">Social</dt>
+              <dt className="label text-bone/40">{t.common.social}</dt>
               <dd className="mt-3 flex flex-wrap gap-6">
                 {contact.social.map((s) => (
                   <a key={s.href} href={s.href} target="_blank" rel="noreferrer noopener" className="label link-line">
@@ -56,7 +64,7 @@ export default function ContactPage() {
         </div>
         <div className="md:col-span-6 md:col-start-7">
           <div className="border border-gold/30 bg-night/70 p-6 backdrop-blur-md sm:p-10">
-            <h2 className="display text-3xl">{copy.contact.cta}</h2>
+            <h2 className="display text-3xl">{t.contact.cta}</h2>
             <div className="mt-10">
               <ContactForm />
             </div>

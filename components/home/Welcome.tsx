@@ -4,13 +4,13 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
-import { copy, getProject } from '@/lib/content';
+import { useI18n } from '../I18nProvider';
 
 /** Three real renders used as layers of an "exploded" spatial composition. */
 const LAYERS = [
-  { p: getProject('hearthstone-haven')!, m: 0, cls: 'left-[4%] top-[2%] w-[58%] aspect-[4/5]', z: -260 },
-  { p: getProject('light-in-the-dark')!, m: 0, cls: 'right-[2%] top-[18%] w-[50%] aspect-square', z: -40 },
-  { p: getProject('rustic-chic-oasis')!, m: 0, cls: 'left-[16%] bottom-[2%] w-[54%] aspect-[3/2]', z: 180 },
+  { slug: 'hearthstone-haven', m: 0, cls: 'left-[4%] top-[2%] w-[58%] aspect-[4/5]', z: -260 },
+  { slug: 'light-in-the-dark', m: 0, cls: 'right-[2%] top-[18%] w-[50%] aspect-square', z: -40 },
+  { slug: 'rustic-chic-oasis', m: 0, cls: 'left-[16%] bottom-[2%] w-[54%] aspect-[3/2]', z: 180 },
 ];
 
 /**
@@ -22,6 +22,8 @@ const LAYERS = [
 export default function Welcome() {
   const root = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
+  const { t, href, projects } = useI18n();
+  const layers = LAYERS.map((l) => ({ ...l, p: projects.find((p) => p.slug === l.slug)! }));
 
   useEffect(() => {
     const el = root.current!;
@@ -60,7 +62,7 @@ export default function Welcome() {
     };
   }, []);
 
-  const words = copy.welcome.body.split(' ');
+  const words = t.welcome.body.split(' ');
 
   return (
     <section ref={root} className="relative overflow-hidden py-24 md:py-40" aria-labelledby="welcome-title">
@@ -69,14 +71,14 @@ export default function Welcome() {
           <div ref={stage} className="relative h-full w-full [transform-style:preserve-3d]" style={{ transform: 'rotateX(14deg) rotateY(-14deg)' }}>
             {/* Datum axis through the layers */}
             <span data-axis className="absolute left-1/2 top-[-6%] h-[112%] w-px origin-top bg-gradient-to-b from-transparent via-gold/70 to-transparent" />
-            {LAYERS.map(({ p, m, cls, z }, i) => (
+            {layers.map(({ p, m, cls, z }, i) => (
               <div key={p.slug} data-layer data-z={z} className={`absolute ${cls}`} style={{ transform: `translateZ(${z}px)` }}>
                 <div className="frame h-full w-full shadow-[0_40px_80px_rgba(0,0,0,0.6)]">
                   <Image src={p.media[m].id} alt="" fill sizes="(max-width: 768px) 60vw, 320px" className="object-cover" />
                 </div>
                 <span className="pointer-events-none absolute -inset-2 border border-gold/40" />
                 <span className="label absolute -bottom-6 left-0 whitespace-nowrap text-[0.6rem] text-gold/80">
-                  L{i + 1} — {p.title}
+                  {t.welcomeLayer}{i + 1} — {p.title}
                 </span>
               </div>
             ))}
@@ -85,9 +87,9 @@ export default function Welcome() {
 
         <div className="md:col-span-6 md:pl-8">
           <h2 id="welcome-title" className="display h-xl">
-            <span className="display-italic text-gold">{copy.welcome.eyebrow}</span>
+            <span className="display-italic text-gold">{t.welcome.eyebrow}</span>
             <br />
-            {copy.welcome.title}
+            {t.welcome.title}
           </h2>
           <span className="my-8 block h-px w-24 bg-gold md:my-10" />
           <p data-statement className="body-lg max-w-[40ch] text-bone md:text-[1.4rem] md:leading-[1.6]">
@@ -97,8 +99,8 @@ export default function Welcome() {
               </span>
             ))}
           </p>
-          <Link href="/studio" className="btn mt-10 md:mt-12">
-            <span>{copy.welcome.cta}</span>
+          <Link href={href('/studio')} className="btn mt-10 md:mt-12">
+            <span>{t.welcome.cta}</span>
           </Link>
         </div>
       </div>

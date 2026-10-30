@@ -4,7 +4,10 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import Logo from './Logo';
-import { contact, nav } from '@/lib/content';
+import { contact } from '@/lib/content';
+import { stripLocale } from '@/lib/i18n/config';
+import { useI18n } from './I18nProvider';
+import LanguageSwitcher from './LanguageSwitcher';
 import { useLenis } from './SmoothScroll';
 
 export default function Header() {
@@ -12,6 +15,13 @@ export default function Header() {
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
+  const { t, href } = useI18n();
+  const nav = [
+    { label: t.nav.work, path: '/work' },
+    { label: t.nav.services, path: '/services' },
+    { label: t.nav.studio, path: '/studio' },
+    { label: t.nav.contact, path: '/contact' },
+  ];
   const lenis = useLenis();
   const last = useRef(0);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -61,7 +71,8 @@ export default function Header() {
     return () => window.removeEventListener('keydown', onKey);
   }, [open, lenis]);
 
-  const isActive = (href: string) => (href === '/' ? pathname === '/' : !href.includes('#') && pathname.startsWith(href));
+  const here = stripLocale(pathname || '/');
+  const isActive = (path: string) => (path === '/' ? here === '/' : here.startsWith(path));
 
   return (
     <>
@@ -71,32 +82,34 @@ export default function Header() {
         } ${scrolled && !open ? 'bg-night/70 backdrop-blur-md' : 'bg-transparent'}`}
       >
         <div className="wrap flex h-[var(--header-h)] items-center justify-between">
-          <Link href="/" aria-label="VARI Studio — home" className="relative z-10 block w-[96px] md:w-[118px]">
+          <Link href={href('/')} aria-label={t.common.homeAria} className="relative z-10 block w-[96px] md:w-[118px]">
             <Logo priority className="h-auto w-full" />
           </Link>
 
-          <nav aria-label="Primary" className="hidden items-center gap-10 md:flex">
+          <nav aria-label={t.nav.primary} className="hidden items-center gap-7 lg:flex xl:gap-10">
             {nav.map((item) => (
               <Link
-                key={item.href}
-                href={item.href}
-                className={`label link-line pb-1 transition-colors hover:text-gold ${isActive(item.href) ? 'text-gold' : 'text-bone/80'}`}
+                key={item.path}
+                href={href(item.path)}
+                aria-current={isActive(item.path) ? 'page' : undefined}
+                className={`label link-line pb-1 transition-colors hover:text-gold ${isActive(item.path) ? 'text-gold' : 'text-bone/80'}`}
               >
                 {item.label}
               </Link>
             ))}
-            <Link href="/contact" className="btn !px-5 !py-3 !min-h-0 !text-[0.65rem]">
-              <span>Design With Us</span>
+            <LanguageSwitcher />
+            <Link href={href('/contact?intent=design')} className="btn !px-5 !py-3 !min-h-0 !text-[0.65rem]">
+              <span>{t.nav.cta}</span>
             </Link>
           </nav>
 
           <button
             ref={toggleRef}
             type="button"
-            className="relative z-10 -mr-2 flex h-12 w-12 items-center justify-center md:hidden"
+            className="relative z-10 -mr-2 flex h-12 w-12 items-center justify-center lg:hidden"
             aria-expanded={open}
             aria-controls="mobile-menu"
-            aria-label={open ? 'Close menu' : 'Open menu'}
+            aria-label={open ? t.nav.menuClose : t.nav.menuOpen}
             onClick={() => setOpen((v) => !v)}
           >
             <span className="relative block h-3 w-7">
@@ -112,26 +125,27 @@ export default function Header() {
         ref={menuRef}
         role="dialog"
         aria-modal="true"
-        aria-label="Site menu"
+        aria-label={t.nav.siteMenu}
         aria-hidden={!open}
-        className={`fixed inset-0 z-40 flex flex-col bg-night transition-[clip-path] duration-[900ms] ease-arch md:hidden ${
+        className={`fixed inset-0 z-40 flex flex-col overflow-y-auto bg-night transition-[clip-path] duration-[900ms] ease-arch lg:hidden ${
           open ? '[clip-path:inset(0_0_0_0)]' : 'pointer-events-none invisible [clip-path:inset(0_0_100%_0)]'
         }`}
       >
         <div className="blueprint absolute inset-0 opacity-60" aria-hidden />
-        <nav aria-label="Mobile" className="wrap relative flex flex-1 flex-col justify-center gap-2 pt-[var(--header-h)]">
-          {[{ label: 'Home', href: '/' }, ...nav].map((item, i) => (
+        <nav aria-label={t.nav.mobile} className="wrap relative flex flex-1 flex-col justify-center gap-1 pt-[var(--header-h)]">
+          {[{ label: t.nav.home, path: '/' }, ...nav].map((item, i) => (
             <Link
-              key={item.href}
-              href={item.href}
+              key={item.path}
+              href={href(item.path)}
+              aria-current={isActive(item.path) ? 'page' : undefined}
               tabIndex={open ? 0 : -1}
               onClick={() => setOpen(false)}
-              className="group flex items-baseline gap-4 border-b border-bone/10 py-4"
+              className="group flex items-baseline gap-4 border-b border-bone/10 py-[min(1rem,1.8svh)]"
               style={{ transitionDelay: open ? `${150 + i * 60}ms` : '0ms' }}
             >
               <span className="label text-gold/70">0{i + 1}</span>
               <span
-                className={`display text-[2.6rem] leading-none transition-[transform,opacity] duration-700 ease-expo ${
+                className={`display text-[clamp(1.9rem,6.2svh,2.8rem)] leading-none transition-[transform,opacity] duration-700 ease-expo ${
                   open ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'
                 }`}
                 style={{ transitionDelay: open ? `${200 + i * 70}ms` : '0ms' }}
@@ -142,6 +156,10 @@ export default function Header() {
           ))}
         </nav>
         <div className="wrap relative pb-10 text-sm text-bone/60">
+          <div className="mb-8">
+            <p className="label mb-3 text-bone/40">{t.nav.language}</p>
+            <LanguageSwitcher variant="menu" tabIndex={open ? 0 : -1} />
+          </div>
           <a href={`mailto:${contact.email}`} tabIndex={open ? 0 : -1} className="block text-gold">
             {contact.email}
           </a>

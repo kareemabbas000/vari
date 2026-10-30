@@ -1,36 +1,30 @@
 'use client';
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { contact, copy } from '@/lib/content';
+import { contact } from '@/lib/content';
+import { useI18n } from './I18nProvider';
 
 type Status = 'idle' | 'sending' | 'sent' | 'handoff' | 'error';
 type Values = { firstName: string; lastName: string; email: string; message: string };
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,63}$/;
 
-/** Topics the hero / studio CTAs link to (`/contact?intent=…`). */
-const INTENTS: Record<string, { label: string; message: string }> = {
-  design: {
-    label: copy.hero.ctaDesign,
-    message: "Hello VARI Studio, I'd like to start designing a space with you. Here is a little about the project:\n\n",
-  },
-  visualize: {
-    label: copy.hero.ctaVisualize,
-    message: "Hello VARI Studio, I'd like to visualize a project in 3D. Here is a little about it:\n\n",
-  },
-};
+type Intent = 'design' | 'visualize';
+const isIntent = (v: string | null): v is Intent => v === 'design' || v === 'visualize';
 
-function mailtoHref(v: Values) {
+function mailtoHref(v: Values, subject: string) {
   const body = `${v.message}\n\n— ${[v.firstName, v.lastName].filter(Boolean).join(' ')}\n${v.email}`.trim();
-  return `mailto:${contact.email}?subject=${encodeURIComponent('Project enquiry — vari-studio.com')}&body=${encodeURIComponent(body)}`;
+  return `mailto:${contact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 /** Mirrors the original Wix form: First Name, Last Name, Email (required), Message, Send. */
 export default function ContactForm({ compact = false }: { compact?: boolean }) {
+  const { t, locale } = useI18n();
+  const f = t.form;
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState('');
   const [emailError, setEmailError] = useState('');
-  const [intent, setIntent] = useState<string | null>(null);
+  const [intent, setIntent] = useState<Intent | null>(null);
   const [draft, setDraft] = useState<Values | null>(null);
   const [copied, setCopied] = useState(false);
   const form = useRef<HTMLFormElement>(null);
@@ -40,11 +34,11 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
   // Prefill from `?intent=` so the hero buttons land on a form that already knows why you came.
   useEffect(() => {
     const key = new URLSearchParams(window.location.search).get('intent');
-    if (key && INTENTS[key]) {
+    if (isIntent(key)) {
       setIntent(key);
-      if (message.current && !message.current.value) message.current.value = INTENTS[key].message;
+      if (message.current && !message.current.value) message.current.value = f.intents[key].message;
     }
-  }, []);
+  }, [f]);
 
   useEffect(() => {
     if (status !== 'sent' && status !== 'handoff') return;
@@ -57,7 +51,7 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
   }, [status]);
 
   function validateEmail(value: string) {
-    const msg = !value.trim() ? 'Email is required so we can reply.' : !EMAIL_RE.test(value.trim()) ? 'Please enter a valid email address.' : '';
+    const msg = !value.trim() ? f.emailRequired : !EMAIL_RE.test(value.trim()) ? f.emailInvalid : '';
     setEmailError(msg);
     return !msg;
   }
@@ -76,7 +70,7 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...values, intent }),
+        body: JSON.stringify({ ...values, intent, locale }),
       });
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.ok) {
@@ -90,11 +84,11 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
         setStatus('handoff');
         return;
       }
-      setError(json.error || 'Something went wrong. Please try again or email us directly.');
+      setError(res.status === 422 ? f.emailInvalid : f.genericError);
       setStatus('error');
     } catch {
       setDraft(values);
-      setError('We could not reach the server. Check your connection, or send it by email instead.');
+      setError(f.networkError);
       setStatus('error');
     }
   }
@@ -107,10 +101,10 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
             <path d="M4 10.5l4 4 8-9" />
           </svg>
         </span>
-        <p className="display h-md text-gold">{copy.contact.success}</p>
-        <p className="mt-3 text-bone/70">Your message reached the studio. We will reply to you by email shortly.</p>
+        <p className="display h-md text-gold">{f.success}</p>
+        <p className="mt-3 text-bone/70">{f.sentBody}</p>
         <button type="button" className="label link-line mt-6 text-gold" onClick={() => setStatus('idle')}>
-          Send another message
+          {f.another}
         </button>
       </div>
     );
@@ -120,15 +114,15 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
     const text = `${draft.message}\n\n— ${[draft.firstName, draft.lastName].filter(Boolean).join(' ')}\n${draft.email}`.trim();
     return (
       <div ref={result} tabIndex={-1} role="status" className="border border-gold/40 p-8 outline-none">
-        <p className="label text-gold">One last step</p>
-        <p className="display h-md mt-3">Your message is ready to send</p>
+        <p className="label text-gold">{f.handoffEyebrow}</p>
+        <p className="display h-md mt-3">{f.handoffTitle}</p>
         <p className="mt-3 text-bone/70">
-          Open it in your email app and press send — it goes straight to{' '}
+          {f.handoffBody}{' '}
           <span className="text-bone">{contact.email}</span>.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <a href={mailtoHref(draft)} className="btn btn-solid">
-            <span>Open in email app</span>
+          <a href={mailtoHref(draft, f.subject)} className="btn btn-solid">
+            <span>{f.openEmail}</span>
           </a>
           <button
             type="button"
@@ -142,11 +136,11 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
               }
             }}
           >
-            <span>{copied ? 'Copied ✓' : 'Copy message'}</span>
+            <span>{copied ? f.copied : f.copy}</span>
           </button>
         </div>
         <button type="button" className="label link-line mt-8 text-bone/60" onClick={() => setStatus('idle')}>
-          ← Edit message
+          {f.edit}
         </button>
       </div>
     );
@@ -157,16 +151,16 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
       {intent && (
         <p className="label flex items-center gap-3 text-gold sm:col-span-2">
           <span className="block h-px w-8 bg-gold" />
-          Enquiry · {INTENTS[intent].label}
+          {f.enquiry} · {f.intents[intent].label}
         </p>
       )}
       <label className="field">
         <input name="firstName" type="text" maxLength={100} autoComplete="given-name" placeholder=" " defaultValue={draft?.firstName} />
-        <span>First Name</span>
+        <span>{f.firstName}</span>
       </label>
       <label className="field">
         <input name="lastName" type="text" maxLength={100} autoComplete="family-name" placeholder=" " defaultValue={draft?.lastName} />
-        <span>Last Name</span>
+        <span>{f.lastName}</span>
       </label>
       <div className="sm:col-span-2">
         <label className="field" data-invalid={emailError ? '' : undefined}>
@@ -184,7 +178,7 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
             onBlur={(e) => e.target.value && validateEmail(e.target.value)}
             onInput={(e) => emailError && validateEmail((e.target as HTMLInputElement).value)}
           />
-          <span>Email *</span>
+          <span>{f.email}</span>
         </label>
         {emailError && (
           <p id="email-error" className="mt-2 text-sm text-[#E8A598]">
@@ -194,7 +188,7 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
       </div>
       <label className="field sm:col-span-2">
         <textarea ref={message} name="message" rows={compact ? 3 : 5} maxLength={5000} placeholder=" " defaultValue={draft?.message} />
-        <span>Message</span>
+        <span>{f.message}</span>
       </label>
       <label className="hidden" aria-hidden>
         Company
@@ -204,7 +198,7 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
         <button type="submit" className="btn btn-solid" disabled={status === 'sending'}>
           <span className="flex items-center gap-3">
             {status === 'sending' && <span aria-hidden className="h-3 w-3 animate-spin rounded-full border border-current border-t-transparent" />}
-            {status === 'sending' ? 'Sending…' : 'Send'}
+            {status === 'sending' ? f.sending : f.send}
           </span>
         </button>
         <p role="alert" className="text-sm text-[#E8A598]">
@@ -212,8 +206,8 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
           {status === 'error' && draft && (
             <>
               {' '}
-              <a href={mailtoHref(draft)} className="link-line text-gold">
-                Email it instead
+              <a href={mailtoHref(draft, f.subject)} className="link-line text-gold">
+                {f.emailInstead}
               </a>
             </>
           )}

@@ -4,11 +4,10 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
-import { getProject } from '@/lib/content';
+import { useI18n } from '../I18nProvider';
 import MoreRooms from './MoreRooms';
 
 const FEATURED = ['hearthstone-haven', 'sophisticated-home-office', 'penthouse-in-dark-mood', 'timeless-english-roof-architecture'];
-const featured = FEATURED.map((s) => getProject(s)!);
 
 /**
  * "Interiors With Soul Connect".
@@ -18,6 +17,8 @@ const featured = FEATURED.map((s) => getProject(s)!);
  */
 export default function InteriorRooms() {
   const root = useRef<HTMLElement>(null);
+  const { t, href, projects } = useI18n();
+  const featured = FEATURED.map((s) => projects.find((p) => p.slug === s)!);
 
   useEffect(() => {
     const el = root.current!;
@@ -77,11 +78,12 @@ export default function InteriorRooms() {
             <div className="absolute inset-0 bg-night/45" />
           </div>
           <div data-door-title className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-[var(--gutter)] text-center">
-            <p className="label mb-6 text-gold">Chapter II — Interiors</p>
+            <p className="label mb-6 text-gold">{t.interiors.chapter}</p>
             <h2 id="interiors-title" className="display h-xl max-w-[16ch]">
-              Interiors With <span className="display-italic text-gold">Soul</span> Connect
+              {t.interiors.titleA} <span className="display-italic text-gold">{t.interiors.titleItalic}</span>
+              {t.interiors.titleB}
             </h2>
-            <p className="label mt-8 text-bone/60">Step inside</p>
+            <p className="label mt-8 text-bone/60">{t.interiors.stepInside}</p>
           </div>
         </div>
       </div>
@@ -91,9 +93,9 @@ export default function InteriorRooms() {
         {featured.map((p, i) => {
           const m = p.media[0];
           return (
-            <article key={p.slug} data-room className="sticky top-0 h-[100svh] overflow-hidden" aria-label={p.title}>
+            <article key={p.slug} data-room className="pointer-events-none sticky top-0 h-[100svh] overflow-hidden" aria-label={p.title}>
               <div data-room-inner className="relative h-full w-full origin-center">
-                <div data-room-frame className="absolute inset-0 overflow-hidden">
+                <div data-room-frame className="pointer-events-auto absolute inset-0 overflow-hidden">
                   <div data-room-img className="absolute inset-0">
                     <Image src={m.id} alt={m.alt} fill sizes="100vw" className="object-cover" />
                   </div>
@@ -101,7 +103,7 @@ export default function InteriorRooms() {
                 </div>
                 <div className="wrap relative flex h-full flex-col justify-end pb-[10vh]">
                   <p data-room-text className="label text-gold">
-                    Room {String(i + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}
+                    {t.interiors.room} {String(i + 1).padStart(2, '0')} / {String(featured.length).padStart(2, '0')}
                     {p.location ? ` · ${p.location}` : ''}
                   </p>
                   <h3 data-room-text className="display h-lg mt-4 max-w-[18ch]">
@@ -110,8 +112,8 @@ export default function InteriorRooms() {
                   <p data-room-text className="mt-5 max-w-xl text-bone/75 md:text-lg">
                     {p.description[0]}
                   </p>
-                  <Link data-room-text href={`/work/${p.slug}`} className="btn mt-8 self-start">
-                    <span>Enter the room</span>
+                  <Link data-room-text href={href(`/work/${p.slug}`)} className="btn pointer-events-auto mt-8 self-start">
+                    <span>{t.interiors.enter}</span>
                   </Link>
                 </div>
               </div>

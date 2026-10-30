@@ -64,7 +64,7 @@ export default function RevealText({ text, as = 'h2', className = '', italic = [
           .split(' ')
           .filter(Boolean)
           .map((w, j) => {
-            const bare = w.replace(/[^\w']/g, '');
+            const bare = w.replace(/[^\p{L}\p{N}'-]/gu, '');
             const cls = italic.includes(bare) ? 'display-italic' : gold.includes(bare) ? 'gold-text' : '';
             return (
               <span key={`${i}-${j}`} className="line-mask mr-[0.22em] inline-block align-top" aria-hidden>

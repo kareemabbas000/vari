@@ -5,6 +5,7 @@ import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
 import Logo from './Logo';
 import { contact } from '@/lib/content';
+import { useI18n } from './I18nProvider';
 
 /**
  * The footer's brand moment: every architectural drawing ends with a title block
@@ -14,6 +15,7 @@ import { contact } from '@/lib/content';
  */
 export default function FooterSignature() {
   const root = useRef<HTMLDivElement>(null);
+  const { t, href } = useI18n();
 
   useEffect(() => {
     const el = root.current!;
@@ -56,24 +58,24 @@ export default function FooterSignature() {
         style={{ background: 'radial-gradient(circle 32rem at var(--lx) var(--ly), rgba(212,175,55,0.16), transparent 70%)' }}
       />
 
-      <div className="relative flex flex-col items-center px-6 py-16 text-center sm:py-20 md:py-28">
+      <div className="relative flex flex-col items-center px-6 py-10 text-center sm:py-12 md:py-14">
         {/* Crop marks around the mark */}
-        <div className="relative px-6 py-8 sm:px-12 sm:py-10">
+        <div className="relative px-5 py-5 sm:px-10 sm:py-7">
           <span data-sig-mark aria-hidden className={`${corner} left-0 top-0 border-l border-t`} />
           <span data-sig-mark aria-hidden className={`${corner} right-0 top-0 border-r border-t`} />
           <span data-sig-mark aria-hidden className={`${corner} bottom-0 left-0 border-b border-l`} />
           <span data-sig-mark aria-hidden className={`${corner} bottom-0 right-0 border-b border-r`} />
 
-          <Link href="/" aria-label="VARI Studio — back to home" className="relative block">
-            <span data-sig-logo className="block w-[min(68vw,460px)] [filter:drop-shadow(0_0_40px_rgba(212,175,55,0.18))]">
-              <Logo className="h-auto w-full" sizes="(max-width: 768px) 70vw, 460px" />
+          <Link href={href('/')} aria-label={t.footer.homeAria} className="relative block">
+            <span data-sig-logo className="block w-[min(60vw,340px)] [filter:drop-shadow(0_0_40px_rgba(212,175,55,0.18))]">
+              <Logo className="h-auto w-full" sizes="(max-width: 768px) 60vw, 340px" />
             </span>
             <span data-sig-scan aria-hidden className="pointer-events-none absolute -bottom-3 -top-3 w-px bg-gold opacity-0 shadow-[0_0_18px_4px_rgba(212,175,55,0.6)]" />
           </Link>
         </div>
 
         {/* Dimension line drawn to the width of the mark */}
-        <div aria-hidden className="mt-6 flex w-[min(68vw,460px)] items-center gap-3 text-gold/70">
+        <div aria-hidden className="mt-4 flex w-[min(60vw,340px)] items-center gap-3 text-gold/70">
           <span className="h-3 w-px bg-current" />
           <span data-sig-dim className="h-px flex-1 origin-center bg-current" />
           <span className="label text-[0.6rem] tracking-[0.3em]">VARI · 1:1</span>
@@ -81,23 +83,23 @@ export default function FooterSignature() {
           <span className="h-3 w-px bg-current" />
         </div>
 
-        <p data-sig-meta className="display-italic mt-10 max-w-[24ch] text-2xl text-bone/85 sm:text-3xl">
-          Where elegant spaces meet elemental harmony
+        <p data-sig-meta className="display-italic mt-6 max-w-[30ch] text-xl text-bone/85 sm:text-2xl">
+          {t.footer.tagline}
         </p>
       </div>
 
       {/* Title block strip */}
       <dl className="grid grid-cols-2 border-t border-gold/20 text-left md:grid-cols-4">
         {[
-          ['Studio', 'VARI Design Studio'],
-          ['Disciplines', 'Architecture · Interiors · 3D'],
-          ['Location', contact.address.replace(/\.$/, '')],
-          ['Sheet', 'Final — Your project next'],
+          [t.footer.tbStudio, t.footer.tbStudioValue],
+          [t.footer.tbDisciplines, t.footer.tbDisciplinesValue],
+          [t.footer.tbLocation, contact.address.replace(/\.$/, '')],
+          [t.footer.tbSheet, t.footer.tbSheetValue],
         ].map(([k, v], i) => (
           <div
             key={k}
             data-sig-meta
-            className={`border-gold/20 px-5 py-4 md:px-6 md:py-5 ${i % 2 === 0 ? 'border-r' : ''} ${i < 2 ? 'border-b md:border-b-0' : ''} ${i === 1 ? 'md:border-r' : ''}`}
+            className={`border-gold/20 px-5 py-3 md:px-6 md:py-4 ${i % 2 === 0 ? 'border-r' : ''} ${i < 2 ? 'border-b md:border-b-0' : ''} ${i === 1 ? 'md:border-r' : ''}`}
           >
             <dt className="label text-[0.6rem] text-gold/80">{k}</dt>
             <dd className="mt-1.5 text-xs leading-relaxed text-bone/70 sm:text-sm">{v}</dd>

@@ -4,6 +4,7 @@ import Image from 'next/image';
 import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
 import { copy } from '@/lib/content';
+import { useI18n } from '../I18nProvider';
 
 /**
  * The studio's positioning, told as five chapters. Desktop: the imagery is held in a
@@ -12,6 +13,9 @@ import { copy } from '@/lib/content';
  */
 export default function Story() {
   const root = useRef<HTMLElement>(null);
+  const { t } = useI18n();
+  // Imagery from the original site; text from the active language.
+  const pillars = copy.pillars.map((p, i) => ({ media: p.media, ...t.story.pillars[i] }));
 
   useEffect(() => {
     const el = root.current!;
@@ -43,14 +47,14 @@ export default function Story() {
   return (
     <section ref={root} aria-labelledby="story-title" className="relative py-28 md:py-0">
       <h2 id="story-title" className="sr-only">
-        The VARI approach
+        {t.story.srTitle}
       </h2>
       <div className="wrap grid gap-10 md:grid-cols-12">
         {/* Sticky frame (desktop) */}
         <div className="hidden md:col-span-6 md:block">
           <div className="sticky top-0 flex h-[100svh] items-center">
             <div className="frame grain relative aspect-[4/5] w-full">
-              {copy.pillars.map((p, i) => (
+              {pillars.map((p, i) => (
                 <div key={i} data-story-img className="absolute inset-0 overflow-hidden" style={{ zIndex: i }}>
                   <Image src={p.media.id} alt={p.media.alt} fill sizes="50vw" className="object-cover" />
                 </div>
@@ -61,7 +65,7 @@ export default function Story() {
         </div>
 
         <div className="md:col-span-5 md:col-start-8">
-          {copy.pillars.map((p, i) => (
+          {pillars.map((p, i) => (
             <article key={i} data-chapter className="flex min-h-0 flex-col justify-center py-14 md:min-h-[100svh] md:py-0">
               <div data-mobile-img className="frame mb-8 aspect-[4/3] md:hidden">
                 <Image src={p.media.id} alt={p.media.alt} fill sizes="100vw" className="object-cover" />
@@ -75,10 +79,10 @@ export default function Story() {
               <p data-fade className="body-lg mt-6 text-bone/70">
                 {p.body}
               </p>
-              {'extra' in p && p.extra ? (
+              {p.extraSub ? (
                 <div data-fade className="mt-10 border-l border-gold/50 pl-6">
-                  <p className="display text-2xl text-gold">{p.extra.sub}</p>
-                  <p className="mt-3 text-bone/70">{p.extra.body}</p>
+                  <p className="display text-2xl text-gold">{p.extraSub}</p>
+                  <p className="mt-3 text-bone/70">{p.extraBody}</p>
                 </div>
               ) : null}
             </article>

@@ -4,7 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
-import { copy, exteriors } from '@/lib/content';
+import { fmt } from '@/lib/i18n';
+import { useI18n } from '../I18nProvider';
 import RevealText from '../RevealText';
 
 /**
@@ -16,6 +17,8 @@ import RevealText from '../RevealText';
 export default function ExteriorReel() {
   const root = useRef<HTMLElement>(null);
   const track = useRef<HTMLDivElement>(null);
+  const { t, href, projects } = useI18n();
+  const exteriors = projects.filter((p) => p.discipline === 'Exterior');
 
   useEffect(() => {
     const el = root.current!;
@@ -57,11 +60,11 @@ export default function ExteriorReel() {
         >
           {/* Title panel */}
           <div className="w-[82vw] shrink-0 snap-start md:w-[34vw]">
-            <p className="label mb-6 text-gold">Chapter I — Exteriors</p>
-            <RevealText as="h2" text={copy.exteriorsTitle} italic={['Nature']} className="display h-xl" />
+            <p className="label mb-6 text-gold">{t.exteriors.chapter}</p>
+            <RevealText as="h2" text={t.exteriors.title} italic={t.exteriors.italic} className="display h-xl" />
             <p className="mt-8 max-w-sm text-bone/60">
-              {exteriors.length} exterior visualizations. <span className="hidden md:inline">Scroll to walk the gallery.</span>
-              <span className="md:hidden">Swipe to explore.</span>
+              {fmt(t.exteriors.count, { n: exteriors.length })} <span className="hidden md:inline">{t.exteriors.scrollHint}</span>
+              <span className="md:hidden">{t.exteriors.swipeHint}</span>
             </p>
           </div>
 
@@ -71,7 +74,7 @@ export default function ExteriorReel() {
             return (
               <Link
                 key={p.slug}
-                href={`/work/${p.slug}`}
+                href={href(`/work/${p.slug}`)}
                 className={`group relative block shrink-0 snap-center ${tall ? 'w-[72vw] md:w-[30vw]' : 'w-[86vw] md:w-[48vw]'}`}
               >
                 <div className={`frame grain ${tall ? 'aspect-[4/5]' : 'aspect-[16/10]'}`}>
@@ -95,7 +98,7 @@ export default function ExteriorReel() {
                       {p.location ? ` · ${p.location}` : ''}
                     </p>
                   </div>
-                  <span className="label mt-2 whitespace-nowrap text-gold opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100">View →</span>
+                  <span className="label mt-2 whitespace-nowrap text-gold opacity-0 transition-opacity duration-500 group-hover:opacity-100 group-focus-visible:opacity-100">{t.exteriors.view}</span>
                 </div>
               </Link>
             );

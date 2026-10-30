@@ -2,11 +2,13 @@
 
 import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
-import { copy } from '@/lib/content';
+import { useI18n } from '../I18nProvider';
 
 /** "Delivering Exceptional Design Experiences" — two counter-moving bands of type driven by scroll. */
 export default function Experience() {
   const root = useRef<HTMLElement>(null);
+  const { t } = useI18n();
+  const copy = { experienceTitle: t.experience.title, experienceSub: t.experience.sub };
 
   useEffect(() => {
     const el = root.current!;

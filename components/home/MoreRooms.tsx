@@ -4,7 +4,8 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { useEffect, useRef, useState, type MouseEvent } from 'react';
 import { gsap } from '@/lib/gsap';
-import { interiors } from '@/lib/content';
+import { fmt } from '@/lib/i18n';
+import { useI18n } from '../I18nProvider';
 
 /**
  * "More rooms, more souls" — an enfilade.
@@ -13,6 +14,8 @@ import { interiors } from '@/lib/content';
  * full render. Desktop: vertical doors in a row. Mobile: stacked horizontal bands.
  */
 export default function MoreRooms({ exclude }: { exclude: string[] }) {
+  const { t, href, projects } = useI18n();
+  const interiors = projects.filter((p) => p.discipline === 'Interior');
   const rooms = interiors.filter((p) => !exclude.includes(p.slug));
   const [active, setActive] = useState(0);
   const root = useRef<HTMLDivElement>(null);
@@ -53,9 +56,9 @@ export default function MoreRooms({ exclude }: { exclude: string[] }) {
       <div className="wrap">
         <div className="mb-12 grid gap-6 md:mb-16 md:grid-cols-12 md:items-end">
           <div className="md:col-span-7">
-            <p className="label text-gold">Enfilade · {String(rooms.length).padStart(2, '0')} rooms</p>
+            <p className="label text-gold">{t.interiors.enfilade} · {String(rooms.length).padStart(2, '0')} {t.interiors.rooms}</p>
             <h3 className="display h-lg mt-4 max-w-[14ch]">
-              More rooms, <span className="display-italic text-gold">more souls</span>
+              {t.interiors.moreA} <span className="display-italic text-gold">{t.interiors.moreB}</span>
             </h3>
           </div>
           <div className="flex flex-col gap-4 md:col-span-5 md:items-end md:text-right">
@@ -64,8 +67,8 @@ export default function MoreRooms({ exclude }: { exclude: string[] }) {
               {current.title}
               {current.location ? <span className="text-bone/40"> — {current.location}</span> : null}
             </p>
-            <Link href="/work?filter=interior" className="label link-line self-start text-gold md:self-end">
-              All {interiors.length} interiors →
+            <Link href={href('/work?filter=interior')} className="label link-line self-start text-gold md:self-end">
+              {fmt(t.interiors.all, { n: interiors.length })}
             </Link>
           </div>
         </div>
@@ -82,11 +85,11 @@ export default function MoreRooms({ exclude }: { exclude: string[] }) {
                 } md:basis-0`}
               >
                 <Link
-                  href={`/work/${p.slug}`}
+                  href={href(`/work/${p.slug}`)}
                   onMouseEnter={() => !touch.current && setActive(i)}
                   onFocus={() => setActive(i)}
                   onClick={onClick(i)}
-                  aria-label={`${p.title}${p.location ? `, ${p.location}` : ''} — view project`}
+                  aria-label={`${p.title}${p.location ? `, ${p.location}` : ''} — ${t.interiors.viewProject}`}
                   className="group block h-full outline-none"
                 >
                   <div data-door-leaf className="relative h-full overflow-hidden border border-gold/15 bg-charcoal group-focus-visible:border-gold">
@@ -131,7 +134,7 @@ export default function MoreRooms({ exclude }: { exclude: string[] }) {
                         <p className="mt-3 hidden max-w-lg text-sm text-bone/70 md:line-clamp-2 md:block">{p.description[0]}</p>
                       </div>
                       <span className="label hidden shrink-0 items-center gap-3 text-bone sm:flex">
-                        Enter
+                        {t.interiors.enterShort}
                         <span className="block h-px w-8 bg-gold transition-[width] duration-700 ease-expo group-hover:w-16" />
                       </span>
                     </div>
@@ -141,7 +144,7 @@ export default function MoreRooms({ exclude }: { exclude: string[] }) {
             );
           })}
         </ul>
-        <p className="label mt-5 text-bone/35 md:hidden">Tap a door to open it · tap again to enter</p>
+        <p className="label mt-5 text-bone/35 md:hidden">{t.interiors.tapHint}</p>
       </div>
     </div>
   );

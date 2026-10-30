@@ -2,9 +2,12 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { gsap } from '@/lib/gsap';
 import type { Project } from '@/lib/content';
+import { fmt } from '@/lib/i18n';
+import { useI18n } from '../I18nProvider';
+import Lightbox from './Lightbox';
 
 /**
  * A single project, staged like an exhibition room:
@@ -13,6 +16,8 @@ import type { Project } from '@/lib/content';
  */
 export default function ProjectExhibition({ project, prev, next, index, total }: { project: Project; prev: Project; next: Project; index: number; total: number }) {
   const root = useRef<HTMLDivElement>(null);
+  const { t, href } = useI18n();
+  const [viewing, setViewing] = useState<number | null>(null);
   const hero = project.media[0];
   const landscape = hero.width >= hero.height;
 
@@ -48,11 +53,11 @@ export default function ProjectExhibition({ project, prev, next, index, total }:
         ];
 
   const facts = [
-    { k: 'Discipline', v: `${project.discipline} visualization` },
-    { k: 'Project', v: project.label },
-    project.location ? { k: 'Location', v: project.location } : null,
-    project.client ? { k: 'Client', v: project.client } : null,
-    { k: 'Visualized by', v: 'VARI Studio' },
+    { k: t.project.discipline, v: fmt(t.project.visualization, { discipline: t.disciplines[project.discipline] }) },
+    { k: t.project.project, v: project.label },
+    project.location ? { k: t.project.location, v: project.location } : null,
+    project.client ? { k: t.project.client, v: project.client } : null,
+    { k: t.project.by, v: 'VARI Studio' },
   ].filter(Boolean) as { k: string; v: string }[];
 
   return (
@@ -67,7 +72,7 @@ export default function ProjectExhibition({ project, prev, next, index, total }:
         </div>
         <div className="wrap relative flex h-full flex-col justify-end pb-12 md:pb-16">
           <p data-meta className="label text-gold">
-            {project.discipline} · {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+            {t.disciplines[project.discipline]} · {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
           </p>
           <h1 data-title className="display h-hero mt-5 max-w-[16ch]" aria-label={project.title}>
             {project.title.split(' ').map((w, i) => (
@@ -105,19 +110,38 @@ export default function ProjectExhibition({ project, prev, next, index, total }:
 
       {/* The full render, framed */}
       <section className="wrap pb-24 md:pb-36">
-        <figure className={`frame grain mx-auto ${landscape ? 'w-full' : 'max-w-[900px]'}`} style={{ aspectRatio: `${hero.width} / ${hero.height}` }}>
-          <Image src={hero.id} alt={hero.alt} fill sizes="(max-width: 1600px) 100vw, 1600px" className="object-contain" />
+        <figure className={`mx-auto ${landscape ? 'w-full' : 'max-w-[900px]'}`}>
+          <button
+            type="button"
+            onClick={() => setViewing(0)}
+            aria-label={`${t.project.open}: ${hero.alt}`}
+            className="frame grain group block w-full cursor-zoom-in"
+            style={{ aspectRatio: `${hero.width} / ${hero.height}` }}
+          >
+            <Image src={hero.id} alt={hero.alt} fill sizes="(max-width: 1600px) 100vw, 1600px" className="object-contain" />
+            <ExpandBadge label={t.project.open} />
+          </button>
+          <figcaption className="label mt-4 text-center text-bone/40">
+            {project.title} — {t.project.fullRender}
+          </figcaption>
         </figure>
-        <p className="label mt-4 text-center text-bone/40">{project.title} — full render</p>
       </section>
 
       {/* Details / additional views */}
-      <section className="wrap grid gap-6 pb-28 md:grid-cols-2 md:gap-8 md:pb-40" aria-label={project.media.length > 1 ? 'Additional views' : 'Details'}>
+      <section className="wrap grid gap-6 pb-28 md:grid-cols-2 md:gap-8 md:pb-40" aria-label={project.media.length > 1 ? t.project.additional : t.project.details}>
         {details.map((d, i) => (
-          <figure key={i} data-detail className={`frame ${i % 2 === 1 ? 'md:mt-32' : ''} aspect-[4/5]`}>
+          <figure key={i} data-detail className={`frame group cursor-zoom-in ${i % 2 === 1 ? 'md:mt-32' : ''} aspect-[4/5]`}>
+            <button
+              type="button"
+              className="absolute inset-0 z-10"
+              onClick={() => setViewing(project.media.length > 1 ? i + 1 : 0)}
+              aria-label={`${t.project.open}: ${d.m.alt}`}
+            >
+              <ExpandBadge label={t.project.open} />
+            </button>
             <Image
               src={d.m.id}
-              alt={d.m.alt + (d.zoom > 1 ? ' — detail' : '')}
+              alt={d.m.alt + (d.zoom > 1 ? ` — ${t.project.detail}` : '')}
               fill
               sizes="(max-width: 768px) 100vw, 50vw"
               className="object-cover"
@@ -128,24 +152,42 @@ export default function ProjectExhibition({ project, prev, next, index, total }:
       </section>
 
       {/* Next room */}
-      <nav aria-label="More projects" className="border-t border-gold/15">
-        <Link href={`/work/${next.slug}`} className="group relative block h-[70svh] overflow-hidden">
+      <nav aria-label={t.project.more} className="border-t border-gold/15">
+        <Link href={href(`/work/${next.slug}`)} className="group relative block h-[70svh] overflow-hidden">
           <Image src={next.media[0].id} alt="" fill sizes="100vw" className="object-cover opacity-50 transition-[transform,opacity] duration-[1.6s] ease-expo group-hover:scale-105 group-hover:opacity-80" />
           <div className="absolute inset-0 bg-gradient-to-t from-night via-night/40 to-transparent" />
           <div className="wrap relative flex h-full flex-col justify-end pb-14">
-            <p className="label text-gold">Next room</p>
+            <p className="label text-gold">{t.project.nextRoom}</p>
             <p className="display h-xl mt-4 transition-transform duration-1000 ease-expo group-hover:translate-x-4">{next.title}</p>
           </div>
         </Link>
         <div className="wrap flex justify-between py-8">
-          <Link href={`/work/${prev.slug}`} className="label link-line text-bone/70">
+          <Link href={href(`/work/${prev.slug}`)} className="label link-line text-bone/70">
             ← {prev.title}
           </Link>
-          <Link href="/work" className="label link-line text-gold">
-            All work
+          <Link href={href('/work')} className="label link-line text-gold">
+            {t.project.allWork}
           </Link>
         </div>
       </nav>
+
+      {viewing !== null && (
+        <Lightbox images={project.media} index={viewing} title={project.title} onIndex={setViewing} onClose={() => setViewing(null)} />
+      )}
     </div>
+  );
+}
+
+function ExpandBadge({ label }: { label: string }) {
+  return (
+    <span
+      aria-hidden
+      title={label}
+      className="absolute bottom-4 right-4 z-10 flex h-11 w-11 items-center justify-center border border-gold/50 bg-night/60 text-gold opacity-80 backdrop-blur transition-[opacity,transform] duration-500 ease-expo group-hover:scale-110 group-hover:opacity-100"
+    >
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none" stroke="currentColor" strokeWidth="1.2">
+        <path d="M1 6V1h5M10 1h5v5M15 10v5h-5M6 15H1v-5" />
+      </svg>
+    </span>
   );
 }

@@ -5,7 +5,9 @@ import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { useDeviceTier } from '@/lib/device';
-import { copy, services } from '@/lib/content';
+import { services } from '@/lib/content';
+import { fmt } from '@/lib/i18n';
+import { useI18n } from '../I18nProvider';
 import RevealText from '../RevealText';
 
 type Drawing = (typeof services)[number]['drawing'];
@@ -34,16 +36,6 @@ function ServiceDrawing({ kind }: { kind: Drawing }) {
 
 const ServicesModel = dynamic(() => import('../three/ServicesModel'), { ssr: false });
 
-const STATE_NOTES = [
-  'Object study — a single piece, modelled to the millimetre',
-  'Eye level — walking inside the space before it exists',
-  'Roof lifted — the furnished interior concept',
-  'The complete building — the design resolved',
-  'Fly-around — the camera follows a choreographed path',
-  'Exploded axonometric — every layer of the model',
-  'Night render — light, glass and atmosphere',
-  'Plan view — the drawing everything starts from',
-];
 
 /**
  * "Unleashing the Power of 3D Visualization".
@@ -58,6 +50,7 @@ export default function Services({ standalone = false }: { standalone?: boolean 
   const [active, setActive] = useState(3);
   const activeRef = useRef(3);
   const tier = useDeviceTier();
+  const { t, href } = useI18n();
   const plate = useRef<HTMLDivElement>(null);
 
   const select = (i: number) => {
@@ -96,7 +89,7 @@ export default function Services({ standalone = false }: { standalone?: boolean 
     return () => ctx.revert();
   }, []);
 
-  const current = services[active];
+  const current = { ...services[active], ...t.services.items[active] };
   const live = tier === 'high' || tier === 'low';
 
   const Stage = (
@@ -109,12 +102,12 @@ export default function Services({ standalone = false }: { standalone?: boolean 
         </div>
       )}
       <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between bg-gradient-to-b from-night/85 to-transparent p-4 pb-10">
-        <span className="label text-gold">Sheet {String(active + 1).padStart(2, '0')} / 08</span>
-        <span className="label hidden text-bone/40 sm:block">VARI — live model</span>
+        <span className="label text-gold">{t.services.sheet} {String(active + 1).padStart(2, '0')} / 08</span>
+        <span className="label hidden text-bone/40 sm:block">{t.services.live}</span>
       </div>
       <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-night via-night/70 to-transparent p-4 pt-10">
         <p className="label text-bone/80">{current.title}</p>
-        <p className="mt-1 text-xs text-bone/50 sm:text-sm">{STATE_NOTES[active]}</p>
+        <p className="mt-1 text-xs text-bone/50 sm:text-sm">{t.services.notes[active]}</p>
       </div>
     </div>
   );
@@ -123,19 +116,19 @@ export default function Services({ standalone = false }: { standalone?: boolean 
     <section ref={root} id="services" aria-labelledby="services-title" className="blueprint relative scroll-mt-20 border-y border-gold/10 py-24 md:py-40">
       <div className="wrap">
         <div className="mb-12 grid gap-6 md:mb-24 md:grid-cols-12 md:gap-8">
-          <p className="label text-gold md:col-span-3">{standalone ? 'Sheets 01 — 08' : 'Chapter III — Services'}</p>
+          <p className="label text-gold md:col-span-3">{standalone ? t.services.sheets : t.services.chapter}</p>
           <div className="md:col-span-9">
-            <RevealText as="h2" text={copy.servicesTitle} className="display h-xl max-w-[16ch]" italic={['Power']} />
+            <RevealText as="h2" text={t.services.title} className="display h-xl max-w-[16ch]" italic={t.services.italic} />
           </div>
         </div>
 
         {/* Mobile: the model docks under the header while the list scrolls */}
-        <div className="sticky top-[calc(var(--header-h)-8px)] z-10 -mx-[var(--gutter)] mb-6 h-[42svh] px-[var(--gutter)] md:hidden">{Stage}</div>
+        <div className="sticky top-[calc(var(--header-h)-8px)] z-10 -mx-[var(--gutter)] mb-6 h-[34svh] px-[var(--gutter)] md:hidden">{Stage}</div>
 
         <div className="grid gap-12 md:grid-cols-12">
-          <ol data-rows className="md:col-span-6 lg:col-span-7" aria-label="Services">
-            {services.map((s, i) => (
-              <li key={s.title} data-row>
+          <ol data-rows className="md:col-span-6 lg:col-span-7" aria-label={t.services.listAria}>
+            {t.services.items.map((s, i) => (
+              <li key={services[i].drawing} data-row>
                 <button
                   type="button"
                   onMouseEnter={() => select(i)}
@@ -159,12 +152,12 @@ export default function Services({ standalone = false }: { standalone?: boolean 
               </li>
             ))}
             <li className="flex flex-wrap items-center gap-x-8 gap-y-4 pt-8">
-              <Link href={`/contact?intent=${DESIGN_DRAWINGS.includes(current.drawing) ? 'design' : 'visualize'}`} className="btn btn-solid">
-                <span>Discuss {current.title}</span>
+              <Link href={href(`/contact?intent=${DESIGN_DRAWINGS.includes(current.drawing) ? 'design' : 'visualize'}`)} className="btn btn-solid">
+                <span>{fmt(t.services.discuss, { service: current.title })}</span>
               </Link>
               {!standalone && (
-                <Link href="/services" className="label link-line text-gold">
-                  All services →
+                <Link href={href('/services')} className="label link-line text-gold">
+                  {t.services.all}
                 </Link>
               )}
             </li>
