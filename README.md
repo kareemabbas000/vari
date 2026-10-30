@@ -14,3 +14,21 @@ generated (`generateStaticParams`), so search engines read the full text without
   `lib/content.ts`; project text is per language.
 - **Choosing a language:** first-time visitors pick one at the end of the intro; everyone can switch
   from the header (desktop) or the menu (mobile).
+
+## Database & forms (Supabase)
+
+Contact enquiries and newsletter sign-ups are stored in the **VARI** Supabase project
+(`wdejuqvggvayxtrvkqye`, EU / Paris). Schema lives in `supabase/migrations/`.
+
+- **Security:** Row Level Security on every table with no policies — browser keys can neither read
+  nor write. The API routes call validated, throttled Postgres functions with the server-only
+  secret key (`lib/supabase.ts`).
+- **Contact flow:** store in `contact_submissions` → notify the studio → acknowledge the visitor in
+  their language. Nothing is lost if email delivery fails.
+- **Newsletter:** double opt-in (`pending` → `confirmed` via the emailed link), single-use links
+  valid 7 days, one-click unsubscribe (`List-Unsubscribe`).
+- **Retention:** `20261031091000_retention.sql` schedules a nightly purge (enquiries after
+  24 months, unconfirmed/unsubscribed newsletter rows after 30 days) — apply it in the Supabase
+  SQL editor or with `supabase db push`.
+- **Vercel environment variables:** `SUPABASE_SECRET_KEY`, `IP_HASH_SALT`, `RESEND_API_KEY`,
+  `CONTACT_FROM_EMAIL` (see `.env.example`). Without them the forms fall back gracefully.

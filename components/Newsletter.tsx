@@ -1,5 +1,6 @@
 'use client';
 
+import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 import { contact } from '@/lib/content';
 import { fmt } from '@/lib/i18n';
@@ -8,7 +9,8 @@ import { useI18n } from './I18nProvider';
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,63}$/;
 
 export default function Newsletter() {
-  const { t, locale } = useI18n();
+  const { t, locale, href } = useI18n();
+  const [doneMsg, setDoneMsg] = useState<'confirmed' | 'check_inbox' | 'already'>('confirmed');
   const n = t.newsletter;
   const [state, setState] = useState<'idle' | 'sending' | 'done' | 'handoff' | 'error'>('idle');
   const [email, setEmail] = useState('');
@@ -30,7 +32,14 @@ export default function Newsletter() {
       body: JSON.stringify({ email: value, locale }),
     }).catch(() => null);
     const json = res ? await res.json().catch(() => ({})) : {};
-    if (res?.ok && json.ok) return setState('done');
+    if (res?.ok && json.ok) {
+      setDoneMsg(json.status === 'check_inbox' ? 'check_inbox' : json.status === 'already' ? 'already' : 'confirmed');
+      return setState('done');
+    }
+    if (res?.status === 429) {
+      setError(t.messages.newsletterRateLimited);
+      return setState('error');
+    }
     if (json.fallback === 'mailto') return setState('handoff');
     setError(res ? n.error : n.network);
     setState('error');
@@ -40,8 +49,8 @@ export default function Newsletter() {
     return (
       <div role="status">
         <p className="label mb-3 text-gold">{n.title}</p>
-        <p className="display text-2xl text-bone">{n.onList}</p>
-        <p className="mt-2 text-sm text-bone/60">{fmt(n.reach, { email })}</p>
+        <p className="display text-2xl text-bone">{doneMsg === 'already' ? t.messages.newsletterAlready : n.onList}</p>
+        <p className="mt-2 text-sm text-bone/60">{doneMsg === 'check_inbox' ? t.messages.newsletterCheckInbox : fmt(n.reach, { email })}</p>
       </div>
     );
   }
@@ -92,6 +101,13 @@ export default function Newsletter() {
       </div>
       <p id="newsletter-error" role="alert" className="mt-3 min-h-[1.25rem] text-sm text-[#E8A598]">
         {state === 'error' ? error : ''}
+      </p>
+      <p className="text-xs text-bone/40">
+        {t.legal.newsletterConsent}{' '}
+        <Link href={href('/privacy')} className="link-line text-bone/60 hover:text-gold">
+          {t.legal.privacyLink}
+        </Link>
+        .
       </p>
     </form>
   );

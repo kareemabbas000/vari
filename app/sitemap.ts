@@ -11,6 +11,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/services', priority: 0.8 },
     { path: '/contact', priority: 0.8 },
     { path: '/studio', priority: 0.7 },
+    { path: '/privacy', priority: 0.3 },
     ...projects.map((p) => ({ path: `/work/${p.slug}`, priority: 0.6 })),
   ];
   const lastModified = new Date();

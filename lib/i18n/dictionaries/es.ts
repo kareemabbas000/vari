@@ -303,6 +303,104 @@ const es: Dictionary = {
     hint: 'Puedes cambiarlo cuando quieras desde el menú.',
     enter: 'Entrar',
   },
+  messages: {
+    rateLimited: 'Has enviado varios mensajes en poco tiempo. Espera unos minutos y vuelve a intentarlo.',
+    newsletterCheckInbox: 'Casi listo: revisa tu bandeja de entrada y confirma tu dirección de correo electrónico.',
+    newsletterAlready: 'Ya estás suscrito al boletín. ¡Gracias!',
+    newsletterRateLimited: 'Espera un momento antes de volver a intentarlo.',
+  },
+  legal: {
+    privacy: 'Privacidad',
+    privacyLink: 'política de privacidad',
+    formConsent: 'Al enviar este formulario aceptas que guardemos y utilicemos tus datos para responder a tu consulta, tal como se describe en nuestra',
+    newsletterConsent: 'Doble confirmación; puedes darte de baja en cualquier momento. Consulta nuestra',
+  },
+  newsletterStatus: {
+    title: 'Boletín',
+    confirmedTitle: 'Suscripción confirmada',
+    confirmedBody: 'Gracias. A partir de ahora recibirás las novedades de VARI Studio.',
+    unsubscribedTitle: 'Te has dado de baja',
+    unsubscribedBody: 'Ya no recibirás nuestro boletín. Puedes volver a suscribirte cuando quieras.',
+    invalidTitle: 'Este enlace ya no es válido',
+    invalidBody: 'Es posible que ya se haya utilizado o que haya caducado. Puedes volver a suscribirte al pie de cualquier página.',
+    errorTitle: 'Algo ha salido mal',
+    errorBody: 'Inténtalo de nuevo más tarde o escríbenos a {email}.',
+    home: 'Volver al sitio web',
+  },
+  emails: {
+    ackSubject: 'Hemos recibido tu mensaje — VARI Studio',
+    ackGreeting: 'Hola, {name}:',
+    ackGreetingNoName: 'Hola:',
+    ackBody: 'Gracias por ponerte en contacto con VARI Studio. Tu mensaje ha llegado al estudio y te responderemos en breve.',
+    ackCopy: 'Una copia de tu mensaje:',
+    signoff: 'Un cordial saludo,\nVARI Studio',
+    confirmSubject: 'Confirma tu suscripción — VARI Studio',
+    confirmBody: 'Confirma que deseas recibir el boletín de VARI Studio. El enlace es válido durante 7 días:',
+    confirmButton: 'Confirmar suscripción',
+    confirmIgnore: 'Si no te has suscrito, simplemente ignora este correo: no se te dará de alta.',
+    unsubscribe: 'Darse de baja',
+  },
+  privacy: {
+    title: 'Política de privacidad',
+    updated: 'Última actualización: octubre de 2026',
+    intro: 'Esta política explica qué datos personales trata este sitio web, con qué fin y qué derechos tienes. Recogemos el mínimo posible.',
+    sections: [
+      {
+        h: 'Responsable del tratamiento',
+        p: [
+          'VARI Design Studio, 742 Golf District, Al Shorouk City, Cairo, Egypt.',
+          'Contacto para cualquier cuestión de privacidad: info@vari-studio.com',
+        ],
+      },
+      {
+        h: 'Formulario de contacto',
+        p: [
+          'Cuando envías una consulta guardamos tu dirección de correo electrónico, tu mensaje, el nombre y los apellidos que indiques de forma opcional, el tipo de consulta y el idioma de la página.',
+          'Utilizamos estos datos únicamente para responder a tu consulta y, si surge un proyecto, para prepararlo (art. 6.1.b RGPD, medidas precontractuales, y art. 6.1.f RGPD, nuestro interés legítimo en responderte).',
+          'Si el envío de correos está activado, recibirás una confirmación automática de que tu mensaje ha llegado.',
+        ],
+      },
+      {
+        h: 'Boletín',
+        p: [
+          'Solo enviamos el boletín con tu consentimiento (art. 6.1.a RGPD). Tras suscribirte recibirás un correo con un enlace de confirmación; solo quedas dado de alta cuando lo abres (doble confirmación).',
+          'Guardamos tu dirección de correo electrónico, tu idioma y la fecha de la suscripción y de la confirmación. Puedes darte de baja en cualquier momento con el enlace que incluye cada correo, lo que también retira tu consentimiento.',
+        ],
+      },
+      {
+        h: 'Prevención de abusos',
+        p: [
+          'Para proteger los formularios frente al spam guardamos, junto con cada envío, una versión cifrada de forma irreversible (seudonimizada) de tu dirección IP y el identificador de tu navegador. Nunca guardamos tu dirección IP como tal (art. 6.1.f RGPD).',
+        ],
+      },
+      {
+        h: 'Dónde se tratan los datos',
+        p: [
+          'Los datos de los formularios se guardan en nuestra base de datos alojada en Supabase en la Unión Europea (París, Francia). Los correos se envían a través de nuestro proveedor de correo electrónico. El sitio web está alojado en Vercel y las imágenes de los proyectos se sirven desde la red de medios de Wix, que recibe tu dirección IP cuando tu navegador las carga.',
+          'Cuando un proveedor trata datos fuera de la UE, lo hace al amparo de las cláusulas contractuales tipo de la UE o de una decisión de adecuación.',
+        ],
+      },
+      {
+        h: 'Plazo de conservación',
+        p: [
+          'Eliminamos las consultas cuando ya no son necesarias y, como máximo, 24 meses después de recibirlas, salvo que existan obligaciones legales de conservación. Los datos del boletín se conservan hasta que te des de baja; las suscripciones nunca confirmadas se eliminan a los 30 días.',
+        ],
+      },
+      {
+        h: 'Cookies y almacenamiento',
+        p: [
+          'No utilizamos cookies de seguimiento ni de publicidad. Una cookie funcional (VARI_LOCALE) recuerda el idioma que elegiste y el almacenamiento local de tu navegador recuerda si ya has visto la introducción. Ambos permanecen en tu dispositivo.',
+        ],
+      },
+      {
+        h: 'Tus derechos',
+        p: [
+          'Tienes derecho a acceder a tus datos, rectificarlos y suprimirlos, a limitar u oponerte a su tratamiento, a la portabilidad y a retirar tu consentimiento en cualquier momento con efectos para el futuro. Escríbenos a info@vari-studio.com.',
+          'También tienes derecho a presentar una reclamación ante una autoridad de control de protección de datos.',
+        ],
+      },
+    ],
+  },
   welcomeLayer: 'C',
   projects: {
     'the-urban-nest': {

@@ -80,8 +80,13 @@ export default function Footer() {
       </div>
 
       <div className="wrap flex flex-col items-start justify-between gap-4 border-t border-bone/10 mt-8 py-5 text-xs text-bone/50 sm:flex-row sm:items-center">
-        {/* Year is computed, so it never goes stale. */}
-        <p suppressHydrationWarning>{fmt(t.common.copyright, { year: new Date().getFullYear() })}</p>
+        <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
+          {/* Year is computed, so it never goes stale. */}
+          <p suppressHydrationWarning>{fmt(t.common.copyright, { year: new Date().getFullYear() })}</p>
+          <Link href={href('/privacy')} className="link-line hover:text-bone">
+            {t.legal.privacy}
+          </Link>
+        </div>
         <BackToTop />
       </div>
     </footer>

@@ -2,6 +2,7 @@
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import { contact } from '@/lib/content';
+import Link from 'next/link';
 import { useI18n } from './I18nProvider';
 
 type Status = 'idle' | 'sending' | 'sent' | 'handoff' | 'error';
@@ -19,7 +20,7 @@ function mailtoHref(v: Values, subject: string) {
 
 /** Mirrors the original Wix form: First Name, Last Name, Email (required), Message, Send. */
 export default function ContactForm({ compact = false }: { compact?: boolean }) {
-  const { t, locale } = useI18n();
+  const { t, locale, href } = useI18n();
   const f = t.form;
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState('');
@@ -84,7 +85,7 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
         setStatus('handoff');
         return;
       }
-      setError(res.status === 422 ? f.emailInvalid : f.genericError);
+      setError(res.status === 422 ? f.emailInvalid : res.status === 429 ? t.messages.rateLimited : f.genericError);
       setStatus('error');
     } catch {
       setDraft(values);
@@ -213,6 +214,13 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
           )}
         </p>
       </div>
+      <p className="text-xs leading-relaxed text-bone/45 sm:col-span-2">
+        {t.legal.formConsent}{' '}
+        <Link href={href('/privacy')} className="link-line text-bone/70 hover:text-gold">
+          {t.legal.privacyLink}
+        </Link>
+        .
+      </p>
     </form>
   );
 }

@@ -296,6 +296,104 @@ const en = {
     hint: 'You can change it anytime from the menu.',
     enter: 'Enter',
   },
+  messages: {
+    rateLimited: 'You have sent several messages in a short time. Please wait a few minutes and try again.',
+    newsletterCheckInbox: 'Almost done — please check your inbox and confirm your email address.',
+    newsletterAlready: 'You are already subscribed — thank you.',
+    newsletterRateLimited: 'Please wait a moment before trying again.',
+  },
+  legal: {
+    privacy: 'Privacy',
+    privacyLink: 'privacy notice',
+    formConsent: 'By sending this form you agree that we store and use your details to answer your enquiry, as described in our',
+    newsletterConsent: 'Double opt-in, unsubscribe at any time. See our',
+  },
+  newsletterStatus: {
+    title: 'Newsletter',
+    confirmedTitle: 'Subscription confirmed',
+    confirmedBody: 'Thank you — you will now receive news from VARI Studio.',
+    unsubscribedTitle: 'You have been unsubscribed',
+    unsubscribedBody: 'You will no longer receive our newsletter. You can sign up again at any time.',
+    invalidTitle: 'This link is no longer valid',
+    invalidBody: 'It may have been used already or have expired. You can sign up again at the bottom of any page.',
+    errorTitle: 'Something went wrong',
+    errorBody: 'Please try again later, or write to us at {email}.',
+    home: 'Back to the website',
+  },
+  emails: {
+    ackSubject: 'We received your message — VARI Studio',
+    ackGreeting: 'Hello {name},',
+    ackGreetingNoName: 'Hello,',
+    ackBody: 'Thank you for contacting VARI Studio. Your message has reached the studio and we will reply to you shortly.',
+    ackCopy: 'A copy of your message:',
+    signoff: 'Warm regards,\nVARI Studio',
+    confirmSubject: 'Please confirm your subscription — VARI Studio',
+    confirmBody: 'Please confirm that you would like to receive the VARI Studio newsletter. The link is valid for 7 days:',
+    confirmButton: 'Confirm subscription',
+    confirmIgnore: 'If you did not sign up, simply ignore this email — you will not be subscribed.',
+    unsubscribe: 'Unsubscribe',
+  },
+  privacy: {
+    title: 'Privacy notice',
+    updated: 'Last updated: October 2026',
+    intro: 'This notice explains which personal data this website processes, why, and what rights you have. We collect as little as possible.',
+    sections: [
+      {
+        h: 'Who is responsible',
+        p: [
+          'VARI Design Studio, 742 Golf District, Al Shorouk City, Cairo, Egypt.',
+          'Contact for all privacy matters: info@vari-studio.com',
+        ],
+      },
+      {
+        h: 'Contact form',
+        p: [
+          'When you send an enquiry we store your email address, your message, the optional first and last name you enter, the type of enquiry and the language of the page.',
+          'We use these details only to answer your enquiry and, if a project follows, to prepare it (Art. 6(1)(b) GDPR — steps prior to a contract — and Art. 6(1)(f) GDPR — our legitimate interest in replying).',
+          'If email delivery is enabled, you receive an automatic confirmation that your message arrived.',
+        ],
+      },
+      {
+        h: 'Newsletter',
+        p: [
+          'We send the newsletter only with your consent (Art. 6(1)(a) GDPR). After you sign up you receive an email with a confirmation link; you are subscribed only once you open it (double opt-in).',
+          'We store your email address, language and the time of sign-up and confirmation. You can unsubscribe at any time with the link in every email, which also withdraws your consent.',
+        ],
+      },
+      {
+        h: 'Abuse prevention',
+        p: [
+          'To protect the forms against spam we store, together with a submission, a one-way hashed (pseudonymised) form of your IP address and your browser identifier. We never store your IP address itself (Art. 6(1)(f) GDPR).',
+        ],
+      },
+      {
+        h: 'Where the data is processed',
+        p: [
+          'Form data is stored in our database hosted by Supabase in the European Union (Paris, France). Emails are sent through our email delivery provider. The website is hosted by Vercel, and project images are delivered from the Wix media network, which receives your IP address when your browser loads them.',
+          'Where providers process data outside the EU, this happens on the basis of the EU standard contractual clauses or an adequacy decision.',
+        ],
+      },
+      {
+        h: 'How long we keep it',
+        p: [
+          'Enquiries are deleted once they are no longer needed, at the latest 24 months after receipt, unless statutory retention obligations apply. Newsletter data is kept until you unsubscribe; sign-ups that are never confirmed are deleted after 30 days.',
+        ],
+      },
+      {
+        h: 'Cookies and storage',
+        p: [
+          'We use no tracking or advertising cookies. One functional cookie (VARI_LOCALE) remembers the language you chose, and your browser’s local storage remembers whether you have already seen the intro. Both stay on your device.',
+        ],
+      },
+      {
+        h: 'Your rights',
+        p: [
+          'You have the right to access, rectify and erase your data, to restrict or object to its processing, to data portability and to withdraw consent at any time with effect for the future. Write to info@vari-studio.com.',
+          'You also have the right to lodge a complaint with a data protection supervisory authority.',
+        ],
+      },
+    ],
+  },
   welcomeLayer: 'L',
   projects: {
     'the-urban-nest': {

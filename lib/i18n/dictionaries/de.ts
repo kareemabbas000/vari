@@ -302,6 +302,104 @@ const de: Dictionary = {
     hint: 'Sie können sie jederzeit im Menü ändern.',
     enter: 'Eintreten',
   },
+  messages: {
+    rateLimited: 'Sie haben in kurzer Zeit mehrere Nachrichten gesendet. Bitte warten Sie einige Minuten und versuchen Sie es dann erneut.',
+    newsletterCheckInbox: 'Fast geschafft – bitte prüfen Sie Ihr Postfach und bestätigen Sie Ihre E-Mail-Adresse.',
+    newsletterAlready: 'Sie sind bereits angemeldet – vielen Dank.',
+    newsletterRateLimited: 'Bitte warten Sie einen Moment und versuchen Sie es dann erneut.',
+  },
+  legal: {
+    privacy: 'Datenschutz',
+    privacyLink: 'Datenschutzhinweisen',
+    formConsent: 'Mit dem Absenden erklären Sie sich einverstanden, dass wir Ihre Angaben zur Beantwortung Ihrer Anfrage speichern und verwenden. Mehr dazu in unseren',
+    newsletterConsent: 'Double-Opt-in, Abmeldung jederzeit möglich. Mehr in unseren',
+  },
+  newsletterStatus: {
+    title: 'Newsletter',
+    confirmedTitle: 'Anmeldung bestätigt',
+    confirmedBody: 'Vielen Dank – Sie erhalten ab jetzt Neuigkeiten von VARI Studio.',
+    unsubscribedTitle: 'Sie wurden abgemeldet',
+    unsubscribedBody: 'Sie erhalten unseren Newsletter nicht mehr. Sie können sich jederzeit wieder anmelden.',
+    invalidTitle: 'Dieser Link ist nicht mehr gültig',
+    invalidBody: 'Er wurde möglicherweise bereits verwendet oder ist abgelaufen. Sie können sich unten auf jeder Seite erneut anmelden.',
+    errorTitle: 'Es ist ein Fehler aufgetreten',
+    errorBody: 'Bitte versuchen Sie es später erneut oder schreiben Sie uns an {email}.',
+    home: 'Zurück zur Website',
+  },
+  emails: {
+    ackSubject: 'Wir haben Ihre Nachricht erhalten — VARI Studio',
+    ackGreeting: 'Guten Tag {name},',
+    ackGreetingNoName: 'Guten Tag,',
+    ackBody: 'vielen Dank für Ihre Nachricht an VARI Studio. Sie ist bei uns eingegangen, und wir melden uns in Kürze bei Ihnen.',
+    ackCopy: 'Eine Kopie Ihrer Nachricht:',
+    signoff: 'Mit freundlichen Grüßen\nVARI Studio',
+    confirmSubject: 'Bitte bestätigen Sie Ihre Anmeldung — VARI Studio',
+    confirmBody: 'Bitte bestätigen Sie, dass Sie den Newsletter von VARI Studio erhalten möchten. Der Link ist 7 Tage gültig:',
+    confirmButton: 'Anmeldung bestätigen',
+    confirmIgnore: 'Falls Sie sich nicht angemeldet haben, ignorieren Sie diese E-Mail einfach – Sie werden nicht eingetragen.',
+    unsubscribe: 'Abmelden',
+  },
+  privacy: {
+    title: 'Datenschutzhinweise',
+    updated: 'Stand: Oktober 2026',
+    intro: 'Diese Hinweise erläutern, welche personenbezogenen Daten diese Website verarbeitet, zu welchem Zweck und welche Rechte Sie haben. Wir erheben so wenig Daten wie möglich.',
+    sections: [
+      {
+        h: 'Verantwortlicher',
+        p: [
+          'VARI Design Studio, 742 Golf District, Al Shorouk City, Cairo, Egypt.',
+          'Kontakt in allen Datenschutzfragen: info@vari-studio.com',
+        ],
+      },
+      {
+        h: 'Kontaktformular',
+        p: [
+          'Wenn Sie eine Anfrage senden, speichern wir Ihre E-Mail-Adresse, Ihre Nachricht, den optional angegebenen Vor- und Nachnamen, die Art der Anfrage und die Sprache der Seite.',
+          'Wir verwenden diese Angaben ausschließlich zur Beantwortung Ihrer Anfrage und, falls ein Projekt folgt, zu dessen Vorbereitung (Art. 6 Abs. 1 lit. b DSGVO – vorvertragliche Maßnahmen – sowie Art. 6 Abs. 1 lit. f DSGVO – unser berechtigtes Interesse an der Beantwortung).',
+          'Ist der E-Mail-Versand aktiviert, erhalten Sie eine automatische Bestätigung, dass Ihre Nachricht eingegangen ist.',
+        ],
+      },
+      {
+        h: 'Newsletter',
+        p: [
+          'Den Newsletter versenden wir nur mit Ihrer Einwilligung (Art. 6 Abs. 1 lit. a DSGVO). Nach der Anmeldung erhalten Sie eine E-Mail mit einem Bestätigungslink; eingetragen werden Sie erst, wenn Sie diesen öffnen (Double-Opt-in).',
+          'Wir speichern Ihre E-Mail-Adresse, Ihre Sprache sowie den Zeitpunkt von Anmeldung und Bestätigung. Über den Link in jeder E-Mail können Sie sich jederzeit abmelden und damit Ihre Einwilligung widerrufen.',
+        ],
+      },
+      {
+        h: 'Schutz vor Missbrauch',
+        p: [
+          'Zum Schutz der Formulare vor Spam speichern wir zusammen mit einer Übermittlung eine nicht umkehrbar verschlüsselte (pseudonymisierte) Form Ihrer IP-Adresse sowie die Kennung Ihres Browsers. Ihre IP-Adresse selbst speichern wir nie (Art. 6 Abs. 1 lit. f DSGVO).',
+        ],
+      },
+      {
+        h: 'Ort der Verarbeitung',
+        p: [
+          'Formulardaten werden in unserer Datenbank bei Supabase in der Europäischen Union (Paris, Frankreich) gespeichert. E-Mails versenden wir über unseren E-Mail-Dienstleister. Die Website wird von Vercel gehostet; die Projektbilder werden über das Mediennetz von Wix ausgeliefert, das beim Laden der Bilder Ihre IP-Adresse erhält.',
+          'Soweit Dienstleister Daten außerhalb der EU verarbeiten, geschieht dies auf Grundlage der EU-Standardvertragsklauseln oder eines Angemessenheitsbeschlusses.',
+        ],
+      },
+      {
+        h: 'Speicherdauer',
+        p: [
+          'Anfragen löschen wir, sobald sie nicht mehr benötigt werden, spätestens 24 Monate nach Eingang, sofern keine gesetzlichen Aufbewahrungspflichten bestehen. Newsletter-Daten speichern wir bis zu Ihrer Abmeldung; nie bestätigte Anmeldungen werden nach 30 Tagen gelöscht.',
+        ],
+      },
+      {
+        h: 'Cookies und Speicher',
+        p: [
+          'Wir verwenden keine Tracking- oder Werbe-Cookies. Ein funktionales Cookie (VARI_LOCALE) speichert die von Ihnen gewählte Sprache, und der lokale Speicher Ihres Browsers merkt sich, ob Sie das Intro bereits gesehen haben. Beides verbleibt auf Ihrem Gerät.',
+        ],
+      },
+      {
+        h: 'Ihre Rechte',
+        p: [
+          'Sie haben das Recht auf Auskunft, Berichtigung und Löschung Ihrer Daten, auf Einschränkung der Verarbeitung, auf Widerspruch, auf Datenübertragbarkeit sowie das Recht, eine Einwilligung jederzeit mit Wirkung für die Zukunft zu widerrufen. Schreiben Sie uns an info@vari-studio.com.',
+          'Zudem haben Sie das Recht, sich bei einer Datenschutz-Aufsichtsbehörde zu beschweren.',
+        ],
+      },
+    ],
+  },
   welcomeLayer: 'E',
   projects: {
     'the-urban-nest': {
