@@ -4,12 +4,12 @@ import Link from 'next/link';
 import FooterSignature from './FooterSignature';
 import Newsletter from './Newsletter';
 import BackToTop from './BackToTop';
-import { contact } from '@/lib/content';
 import { fmt } from '@/lib/i18n';
 import { useI18n } from './I18nProvider';
 
 export default function Footer() {
-  const { t, href } = useI18n();
+  const { t, href, settings } = useI18n();
+  const contact = settings.contact;
   const nav = [
     { label: t.nav.work, path: '/work' },
     { label: t.nav.services, path: '/services' },

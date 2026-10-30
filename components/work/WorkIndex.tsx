@@ -5,10 +5,10 @@ import Link from 'next/link';
 import { useSearchParams, useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from '@/lib/gsap';
-import { type Discipline } from '@/lib/content';
 import { useI18n } from '../I18nProvider';
 
-type Filter = 'all' | 'exterior' | 'interior';
+/** 'all' or a category slug from the CMS. */
+type Filter = string;
 type View = 'gallery' | 'index';
 
 /** Editorial rhythm for the gallery: column spans (12-col desktop grid) and image ratios. */
@@ -23,7 +23,6 @@ const RHYTHM = [
   { span: 'lg:col-span-6', ratio: 'aspect-[4/3]' },
   { span: 'lg:col-span-6 lg:mt-24', ratio: 'aspect-[4/3]' },
 ];
-const FILTERS: Filter[] = ['all', 'exterior', 'interior'];
 
 /**
  * Every project, two ways.
@@ -32,7 +31,9 @@ const FILTERS: Filter[] = ['all', 'exterior', 'interior'];
  * viewer that follows the pointer (image cards on touch screens).
  */
 export default function WorkIndex() {
-  const { t, href, projects } = useI18n();
+  const { t, href, projects, categories } = useI18n();
+  const FILTERS: Filter[] = ['all', ...categories.filter((c) => projects.some((p) => p.category === c.slug)).map((c) => c.slug)];
+  const filterName = (key: Filter) => (key === 'all' ? t.work.filters.all : categories.find((c) => c.slug === key)?.name ?? key);
   const params = useSearchParams();
   const router = useRouter();
   const initial = (params.get('filter') as Filter) || 'all';
@@ -44,7 +45,7 @@ export default function WorkIndex() {
   const list = useRef<HTMLOListElement>(null);
 
   const items = useMemo(
-    () => projects.filter((p) => filter === 'all' || p.discipline === ((filter === 'exterior' ? 'Exterior' : 'Interior') as Discipline)),
+    () => projects.filter((p) => filter === 'all' || p.category === filter),
     [filter, projects],
   );
 
@@ -104,7 +105,7 @@ export default function WorkIndex() {
       <div className="flex flex-wrap items-center justify-between gap-6">
         <div className="flex flex-wrap gap-3" role="tablist" aria-label={t.work.filterAria}>
           {FILTERS.map((key) => {
-            const count = key === 'all' ? projects.length : projects.filter((p) => p.discipline.toLowerCase() === key).length;
+            const count = key === 'all' ? projects.length : projects.filter((p) => p.category === key).length;
             return (
               <button
                 key={key}
@@ -115,7 +116,7 @@ export default function WorkIndex() {
                   filter === key ? 'border-gold bg-gold text-night' : 'border-bone/20 text-bone/70 hover:border-gold hover:text-gold'
                 }`}
               >
-                {t.work.filters[key]} <span className="opacity-60">({count})</span>
+                {filterName(key)} <span className="opacity-60">({count})</span>
               </button>
             );
           })}
@@ -181,7 +182,7 @@ export default function WorkIndex() {
                       <h2 className="display text-2xl leading-tight transition-colors duration-500 group-hover:text-gold md:text-3xl">{p.title}</h2>
                       <p className="label mt-2 text-bone/50">{p.location ?? p.label}</p>
                     </div>
-                    <span className="label mt-2 shrink-0 text-gold/80">{t.disciplines[p.discipline]}</span>
+                    <span className="label mt-2 shrink-0 text-gold/80">{p.categoryName ?? t.disciplines[p.discipline]}</span>
                   </div>
                 </Link>
               </li>
@@ -207,7 +208,7 @@ export default function WorkIndex() {
                     <Image src={p.media[0].id} alt={p.media[0].alt} fill sizes="100vw" className="object-cover" />
                   </div>
                   <span className="label col-start-2 text-bone/50 md:col-start-auto">{p.location ?? p.label}</span>
-                  <span className="label col-start-2 text-gold/80 md:col-start-auto md:text-right">{t.disciplines[p.discipline]}</span>
+                  <span className="label col-start-2 text-gold/80 md:col-start-auto md:text-right">{p.categoryName ?? t.disciplines[p.discipline]}</span>
                 </Link>
               </li>
             ))}

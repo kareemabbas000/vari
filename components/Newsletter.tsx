@@ -2,14 +2,14 @@
 
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
-import { contact } from '@/lib/content';
 import { fmt } from '@/lib/i18n';
 import { useI18n } from './I18nProvider';
 
 const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,63}$/;
 
 export default function Newsletter() {
-  const { t, locale, href } = useI18n();
+  const { t, locale, href, settings } = useI18n();
+  const contact = settings.contact;
   const [doneMsg, setDoneMsg] = useState<'confirmed' | 'check_inbox' | 'already'>('confirmed');
   const n = t.newsletter;
   const [state, setState] = useState<'idle' | 'sending' | 'done' | 'handoff' | 'error'>('idle');

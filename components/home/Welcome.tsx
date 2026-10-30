@@ -23,7 +23,7 @@ export default function Welcome() {
   const root = useRef<HTMLElement>(null);
   const stage = useRef<HTMLDivElement>(null);
   const { t, href, projects } = useI18n();
-  const layers = LAYERS.map((l) => ({ ...l, p: projects.find((p) => p.slug === l.slug)! }));
+  const layers = LAYERS.map((l, i) => ({ ...l, p: projects.find((p) => p.slug === l.slug) ?? projects[i % projects.length] }));
 
   useEffect(() => {
     const el = root.current!;

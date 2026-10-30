@@ -1,7 +1,6 @@
 'use client';
 
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import { contact } from '@/lib/content';
 import Link from 'next/link';
 import { useI18n } from './I18nProvider';
 
@@ -13,14 +12,15 @@ const EMAIL_RE = /^[^\s@]+@[^\s@]+\.[a-zA-Z]{2,63}$/;
 type Intent = 'design' | 'visualize';
 const isIntent = (v: string | null): v is Intent => v === 'design' || v === 'visualize';
 
-function mailtoHref(v: Values, subject: string) {
+function mailtoHref(to: string, v: Values, subject: string) {
   const body = `${v.message}\n\n— ${[v.firstName, v.lastName].filter(Boolean).join(' ')}\n${v.email}`.trim();
-  return `mailto:${contact.email}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+  return `mailto:${to}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
 }
 
 /** Mirrors the original Wix form: First Name, Last Name, Email (required), Message, Send. */
 export default function ContactForm({ compact = false }: { compact?: boolean }) {
-  const { t, locale, href } = useI18n();
+  const { t, locale, href, settings } = useI18n();
+  const contact = settings.contact;
   const f = t.form;
   const [status, setStatus] = useState<Status>('idle');
   const [error, setError] = useState('');
@@ -122,7 +122,7 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
           <span className="text-bone">{contact.email}</span>.
         </p>
         <div className="mt-8 flex flex-wrap gap-3">
-          <a href={mailtoHref(draft, f.subject)} className="btn btn-solid">
+          <a href={mailtoHref(contact.email, draft, f.subject)} className="btn btn-solid">
             <span>{f.openEmail}</span>
           </a>
           <button
@@ -207,7 +207,7 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
           {status === 'error' && draft && (
             <>
               {' '}
-              <a href={mailtoHref(draft, f.subject)} className="link-line text-gold">
+              <a href={mailtoHref(contact.email, draft, f.subject)} className="link-line text-gold">
                 {f.emailInstead}
               </a>
             </>

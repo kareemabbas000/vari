@@ -1,21 +1,23 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import ProjectExhibition from '@/components/work/ProjectExhibition';
-import { projects } from '@/lib/content';
 import { mediaUrl } from '@/lib/image-loader';
 import { isLocale, localeMeta, locales, type Locale } from '@/lib/i18n/config';
-import { alternatesFor, getDictionary, localizeProjects } from '@/lib/i18n';
+import { alternatesFor } from '@/lib/i18n';
+import { getProjectSlugs, getSiteContent } from '@/lib/cms';
 
 type Params = { locale: string; slug: string };
 
-export function generateStaticParams() {
-  return locales.flatMap((locale) => projects.map((p) => ({ locale, slug: p.slug })));
+export async function generateStaticParams() {
+  const slugs = await getProjectSlugs();
+  return locales.flatMap((locale) => slugs.map((slug) => ({ locale, slug })));
 }
 
-export const dynamicParams = false;
+// Projects added in the panel later are rendered on first request, then cached.
+export const dynamicParams = true;
 
-function load(locale: Locale, slug: string) {
-  const list = localizeProjects(getDictionary(locale));
+async function load(locale: Locale, slug: string) {
+  const list = (await getSiteContent(locale)).projects;
   const i = list.findIndex((p) => p.slug === slug);
   if (i < 0) return null;
   return { list, i, project: list[i] };
@@ -24,7 +26,7 @@ function load(locale: Locale, slug: string) {
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale, slug } = await params;
   if (!isLocale(locale)) return {};
-  const found = load(locale, slug);
+  const found = await load(locale, slug);
   if (!found) return {};
   const p = found.project;
   const description = p.description.join(' ').slice(0, 300);
@@ -44,7 +46,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 export default async function ProjectPage({ params }: { params: Promise<Params> }) {
   const { locale, slug } = await params;
   if (!isLocale(locale)) notFound();
-  const found = load(locale, slug);
+  const found = await load(locale, slug);
   if (!found) notFound();
   const { list, i, project } = found;
   const prev = list[(i - 1 + list.length) % list.length];

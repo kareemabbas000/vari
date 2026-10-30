@@ -1,19 +1,20 @@
 import type { Metadata } from 'next';
 import { isLocale, type Locale } from '@/lib/i18n/config';
-import { alternatesFor, getDictionary } from '@/lib/i18n';
+import { alternatesFor } from '@/lib/i18n';
+import { getSiteContent } from '@/lib/cms';
 
 type Params = { locale: string };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const t = getDictionary(locale).privacy;
+  const t = (await getSiteContent(locale)).t.privacy;
   return { title: t.title, description: t.intro, alternates: alternatesFor(locale, '/privacy') };
 }
 
 export default async function PrivacyPage({ params }: { params: Promise<Params> }) {
   const { locale } = await params;
-  const t = getDictionary(locale as Locale).privacy;
+  const t = (await getSiteContent(locale as Locale)).t.privacy;
   return (
     <article className="wrap pb-28 pt-[calc(var(--header-h)+8vh)]">
       <header className="max-w-3xl">

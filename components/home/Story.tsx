@@ -13,9 +13,13 @@ import { useI18n } from '../I18nProvider';
  */
 export default function Story() {
   const root = useRef<HTMLElement>(null);
-  const { t } = useI18n();
-  // Imagery from the original site; text from the active language.
-  const pillars = copy.pillars.map((p, i) => ({ media: p.media, ...t.story.pillars[i] }));
+  const { t, settings } = useI18n();
+  // Text from the active language; images chosen in the panel (falling back to the originals).
+  const pillars = t.story.pillars.map((p, i) => {
+    const base = copy.pillars[i % copy.pillars.length].media;
+    const id = settings.home.storyImages[i] || base.id;
+    return { ...p, media: { ...base, id } };
+  });
 
   useEffect(() => {
     const el = root.current!;

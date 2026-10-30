@@ -3,7 +3,8 @@
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import type { Project } from '@/lib/content';
 import { type Locale, localizePath } from '@/lib/i18n/config';
-import { getDictionary, localizeProjects, type Dictionary } from '@/lib/i18n';
+import type { Dictionary } from '@/lib/i18n';
+import type { CategoryItem, ServiceItem, SiteContent, SiteSettings } from '@/lib/cms';
 
 type I18n = {
   locale: Locale;
@@ -11,15 +12,27 @@ type I18n = {
   /** Prefix an internal path with the current locale. */
   href: (path: string) => string;
   projects: Project[];
+  categories: CategoryItem[];
+  services: ServiceItem[];
+  settings: SiteSettings;
 };
 
 const I18nContext = createContext<I18n | null>(null);
 
-export function I18nProvider({ locale, children }: { locale: Locale; children: ReactNode }) {
-  const value = useMemo<I18n>(() => {
-    const t = getDictionary(locale);
-    return { locale, t, href: (p) => localizePath(locale, p), projects: localizeProjects(t) };
-  }, [locale]);
+/** Receives the page's content (CMS or built-in fallback) from the server layout. */
+export function I18nProvider({ content, children }: { content: SiteContent; children: ReactNode }) {
+  const value = useMemo<I18n>(
+    () => ({
+      locale: content.locale,
+      t: content.t,
+      href: (p) => localizePath(content.locale, p),
+      projects: content.projects,
+      categories: content.categories,
+      services: content.services,
+      settings: content.settings,
+    }),
+    [content],
+  );
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 

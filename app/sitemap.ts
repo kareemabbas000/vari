@@ -1,9 +1,10 @@
 import type { MetadataRoute } from 'next';
-import { projects, site } from '@/lib/content';
+import { site } from '@/lib/content';
+import { getProjectSlugs } from '@/lib/cms';
 import { locales, localizePath, defaultLocale } from '@/lib/i18n/config';
 
 /** One entry per page per language, each listing its hreflang alternates. */
-export default function sitemap(): MetadataRoute.Sitemap {
+export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const base = site.url.replace(/\/$/, '');
   const pages: { path: string; priority: number }[] = [
     { path: '/', priority: 1 },
@@ -12,7 +13,7 @@ export default function sitemap(): MetadataRoute.Sitemap {
     { path: '/contact', priority: 0.8 },
     { path: '/studio', priority: 0.7 },
     { path: '/privacy', priority: 0.3 },
-    ...projects.map((p) => ({ path: `/work/${p.slug}`, priority: 0.6 })),
+    ...(await getProjectSlugs()).map((slug) => ({ path: `/work/${slug}`, priority: 0.6 })),
   ];
   const lastModified = new Date();
   return pages.flatMap(({ path, priority }) => {

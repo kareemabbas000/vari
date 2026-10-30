@@ -3,16 +3,16 @@ import Image from 'next/image';
 import Link from 'next/link';
 import RevealText from '@/components/RevealText';
 import Services from '@/components/home/Services';
-import { services } from '@/lib/content';
 import { isLocale, localizePath, type Locale } from '@/lib/i18n/config';
-import { alternatesFor, fmt, getDictionary, localizeProjects } from '@/lib/i18n';
+import { alternatesFor, fmt } from '@/lib/i18n';
+import { getSiteContent } from '@/lib/cms';
 
 type Params = { locale: string };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const t = getDictionary(locale);
+  const { t } = await getSiteContent(locale);
   return {
     title: t.meta.servicesTitle,
     description: `${t.services.title}. ${t.services.items.map((s) => s.title).join(', ')}.`,
@@ -22,10 +22,10 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function ServicesPage({ params }: { params: Promise<Params> }) {
   const { locale } = await params;
-  const t = getDictionary(locale as Locale);
+  const { t, projects: all, services } = await getSiteContent(locale as Locale);
   const href = (p: string) => localizePath(locale as Locale, p);
-  const all = localizeProjects(t);
-  const proofs = ['black-home', 'elysian-aura', 'hne-laboratory'].map((s) => all.find((p) => p.slug === s)!);
+  // Featured projects lead; fall back to the first three.
+  const proofs = [...all.filter((p) => p.featured), ...all.filter((p) => !p.featured)].slice(0, 3);
   return (
     <>
       <section className="wrap pb-16 pt-[calc(var(--header-h)+12vh)] md:pb-24">
@@ -54,7 +54,7 @@ export default async function ServicesPage({ params }: { params: Promise<Params>
                 <div className="frame aspect-[4/5]">
                   <Image src={p.media[0].id} alt={p.media[0].alt} fill sizes="(max-width: 768px) 100vw, 33vw" className="object-cover transition-transform duration-[1.6s] ease-expo group-hover:scale-105" />
                 </div>
-                <p className="label mt-4 text-gold">{t.disciplines[p.discipline]}{p.location ? ` · ${p.location}` : ''}</p>
+                <p className="label mt-4 text-gold">{p.categoryName}{p.location ? ` · ${p.location}` : ''}</p>
                 <h3 className="display mt-2 text-2xl">{p.title}</h3>
               </Link>
             </li>

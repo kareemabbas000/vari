@@ -1,17 +1,16 @@
 'use client';
 
 import Link from 'next/link';
-import { useEffect, useRef, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { useDeviceTier, useIsMobile } from '@/lib/device';
-import { services } from '@/lib/content';
 import { fmt } from '@/lib/i18n';
 import { useI18n } from '../I18nProvider';
 import RevealText from '../RevealText';
 import { useLenis } from '../SmoothScroll';
 
-type Drawing = (typeof services)[number]['drawing'];
+type Drawing = 'product' | 'tour' | 'interior' | 'design' | 'walk' | 'bim' | 'render' | 'draft';
 
 /** Line drawings in the language of a construction set — one per service. */
 function ServiceDrawing({ kind }: { kind: Drawing }) {
@@ -45,23 +44,31 @@ const ServicesModel = dynamic(() => import('../three/ServicesModel'), { ssr: fal
  * study, walk-in, cut-away, exploded BIM layers, night render, back to the 2D plan.
  */
 const DESIGN_DRAWINGS = ['interior', 'design', 'draft'];
+/** The live model's poses, by service key; services added in the panel show the full building. */
+const MODEL_STATE: Record<string, number> = { product: 0, tour: 1, interior: 2, design: 3, walk: 4, bim: 5, render: 6, draft: 7 };
+const DRAWINGS = ['product', 'tour', 'interior', 'design', 'walk', 'bim', 'render', 'draft'] as const;
 
 export default function Services({ standalone = false }: { standalone?: boolean }) {
   const root = useRef<HTMLElement>(null);
   const [active, setActive] = useState(3);
   const activeRef = useRef(3);
   const tier = useDeviceTier();
-  const { t, href } = useI18n();
+  const { t, href, services } = useI18n();
+  const modelState = useRef(3);
   const plate = useRef<HTMLDivElement>(null);
   const track = useRef<HTMLDivElement>(null);
   const lenis = useLenis();
   // Desktop: the section holds while scroll walks through the eight services.
   const desk = useIsMobile('(min-width: 1024px) and (min-height: 600px)');
 
-  const select = (i: number) => {
+  // Stable selector for scroll/observer callbacks; reads the CMS list through a ref.
+  const servicesRef = useRef(services);
+  servicesRef.current = services;
+  const select = useCallback((i: number) => {
     activeRef.current = i;
+    modelState.current = MODEL_STATE[servicesRef.current[i]?.key] ?? 3;
     setActive(i);
-  };
+  }, []);
 
   // Static fallback plate (no WebGL / reduced motion): draw the sheet's lines.
   useEffect(() => {
@@ -92,13 +99,13 @@ export default function Services({ standalone = false }: { standalone?: boolean 
       }
     }, el);
     return () => ctx.revert();
-  }, [desk]);
+  }, [desk, select]);
 
   // Desktop: map the pinned scroll distance onto the services, one step per service.
   useEffect(() => {
     const tr = track.current;
     if (!desk || !tr) return;
-    const steps = services.length;
+    const steps = servicesRef.current.length;
     // The sequence starts at the first service (the mobile layout defaults to the full building).
     if (window.scrollY < tr.getBoundingClientRect().top + window.scrollY) select(0);
     const ctx = gsap.context(() => {
@@ -119,7 +126,7 @@ export default function Services({ standalone = false }: { standalone?: boolean 
       cancelAnimationFrame(raf);
       ctx.revert();
     };
-  }, [desk]);
+  }, [desk, select]);
 
   /** Desktop: clicking a service scrolls to its point in the sequence. */
   const goTo = (i: number) => {
@@ -132,20 +139,23 @@ export default function Services({ standalone = false }: { standalone?: boolean 
     else window.scrollTo({ top: y, behavior: 'smooth' });
   };
 
-  const current = { ...services[active], ...t.services.items[active] };
+  if (!services.length) return null;
+  const svc = services[active] ?? services[0];
+  const drawing: Drawing = (DRAWINGS as readonly string[]).includes(svc?.key) ? (svc.key as Drawing) : 'design';
+  const current = { drawing, title: svc?.title ?? '', body: svc?.body ?? '' };
   const live = tier === 'high' || tier === 'low';
 
   const Stage = (
     <div className="relative h-full w-full overflow-hidden border border-gold/25 bg-night/80">
       {live ? (
-        <ServicesModel active={activeRef} tier={tier} />
+        <ServicesModel active={modelState} tier={tier} />
       ) : (
         <div ref={plate} key={current.drawing} className="h-full w-full p-10 text-gold">
           <ServiceDrawing kind={current.drawing} />
         </div>
       )}
       <div className="pointer-events-none absolute inset-x-0 top-0 flex items-start justify-between bg-gradient-to-b from-night/85 to-transparent p-4 pb-10">
-        <span className="label text-gold">{t.services.sheet} {String(active + 1).padStart(2, '0')} / 08</span>
+        <span className="label text-gold">{t.services.sheet} {String(active + 1).padStart(2, '0')} / {String(services.length).padStart(2, '0')}</span>
         <span className="label hidden text-bone/40 sm:block">{t.services.live}</span>
       </div>
       <div className="pointer-events-none absolute inset-x-0 bottom-0 bg-gradient-to-t from-night via-night/70 to-transparent p-4 pt-10">
@@ -189,7 +199,7 @@ export default function Services({ standalone = false }: { standalone?: boolean 
                   <span aria-hidden data-svc-rail className="absolute left-0 top-0 h-full w-px origin-top scale-y-0 bg-gold" />
                   <ol aria-label={t.services.listAria}>
                     {t.services.items.map((s, i) => (
-                      <li key={services[i].drawing}>
+                      <li key={services[i]?.key ?? i}>
                         <button
                           type="button"
                           onClick={() => goTo(i)}
@@ -238,7 +248,7 @@ export default function Services({ standalone = false }: { standalone?: boolean 
         <div className="grid gap-12 md:grid-cols-12">
           <ol data-rows className="md:col-span-6 lg:col-span-7" aria-label={t.services.listAria}>
             {t.services.items.map((s, i) => (
-              <li key={services[i].drawing} data-row>
+              <li key={services[i]?.key ?? i} data-row>
                 <button
                   type="button"
                   onMouseEnter={() => select(i)}

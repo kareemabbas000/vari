@@ -4,20 +4,21 @@ import RevealText from '@/components/RevealText';
 import Story from '@/components/home/Story';
 import Logo from '@/components/Logo';
 import { isLocale, localizePath, type Locale } from '@/lib/i18n/config';
-import { alternatesFor, getDictionary } from '@/lib/i18n';
+import { alternatesFor } from '@/lib/i18n';
+import { getSiteContent } from '@/lib/cms';
 
 type Params = { locale: string };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const t = getDictionary(locale);
+  const { t } = await getSiteContent(locale);
   return { title: t.meta.studioTitle, description: t.story.pillars[0].body, alternates: alternatesFor(locale, '/studio') };
 }
 
 export default async function StudioPage({ params }: { params: Promise<Params> }) {
   const { locale } = await params;
-  const t = getDictionary(locale as Locale);
+  const { t } = await getSiteContent(locale as Locale);
   const href = (p: string) => localizePath(locale as Locale, p);
   const intro = t.story.pillars[0];
   return (

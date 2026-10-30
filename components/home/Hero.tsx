@@ -19,7 +19,12 @@ export default function Hero() {
   const [live, setLive] = useState(true);
   const tier = useDeviceTier();
   const { t, href, projects } = useI18n();
-  const feature = projects.find((p) => p.slug === 'the-urban-nest')!;
+  // The Urban Nest by default; falls back to a featured exterior if it was removed in the panel.
+  const feature =
+    projects.find((p) => p.slug === 'the-urban-nest') ??
+    projects.find((p) => p.featured && p.category === 'exterior') ??
+    projects.find((p) => p.category === 'exterior') ??
+    projects[0];
   const featureMedia = feature.media[0];
 
   useEffect(() => {
@@ -143,7 +148,7 @@ export default function Hero() {
           className="absolute bottom-8 left-[var(--gutter)] right-[var(--gutter)] flex items-end justify-between gap-6 opacity-0"
         >
           <span>
-            <span className="label block text-gold">{t.hero.caption} · {t.disciplines[feature.discipline]}</span>
+            <span className="label block text-gold">{t.hero.caption} · {feature.categoryName ?? t.disciplines[feature.discipline]}</span>
             <span className="display h-md mt-2 block">
               {feature.title} — {feature.location}
             </span>

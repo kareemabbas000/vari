@@ -2,13 +2,14 @@
 
 import Image from 'next/image';
 import ContactForm from '../ContactForm';
-import { contact } from '@/lib/content';
 import { useI18n } from '../I18nProvider';
 
 /** Mirrors the original closing section: details on a render, the enquiry form beside it. */
 export default function ContactSection() {
-  const { t, projects } = useI18n();
-  const office = projects.find((p) => p.slug === 'sophisticated-home-office')!.media[0];
+  const { t, projects, settings } = useI18n();
+  const contact = settings.contact;
+  // The home-office render, or the first interior if it has been removed in the panel.
+  const office = (projects.find((p) => p.slug === 'sophisticated-home-office') ?? projects.find((p) => p.category === 'interior') ?? projects[0]).media[0];
   return (
     <section id="contact" aria-labelledby="contact-title" className="relative grid min-h-[100svh] md:grid-cols-2">
       <div className="relative min-h-[60svh] overflow-hidden">

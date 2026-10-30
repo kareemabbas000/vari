@@ -31,6 +31,11 @@ export type Project = {
   label: string;
   description: string[];
   media: Media[];
+  /** Category slug from the CMS (exterior, interior, or any category added in the panel). */
+  category?: string;
+  /** Category name in the current language. */
+  categoryName?: string;
+  featured?: boolean;
 };
 
 export const site = {

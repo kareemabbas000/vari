@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import Logo from './Logo';
-import { contact } from '@/lib/content';
 import { stripLocale } from '@/lib/i18n/config';
 import { useI18n } from './I18nProvider';
 import LanguageSwitcher from './LanguageSwitcher';
@@ -15,7 +14,8 @@ export default function Header() {
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
-  const { t, href } = useI18n();
+  const { t, href, settings } = useI18n();
+  const contact = settings.contact;
   const nav = [
     { label: t.nav.work, path: '/work' },
     { label: t.nav.services, path: '/services' },

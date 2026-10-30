@@ -6,10 +6,11 @@ import SmoothScroll from '@/components/SmoothScroll';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { I18nProvider } from '@/components/I18nProvider';
-import { brandAssets, contact, site } from '@/lib/content';
+import { brandAssets, site } from '@/lib/content';
 import { mediaUrl } from '@/lib/image-loader';
 import { isLocale, localeMeta, locales, type Locale } from '@/lib/i18n/config';
-import { alternatesFor, getDictionary } from '@/lib/i18n';
+import { alternatesFor } from '@/lib/i18n';
+import { getSiteContent } from '@/lib/cms';
 
 // Fraunces is the display face of the original site (fraunces_120pt light / semibold).
 const display = Fraunces({
@@ -37,7 +38,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const t = getDictionary(locale);
+  const { t } = await getSiteContent(locale);
   return {
     metadataBase: new URL(site.url),
     title: { default: t.meta.siteTitle, template: t.meta.titleTemplate },
@@ -69,7 +70,8 @@ export const viewport: Viewport = {
 export default async function LocaleLayout({ children, params }: { children: React.ReactNode; params: Promise<Params> }) {
   const { locale } = await params;
   if (!isLocale(locale)) notFound();
-  const t = getDictionary(locale as Locale);
+  const content = await getSiteContent(locale as Locale);
+  const { t, settings } = content;
 
   const jsonLd = {
     '@context': 'https://schema.org',
@@ -79,11 +81,11 @@ export default async function LocaleLayout({ children, params }: { children: Rea
     description: t.meta.description,
     inLanguage: localeMeta[locale].hreflang,
     availableLanguage: locales.map((l) => localeMeta[l].name),
-    email: contact.email,
+    email: settings.contact.email,
     logo: `${site.url.replace(/\/$/, '')}/brand/vari-logo-dark.png`,
     image: ogImage,
     address: { '@type': 'PostalAddress', streetAddress: '742 Golf District', addressLocality: 'Al Shorouk City, Cairo', addressCountry: 'EG' },
-    sameAs: contact.social.map((s) => s.href),
+    sameAs: settings.contact.social.map((s) => s.href),
   };
 
   return (
@@ -93,7 +95,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
       </head>
       <body>
-        <I18nProvider locale={locale}>
+        <I18nProvider content={content}>
           <a href="#main" className="label fixed left-4 top-4 z-[100] -translate-y-24 bg-gold px-4 py-3 text-night focus:translate-y-0">
             {t.common.skip}
           </a>

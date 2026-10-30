@@ -53,7 +53,7 @@ export default function ProjectExhibition({ project, prev, next, index, total }:
         ];
 
   const facts = [
-    { k: t.project.discipline, v: fmt(t.project.visualization, { discipline: t.disciplines[project.discipline] }) },
+    { k: t.project.discipline, v: fmt(t.project.visualization, { discipline: project.categoryName ?? t.disciplines[project.discipline] }) },
     { k: t.project.project, v: project.label },
     project.location ? { k: t.project.location, v: project.location } : null,
     project.client ? { k: t.project.client, v: project.client } : null,
@@ -72,7 +72,7 @@ export default function ProjectExhibition({ project, prev, next, index, total }:
         </div>
         <div className="wrap relative flex h-full flex-col justify-end pb-12 md:pb-16">
           <p data-meta className="label text-gold">
-            {t.disciplines[project.discipline]} · {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
+            {project.categoryName ?? t.disciplines[project.discipline]} · {String(index + 1).padStart(2, '0')} / {String(total).padStart(2, '0')}
           </p>
           <h1 data-title className="display h-hero mt-5 max-w-[16ch]" aria-label={project.title}>
             {project.title.split(' ').map((w, i) => (

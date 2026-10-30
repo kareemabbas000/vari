@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import Link from 'next/link';
 import { contact } from '@/lib/content';
 import { isLocale, localizePath, type Locale } from '@/lib/i18n/config';
-import { fmt, getDictionary } from '@/lib/i18n';
+import { fmt } from '@/lib/i18n';
+import { getSiteContent } from '@/lib/cms';
 
 type Params = { locale: string };
 type Search = { status?: string };
@@ -10,14 +11,14 @@ type Search = { status?: string };
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  return { title: getDictionary(locale).newsletterStatus.title, robots: { index: false, follow: false } };
+  return { title: (await getSiteContent(locale)).t.newsletterStatus.title, robots: { index: false, follow: false } };
 }
 
 /** Landing page for the emailed confirm / unsubscribe links. */
 export default async function NewsletterStatusPage({ params, searchParams }: { params: Promise<Params>; searchParams: Promise<Search> }) {
   const { locale } = await params;
   const { status } = await searchParams;
-  const t = getDictionary(locale as Locale).newsletterStatus;
+  const t = (await getSiteContent(locale as Locale)).t.newsletterStatus;
   const view =
     status === 'confirmed'
       ? { title: t.confirmedTitle, body: t.confirmedBody, ok: true }

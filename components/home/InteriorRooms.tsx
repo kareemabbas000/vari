@@ -7,7 +7,6 @@ import { gsap } from '@/lib/gsap';
 import { useI18n } from '../I18nProvider';
 import MoreRooms from './MoreRooms';
 
-const FEATURED = ['hearthstone-haven', 'sophisticated-home-office', 'penthouse-in-dark-mood', 'timeless-english-roof-architecture'];
 
 /**
  * "Interiors With Soul Connect".
@@ -18,7 +17,11 @@ const FEATURED = ['hearthstone-haven', 'sophisticated-home-office', 'penthouse-i
 export default function InteriorRooms() {
   const root = useRef<HTMLElement>(null);
   const { t, href, projects } = useI18n();
-  const featured = FEATURED.map((s) => projects.find((p) => p.slug === s)!);
+  // Rooms marked "featured" in the panel (up to four), else the first interiors.
+  const interiors = projects.filter((p) => p.category === 'interior');
+  const picked = interiors.filter((p) => p.featured);
+  const featured = (picked.length ? picked : interiors).slice(0, 4);
+  const FEATURED = featured.map((p) => p.slug);
 
   useEffect(() => {
     const el = root.current!;
@@ -66,6 +69,7 @@ export default function InteriorRooms() {
     return () => mm.revert();
   }, []);
 
+  if (!featured.length) return null;
   const first = featured[0].media[0];
 
   return (

@@ -4,7 +4,6 @@ import Link from 'next/link';
 import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
 import Logo from './Logo';
-import { contact } from '@/lib/content';
 import { useI18n } from './I18nProvider';
 
 /**
@@ -15,7 +14,8 @@ import { useI18n } from './I18nProvider';
  */
 export default function FooterSignature() {
   const root = useRef<HTMLDivElement>(null);
-  const { t, href } = useI18n();
+  const { t, href, settings } = useI18n();
+  const contact = settings.contact;
 
   useEffect(() => {
     const el = root.current!;

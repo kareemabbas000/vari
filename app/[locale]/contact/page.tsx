@@ -1,16 +1,17 @@
 import type { Metadata } from 'next';
 import Image from 'next/image';
 import ContactForm from '@/components/ContactForm';
-import { contact, getProject } from '@/lib/content';
+import { getProject } from '@/lib/content';
 import { isLocale, type Locale } from '@/lib/i18n/config';
-import { alternatesFor, getDictionary } from '@/lib/i18n';
+import { alternatesFor } from '@/lib/i18n';
+import { getSiteContent } from '@/lib/cms';
 
 type Params = { locale: string };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const t = getDictionary(locale);
+  const { t } = await getSiteContent(locale);
   return { title: t.meta.contactTitle, description: t.contact.body, alternates: alternatesFor(locale, '/contact') };
 }
 
@@ -18,7 +19,8 @@ const still = getProject('elysian-aura')!.media[0];
 
 export default async function ContactPage({ params }: { params: Promise<Params> }) {
   const { locale } = await params;
-  const t = getDictionary(locale as Locale);
+  const { t, settings } = await getSiteContent(locale as Locale);
+  const contact = settings.contact;
   return (
     <section className="relative min-h-[100svh] pt-[var(--header-h)]">
       <div className="absolute inset-0 -z-10">

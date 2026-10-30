@@ -1,16 +1,16 @@
 import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import WorkIndex from '@/components/work/WorkIndex';
-import { projects } from '@/lib/content';
 import { isLocale, type Locale } from '@/lib/i18n/config';
-import { alternatesFor, fmt, getDictionary } from '@/lib/i18n';
+import { alternatesFor, fmt } from '@/lib/i18n';
+import { getSiteContent } from '@/lib/cms';
 
 type Params = { locale: string };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const t = getDictionary(locale);
+  const { t, projects } = await getSiteContent(locale);
   return {
     title: t.meta.workTitle,
     description: fmt(t.meta.workDescription, { n: projects.length }),
@@ -20,7 +20,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function WorkPage({ params }: { params: Promise<Params> }) {
   const { locale } = await params;
-  const t = getDictionary(locale as Locale);
+  const { t } = await getSiteContent(locale as Locale);
   return (
     <div className="wrap pb-32 pt-[calc(var(--header-h)+8vh)]">
       <p className="label text-gold">{t.work.label}</p>

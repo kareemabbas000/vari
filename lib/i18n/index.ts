@@ -29,6 +29,8 @@ export function localizeProjects(t: Dictionary): Project[] {
       location: p.location ? tr.location ?? p.location : undefined,
       description: tr.description,
       media: p.media.map((m, i) => ({ ...m, alt: tr.alts[i] ?? m.alt })),
+      category: p.discipline.toLowerCase(),
+      categoryName: t.work.filters[p.discipline === 'Interior' ? 'interior' : 'exterior'],
     };
   });
 }

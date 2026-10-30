@@ -35,7 +35,7 @@ const DOORS_OPEN = 'polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 
  * Switching language mid-intro hands the sequence over to the new page, which resumes
  * at step 4. No-WebGL devices get the same story as a 2D line drawing.
  */
-export default function Preloader() {
+export default function Preloader({ enabled = true, languageGate = true }: { enabled?: boolean; languageGate?: boolean }) {
   const { t, locale } = useI18n();
   const router = useRouter();
   const root = useRef<HTMLDivElement>(null);
@@ -68,10 +68,11 @@ export default function Preloader() {
       sessionStorage.removeItem(HANDOFF_KEY);
       seen = sessionStorage.getItem('vari-intro') === '1';
       sessionStorage.setItem('vari-intro', '1');
-      chosen = !!localStorage.getItem(LANG_CHOSEN_KEY);
+      chosen = !languageGate || !!localStorage.getItem(LANG_CHOSEN_KEY);
     } catch {}
 
-    if (!handoff && (reduced || seen)) {
+    // Disabled in the panel: finish at once (the hero still waits for this signal).
+    if (!handoff && (reduced || seen || !enabled)) {
       setActive(false);
       finish();
       return;
@@ -203,7 +204,7 @@ export default function Preloader() {
       ctx.revert();
       document.documentElement.style.overflow = '';
     };
-  }, [locale, router]);
+  }, [locale, router, enabled, languageGate]);
 
   // The no-WebGL stage only exists once the device check has run, so it animates on its own.
   useEffect(() => {
