@@ -1,6 +1,6 @@
 import type { Metadata, Viewport } from 'next';
 import { notFound } from 'next/navigation';
-import { Fraunces, Jost } from 'next/font/google';
+import { display, sans } from '@/lib/fonts';
 import '../globals.css';
 import SmoothScroll from '@/components/SmoothScroll';
 import Header from '@/components/Header';
@@ -12,18 +12,6 @@ import { isLocale, localeMeta, locales, type Locale } from '@/lib/i18n/config';
 import { alternatesFor } from '@/lib/i18n';
 import { getSiteContent } from '@/lib/cms';
 
-// Fraunces is the display face of the original site (fraunces_120pt light / semibold).
-const display = Fraunces({
-  subsets: ['latin', 'latin-ext'],
-  style: ['normal', 'italic'],
-  axes: ['opsz', 'SOFT', 'WONK'],
-  variable: '--font-display',
-  display: 'swap',
-});
-
-// The original used licensed Futura / DIN Next / Avenir. Jost is a free geometric
-// sans in the Futura family of forms — a stand-in, documented in docs/BRAND_REFERENCE.md.
-const sans = Jost({ subsets: ['latin', 'latin-ext'], variable: '--font-sans', display: 'swap' });
 
 const ogImage = mediaUrl('b80319_425c2f36f32b420da9c91cbd856c607d~mv2.jpg', 1200);
 

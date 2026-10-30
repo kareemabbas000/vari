@@ -65,3 +65,17 @@ export function studioNotification(fields: { firstName: string; lastName: string
     .join('\n');
   return { subject, text };
 }
+
+/** Branded email for control-panel access links (invitations, password resets). English: the panel's language. */
+export function panelLinkEmail({ heading, body, button, url, footnote }: { heading: string; body: string; button: string; url: string; footnote: string }) {
+  const text = `${heading}\n\n${body}\n\n${url}\n\n${footnote}`;
+  const html = shell(
+    'en',
+    `<p style="margin:0 0 8px;font-size:12px;letter-spacing:3px;text-transform:uppercase;color:#d4af37">Control panel</p>` +
+      `<p style="margin:0 0 16px;font-size:22px;line-height:1.3;color:#f3eee4">${esc(heading)}</p>` +
+      para(body) +
+      `<p style="margin:24px 0 28px"><a href="${esc(url)}" style="display:inline-block;background:#d4af37;color:#0c0b0a;text-decoration:none;padding:14px 28px;letter-spacing:2px;font-size:12px;text-transform:uppercase">${esc(button)}</a></p>` +
+      `<p style="margin:0;font-size:12px;color:#8c8578">${esc(footnote)}</p>`,
+  );
+  return { text, html };
+}
