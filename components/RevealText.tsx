@@ -67,7 +67,7 @@ export default function RevealText({ text, as = 'h2', className = '', italic = [
             const bare = w.replace(/[^\p{L}\p{N}'-]/gu, '');
             const cls = italic.includes(bare) ? 'display-italic' : gold.includes(bare) ? 'gold-text' : '';
             return (
-              <span key={`${i}-${j}`} className="line-mask mr-[0.22em] inline-block align-top" aria-hidden>
+              <span key={`${i}-${j}`} className="line-mask inline-block align-top" style={{ marginRight: '0.14em' }} aria-hidden>
                 <span className={`line-inner ${cls}`}>{w}</span>
               </span>
             );

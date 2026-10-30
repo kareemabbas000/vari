@@ -76,7 +76,7 @@ export default function ProjectExhibition({ project, prev, next, index, total }:
           </p>
           <h1 data-title className="display h-hero mt-5 max-w-[16ch]" aria-label={project.title}>
             {project.title.split(' ').map((w, i) => (
-              <span key={i} className="line-mask mr-[0.22em] inline-block align-top" aria-hidden>
+              <span key={i} className="line-mask inline-block align-top" style={{ marginRight: '0.14em' }} aria-hidden>
                 <span className="line-inner">{w}</span>
               </span>
             ))}

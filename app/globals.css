@@ -170,11 +170,13 @@ img {
   }
 
   /* Split-text reveal helpers */
+  /* Room for descenders (g, y, p), italic overhangs and capital umlauts; the negative
+     margins cancel the padding so the mask never changes the layout. */
   .line-mask {
     display: block;
     overflow: hidden;
-    padding-bottom: 0.08em;
-    margin-bottom: -0.08em;
+    padding: 0.12em 0.08em 0.24em;
+    margin: -0.12em -0.08em -0.24em;
   }
   .line-inner {
     display: block;

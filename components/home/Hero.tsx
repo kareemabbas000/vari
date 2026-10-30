@@ -88,7 +88,7 @@ export default function Hero() {
         </div>
 
         {/* Headline */}
-        <div data-hero-copy className="wrap relative flex h-full flex-col justify-end pb-[max(9vh,4.5rem)] pt-[calc(var(--header-h)+1.5rem)]">
+        <div data-hero-copy className="wrap relative flex h-full flex-col justify-center pb-[max(11vh,5rem)] pt-[calc(var(--header-h)+2vh)]">
           <p className="label mb-5 text-gold md:mb-7">{t.hero.label}</p>
           <RevealText
             as="h1"
