@@ -250,6 +250,7 @@ const de: Dictionary = {
     titleA: 'Ausgewählte',
     titleItalic: 'Projekte',
     intro: 'Außenräume im Einklang mit der Natur und Innenräume, die die Seele berühren – jedes Projekt visualisiert von VARI Studio.',
+    views: { gallery: 'Galerie', index: 'Index', label: 'Ansicht' },
     filterAria: 'Projekte filtern',
     filters: { all: 'Alle', exterior: 'Außenräume', interior: 'Innenräume' },
   },

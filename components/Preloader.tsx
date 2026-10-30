@@ -240,6 +240,8 @@ export default function Preloader() {
       {/* Wordmark with a light sweep masked to the letterforms */}
       <div className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center">
         <div data-mark className="relative w-[min(58vw,320px)] opacity-0 [filter:drop-shadow(0_0_50px_rgba(212,175,55,0.25))]">
+          {/* soft dark halo keeps the mark legible over the lit renders */}
+          <span aria-hidden className="pointer-events-none absolute -inset-x-[45%] -inset-y-[70%] -z-10 bg-[radial-gradient(ellipse_at_center,rgba(12,11,10,0.78)_0%,rgba(12,11,10,0.45)_40%,transparent_70%)]" />
           <Logo priority sizes="320px" className="h-auto w-full" />
           <span
             data-shine

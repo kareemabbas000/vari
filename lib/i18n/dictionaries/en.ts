@@ -244,6 +244,7 @@ const en = {
     titleA: 'Selected',
     titleItalic: 'work',
     intro: 'Exteriors With Nature Connect, and Interiors With Soul Connect — every project visualized by VARI Studio.',
+    views: { gallery: 'Gallery', index: 'Index', label: 'View' },
     filterAria: 'Filter projects',
     filters: { all: 'All', exterior: 'Exteriors', interior: 'Interiors' },
   },

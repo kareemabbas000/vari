@@ -3,6 +3,8 @@
 import { Canvas, useFrame, useThree } from '@react-three/fiber';
 import { useEffect, useMemo, useRef, type MutableRefObject } from 'react';
 import * as THREE from 'three';
+import { getProject } from '@/lib/content';
+import { mediaUrl } from '@/lib/image-loader';
 
 /**
  * Opening scene — "setting out".
@@ -179,13 +181,35 @@ function Build({ progress, exit, look }: Props) {
     add(new THREE.BoxGeometry(5, 0.1, 3.3), glass, [-0.1, 2.65, -0.05]);
     add(new THREE.PlaneGeometry(4.5, 1.25), warm, [-0.7, 0.65, 1.19]);
     add(new THREE.PlaneGeometry(3.3, 1.12), warm, [0.1, 2.01, 1.09]);
+    // The rooms behind the glass are real VARI interiors (textures arrive asynchronously).
+    const roomA = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, toneMapped: false });
+    const roomB = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, depthWrite: false, toneMapped: false });
+    add(new THREE.PlaneGeometry(4.5, 1.25), roomA, [-0.7, 0.65, 1.195]);
+    add(new THREE.PlaneGeometry(3.3, 1.12), roomB, [0.1, 2.01, 1.095]);
     // pool water
     const water = new THREE.Mesh(new THREE.PlaneGeometry(2.2, 2.4), new THREE.MeshBasicMaterial({ color: '#c9a64a', transparent: true, opacity: 0, depthWrite: false, blending: THREE.AdditiveBlending }));
     water.rotation.x = -Math.PI / 2;
     water.position.set(-4.5, 0.012, 1.4);
     group.add(water);
-    return { group, glass, warm, water: water.material as THREE.MeshBasicMaterial };
+    return { group, glass, warm, roomA, roomB, water: water.material as THREE.MeshBasicMaterial };
   }, []);
+
+  useEffect(() => {
+    const small = window.innerWidth < 768;
+    const office = getProject('sophisticated-home-office')!.media[0];
+    const aura = getProject('elysian-aura')!.media[0];
+    const cancel = [
+      loadCover(office.id, office.width / office.height, 4.5 / 1.25, small ? 900 : 1400, (tex) => {
+        solids.roomA.map = tex;
+        solids.roomA.needsUpdate = true;
+      }),
+      loadCover(aura.id, aura.width / aura.height, 3.3 / 1.12, small ? 900 : 1400, (tex) => {
+        solids.roomB.map = tex;
+        solids.roomB.needsUpdate = true;
+      }),
+    ];
+    return () => cancel.forEach((c) => c());
+  }, [solids]);
 
   // Gold dust hanging in the air.
   const dust = useMemo(() => {
@@ -231,6 +255,8 @@ function Build({ progress, exit, look }: Props) {
     const lit = THREE.MathUtils.smoothstep(p, 0.9, 1);
     solids.glass.opacity = lit * 0.55;
     solids.warm.opacity = lit * (0.16 + 0.03 * Math.sin(t * 2.2));
+    solids.roomA.opacity = solids.roomA.map ? lit * 0.82 : 0;
+    solids.roomB.opacity = solids.roomB.map ? lit * 0.82 : 0;
     solids.water.opacity = lit * 0.12;
     dust.rotation.y = t * 0.02;
     dust.position.y = Math.sin(t * 0.3) * 0.1;
@@ -254,6 +280,122 @@ function Build({ progress, exit, look }: Props) {
       <primitive object={lines} />
       <primitive object={solids.group} />
       <primitive object={dust} />
+      <Exhibition progress={progress} exit={exit} />
+    </>
+  );
+}
+
+/**
+ * Load a render as a texture cropped to a target aspect ("object-fit: cover").
+ * Returns a cancel function; failures (offline, CORS) simply leave the slot empty.
+ */
+function loadCover(id: string, imageAspect: number, targetAspect: number, width: number, done: (tex: THREE.Texture) => void) {
+  let cancelled = false;
+  let loaded: THREE.Texture | null = null;
+  const loader = new THREE.TextureLoader();
+  loader.setCrossOrigin('anonymous');
+  loader.load(
+    mediaUrl(id, width, 80),
+    (tex) => {
+      if (cancelled) return tex.dispose();
+      tex.colorSpace = THREE.SRGBColorSpace;
+      if (imageAspect > targetAspect) {
+        tex.repeat.set(targetAspect / imageAspect, 1);
+        tex.offset.set((1 - tex.repeat.x) / 2, 0);
+      } else {
+        tex.repeat.set(1, imageAspect / targetAspect);
+        tex.offset.set(0, (1 - tex.repeat.y) / 2);
+      }
+      loaded = tex;
+      done(tex);
+    },
+    undefined,
+    () => undefined,
+  );
+  return () => {
+    cancelled = true;
+    loaded?.dispose();
+  };
+}
+
+/** The portfolio, hung in space: real VARI renders in gold-edged frames around the villa. */
+const EXHIBITS = ['the-urban-nest', 'hearthstone-haven', 'black-home', 'penthouse-in-dark-mood', 'hne-laboratory', 'rustic-chic-oasis'];
+
+function Exhibition({ progress, exit }: Pick<Props, 'progress' | 'exit'>) {
+  const { size } = useThree();
+  const portraitView = size.width < size.height;
+  const frames = useMemo(() => {
+    const small = portraitView;
+    const slugs = small ? EXHIBITS.slice(0, 4) : EXHIBITS;
+    return slugs.map((slug, i) => {
+      const media = getProject(slug)!.media[0];
+      const portrait = media.height > media.width;
+      const w = portrait ? 1.9 : 3.0;
+      const h = portrait ? 2.4 : 1.9;
+      const group = new THREE.Group();
+      const k = slugs.length > 1 ? i / (slugs.length - 1) : 0.5;
+      // Wide screens: an arc behind the house, facing it, seen across the villa.
+      // Narrow screens: a tighter crown above the roofline so every frame stays in view.
+      const a = small ? THREE.MathUtils.lerp(0.45, 1.75, k) : THREE.MathUtils.lerp(-0.35, 2.55, k);
+      const r = small ? 7 + (i % 2) * 0.8 : 8 + (i % 2) * 1.2;
+      const y = small ? 4.3 + (i % 2) * 1.3 : 2.2 + (i % 3) * 1.1;
+      group.position.set(Math.sin(a) * r, y, -Math.cos(a) * r);
+      group.lookAt(0, group.position.y * 0.6, 0);
+
+      const backing = new THREE.Mesh(new THREE.BoxGeometry(w + 0.08, h + 0.08, 0.04), new THREE.MeshBasicMaterial({ color: '#0c0b0a', transparent: true, opacity: 0 }));
+      backing.position.z = -0.03;
+      const imageMat = new THREE.MeshBasicMaterial({ transparent: true, opacity: 0, toneMapped: false, color: '#ffffff' });
+      const image = new THREE.Mesh(new THREE.PlaneGeometry(w, h), imageMat);
+      const edgeMat = new THREE.LineBasicMaterial({ color: '#D4AF37', transparent: true, opacity: 0 });
+      const edge = new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(w + 0.16, h + 0.16)), edgeMat);
+      edge.position.z = 0.005;
+      group.add(backing, image, edge);
+      return { slug, media, group, imageMat, edgeMat, backingMat: backing.material as THREE.MeshBasicMaterial, w, h, start: 0.42 + i * 0.07, phase: i * 1.3, baseY: group.position.y };
+    });
+  }, [portraitView]);
+
+  useEffect(() => {
+    const small = window.innerWidth < 768;
+    const cancel = frames.map((f) =>
+      loadCover(f.media.id, f.media.width / f.media.height, f.w / f.h, small ? 640 : 960, (tex) => {
+        f.imageMat.map = tex;
+        f.imageMat.needsUpdate = true;
+      }),
+    );
+    return () => {
+      cancel.forEach((c) => c());
+      frames.forEach((f) =>
+        f.group.traverse((o) => {
+          if (o instanceof THREE.Mesh || o instanceof THREE.LineSegments) {
+            o.geometry.dispose();
+            (o.material as THREE.Material).dispose();
+          }
+        }),
+      );
+    };
+  }, [frames]);
+
+  useFrame(({ clock }) => {
+    const p = progress.current;
+    const fade = 1 - THREE.MathUtils.smoothstep(exit.current, 0.2, 0.7);
+    const t = clock.elapsedTime;
+    for (const f of frames) {
+      const drawn = THREE.MathUtils.smoothstep(p, f.start, f.start + 0.12);
+      const shown = THREE.MathUtils.smoothstep(p, f.start + 0.08, f.start + 0.28);
+      f.edgeMat.opacity = drawn * 0.9 * fade;
+      f.backingMat.opacity = shown * 0.85 * fade;
+      f.imageMat.opacity = (f.imageMat.map ? shown : 0) * fade;
+      const s = 0.82 + 0.18 * drawn;
+      f.group.scale.setScalar(s);
+      f.group.position.y = f.baseY + Math.sin(t * 0.6 + f.phase) * 0.08 + (1 - drawn) * -0.6;
+    }
+  });
+
+  return (
+    <>
+      {frames.map((f) => (
+        <primitive key={f.slug} object={f.group} />
+      ))}
     </>
   );
 }

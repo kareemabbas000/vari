@@ -251,6 +251,7 @@ const es: Dictionary = {
     titleA: 'Proyectos',
     titleItalic: 'seleccionados',
     intro: 'Exteriores en conexión con la naturaleza e interiores con alma: cada proyecto, visualizado por VARI Studio.',
+    views: { gallery: 'Galería', index: 'Índice', label: 'Vista' },
     filterAria: 'Filtrar proyectos',
     filters: { all: 'Todos', exterior: 'Exteriores', interior: 'Interiores' },
   },
