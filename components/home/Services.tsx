@@ -4,11 +4,12 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import dynamic from 'next/dynamic';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
-import { useDeviceTier } from '@/lib/device';
+import { useDeviceTier, useIsMobile } from '@/lib/device';
 import { services } from '@/lib/content';
 import { fmt } from '@/lib/i18n';
 import { useI18n } from '../I18nProvider';
 import RevealText from '../RevealText';
+import { useLenis } from '../SmoothScroll';
 
 type Drawing = (typeof services)[number]['drawing'];
 
@@ -52,6 +53,10 @@ export default function Services({ standalone = false }: { standalone?: boolean 
   const tier = useDeviceTier();
   const { t, href } = useI18n();
   const plate = useRef<HTMLDivElement>(null);
+  const track = useRef<HTMLDivElement>(null);
+  const lenis = useLenis();
+  // Desktop: the section holds while scroll walks through the eight services.
+  const desk = useIsMobile('(min-width: 1024px) and (min-height: 600px)');
 
   const select = (i: number) => {
     activeRef.current = i;
@@ -87,7 +92,45 @@ export default function Services({ standalone = false }: { standalone?: boolean 
       }
     }, el);
     return () => ctx.revert();
-  }, []);
+  }, [desk]);
+
+  // Desktop: map the pinned scroll distance onto the services, one step per service.
+  useEffect(() => {
+    const tr = track.current;
+    if (!desk || !tr) return;
+    const steps = services.length;
+    // The sequence starts at the first service (the mobile layout defaults to the full building).
+    if (window.scrollY < tr.getBoundingClientRect().top + window.scrollY) select(0);
+    const ctx = gsap.context(() => {
+      ScrollTrigger.create({
+        trigger: tr,
+        start: 'top top',
+        end: 'bottom bottom',
+        onUpdate: (self) => {
+          const i = Math.min(steps - 1, Math.floor(self.progress * steps));
+          if (i !== activeRef.current) select(i);
+        },
+      });
+      gsap.fromTo('[data-svc-rail]', { scaleY: 0 }, { scaleY: 1, ease: 'none', scrollTrigger: { trigger: tr, start: 'top top', end: 'bottom bottom', scrub: true } });
+    }, tr);
+    // The desktop layout is taller than the server-rendered one: re-measure everything below.
+    const raf = requestAnimationFrame(() => ScrollTrigger.refresh());
+    return () => {
+      cancelAnimationFrame(raf);
+      ctx.revert();
+    };
+  }, [desk]);
+
+  /** Desktop: clicking a service scrolls to its point in the sequence. */
+  const goTo = (i: number) => {
+    const tr = track.current;
+    if (!tr) return select(i);
+    const top = tr.getBoundingClientRect().top + window.scrollY;
+    const range = tr.offsetHeight - window.innerHeight;
+    const y = top + ((i + 0.5) / services.length) * range;
+    if (lenis) lenis.scrollTo(y, { duration: 1.2 });
+    else window.scrollTo({ top: y, behavior: 'smooth' });
+  };
 
   const current = { ...services[active], ...t.services.items[active] };
   const live = tier === 'high' || tier === 'low';
@@ -111,6 +154,73 @@ export default function Services({ standalone = false }: { standalone?: boolean 
       </div>
     </div>
   );
+
+  const cta = (
+    <div className="flex flex-wrap items-center gap-x-8 gap-y-4">
+      <Link href={href(`/contact?intent=${DESIGN_DRAWINGS.includes(current.drawing) ? 'design' : 'visualize'}`)} className="btn btn-solid">
+        <span>{fmt(t.services.discuss, { service: current.title })}</span>
+      </Link>
+      {!standalone && (
+        <Link href={href('/services')} className="label link-line text-gold">
+          {t.services.all}
+        </Link>
+      )}
+    </div>
+  );
+
+  if (desk) {
+    return (
+      <section ref={root} id="services" aria-labelledby="services-title" className="blueprint relative border-y border-gold/10">
+        {/* The track gives each service ~half a screen of scroll; the frame inside stays put. */}
+        <div ref={track} className="relative" style={{ height: `calc(100svh + ${services.length} * 50svh)` }}>
+          <div className="sticky top-0 flex h-[100svh] items-center overflow-hidden pb-[3svh] pt-[calc(var(--header-h)+2svh)]">
+            <div className="wrap grid w-full grid-cols-12 items-center gap-10 xl:gap-16">
+              <div className="col-span-6">
+                <p className="label text-gold">{standalone ? t.services.sheets : t.services.chapter}</p>
+                <RevealText
+                  as="h2"
+                  text={t.services.title}
+                  className="display mt-[1.6svh] max-w-[18ch] text-[clamp(2rem,3.4svh+1.2vw,3.6rem)] leading-[1.02]"
+                  italic={t.services.italic}
+                />
+                <div className="relative mt-[3svh] pl-6">
+                  {/* progress rail */}
+                  <span aria-hidden className="absolute bottom-0 left-0 top-0 w-px bg-bone/10" />
+                  <span aria-hidden data-svc-rail className="absolute left-0 top-0 h-full w-px origin-top scale-y-0 bg-gold" />
+                  <ol aria-label={t.services.listAria}>
+                    {t.services.items.map((s, i) => (
+                      <li key={services[i].drawing}>
+                        <button
+                          type="button"
+                          onClick={() => goTo(i)}
+                          aria-current={active === i ? 'step' : undefined}
+                          className={`group grid w-full grid-cols-[2.6rem_1fr] items-baseline gap-x-2 border-b border-bone/10 py-[clamp(0.3rem,1.05svh,0.85rem)] text-left transition-colors duration-500 ${
+                            active === i ? 'text-bone' : 'text-bone/40 hover:text-bone/75'
+                          }`}
+                        >
+                          <span className={`label transition-colors ${active === i ? 'text-gold' : ''}`}>{String(i + 1).padStart(2, '0')}</span>
+                          <span className="display text-[clamp(1.15rem,2.55svh,2rem)] leading-tight">
+                            <span className={`inline-block transition-transform duration-700 ease-expo ${active === i ? 'translate-x-2' : ''}`}>{s.title}</span>
+                          </span>
+                          <span className={`col-start-2 grid transition-[grid-template-rows,opacity] duration-700 ease-expo ${active === i ? 'grid-rows-[1fr] opacity-100' : 'grid-rows-[0fr] opacity-0'}`}>
+                            <span className="overflow-hidden">
+                              <span className="block pl-2 pt-1 text-[clamp(0.85rem,1.7svh,1.05rem)] text-bone/65">{s.body}</span>
+                            </span>
+                          </span>
+                        </button>
+                      </li>
+                    ))}
+                  </ol>
+                </div>
+                <div className="mt-[3svh]">{cta}</div>
+              </div>
+              <div className="col-span-6 h-[min(74svh,760px)]">{Stage}</div>
+            </div>
+          </div>
+        </div>
+      </section>
+    );
+  }
 
   return (
     <section ref={root} id="services" aria-labelledby="services-title" className="blueprint relative scroll-mt-20 border-y border-gold/10 py-24 md:py-40">
@@ -151,16 +261,7 @@ export default function Services({ standalone = false }: { standalone?: boolean 
                 </button>
               </li>
             ))}
-            <li className="flex flex-wrap items-center gap-x-8 gap-y-4 pt-8">
-              <Link href={href(`/contact?intent=${DESIGN_DRAWINGS.includes(current.drawing) ? 'design' : 'visualize'}`)} className="btn btn-solid">
-                <span>{fmt(t.services.discuss, { service: current.title })}</span>
-              </Link>
-              {!standalone && (
-                <Link href={href('/services')} className="label link-line text-gold">
-                  {t.services.all}
-                </Link>
-              )}
-            </li>
+            <li className="pt-8">{cta}</li>
           </ol>
 
           <div className="hidden md:col-span-6 md:block lg:col-span-5">
