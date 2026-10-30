@@ -1,4 +1,7 @@
+'use client';
+
 import Image from 'next/image';
+import { useSiteSettingsOptional } from './I18nProvider';
 import { brandAssets } from '@/lib/content';
 
 /**
@@ -25,9 +28,12 @@ export default function Logo({
   tone?: keyof typeof VARIANTS;
   sizes?: string;
 }) {
+  // A logo replaced in the control panel (Brand & settings) wins over the built-in files.
+  const brand = useSiteSettingsOptional()?.brand;
+  const src = (tone === 'light' ? brand?.logoLight : brand?.logoDark) || VARIANTS[tone];
   return (
     <Image
-      src={VARIANTS[tone]}
+      src={src}
       alt={brandAssets.logo.alt}
       width={1309}
       height={648}

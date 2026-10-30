@@ -2,7 +2,7 @@
 
 import Link from 'next/link';
 import { usePathname, useRouter } from 'next/navigation';
-import { useEffect, useState, type ReactNode } from 'react';
+import { createContext, useContext, useEffect, useState, type ReactNode } from 'react';
 import Logo from '@/components/Logo';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import type { AppRole } from '@/lib/supabase/server';
@@ -44,6 +44,14 @@ const NAV: { group: string; items: Item[] }[] = [
 const ROLE_TONE: Record<AppRole, 'gold' | 'blue' | 'green' | 'grey'> = { owner: 'gold', admin: 'blue', editor: 'green', viewer: 'grey' };
 
 export type Member = { email: string; name: string | null; role: AppRole };
+
+const MemberContext = createContext<Member | null>(null);
+/** The signed-in team member (for showing/hiding actions; RLS enforces the same rules). */
+export function useMember() {
+  const m = useContext(MemberContext);
+  if (!m) throw new Error('useMember outside the panel');
+  return { ...m, can: (min: AppRole) => RANK[m.role] >= RANK[min] };
+}
 
 function Icon({ d }: { d: string }) {
   return (
@@ -125,6 +133,7 @@ export default function AdminShell({ member, newEnquiries, children }: { member:
   );
 
   return (
+    <MemberContext.Provider value={member}>
     <div className="min-h-[100svh] lg:pl-64">
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-bone/10 bg-[#100f0e] lg:flex">
@@ -181,5 +190,6 @@ export default function AdminShell({ member, newEnquiries, children }: { member:
 
       <main className="mx-auto w-full max-w-6xl px-4 pb-24 pt-6 sm:px-6 sm:pt-8 lg:px-10 lg:pt-10">{children}</main>
     </div>
+    </MemberContext.Provider>
   );
 }

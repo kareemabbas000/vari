@@ -36,6 +36,9 @@ export type Project = {
   /** Category name in the current language. */
   categoryName?: string;
   featured?: boolean;
+  /** Optional search-engine overrides from the panel. */
+  seoTitle?: string;
+  seoDescription?: string;
 };
 
 export const site = {

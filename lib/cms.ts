@@ -54,28 +54,11 @@ export function pick(v: unknown, locale: Locale): string {
   return o[locale] || o[defaultLocale] || '';
 }
 
-export function mediaSrc(source: string, path: string) {
-  return source === 'storage' ? `${SUPABASE_URL}/storage/v1/object/public/media/${path.split('/').map(encodeURIComponent).join('/')}` : path;
-}
+export { mediaSrc } from '@/lib/media';
+import { mediaSrc } from '@/lib/media';
 
-function isObj(v: unknown): v is Record<string, unknown> {
-  return !!v && typeof v === 'object' && !Array.isArray(v);
-}
-
-/** Overlay CMS values on the static dictionary, keeping static keys the CMS hasn't set. */
-export function deepMerge<T>(base: T, over: unknown): T {
-  if (Array.isArray(base)) {
-    if (!Array.isArray(over)) return base;
-    return base.map((b, i) => (i < over.length ? deepMerge(b, over[i]) : b)).concat(over.slice(base.length)) as T;
-  }
-  if (isObj(base)) {
-    if (!isObj(over)) return base;
-    const out: Record<string, unknown> = { ...base };
-    for (const k of Object.keys(over)) out[k] = k in base ? deepMerge((base as Record<string, unknown>)[k], over[k]) : over[k];
-    return out as T;
-  }
-  return (typeof over === typeof base && over !== '' ? over : base) as T;
-}
+export { deepMerge } from '@/lib/merge';
+import { deepMerge, isObj } from '@/lib/merge';
 
 async function rest<T>(path: string): Promise<T> {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
@@ -101,7 +84,7 @@ async function loadRaw(): Promise<Raw | null> {
       rest<Row[]>('site_settings?select=data&id=eq.1'),
       rest<Row[]>('categories?select=slug,name,sort&order=sort.asc'),
       rest<Row[]>(
-        'projects?select=slug,title,label,location,client,description,featured,sort,category:categories(slug,name),gallery:project_media(sort,media:media(source,path,width,height,alt))&published=eq.true&order=sort.asc',
+        'projects?select=slug,title,label,location,client,description,seo,featured,sort,category:categories(slug,name),gallery:project_media(sort,media:media(source,path,width,height,alt))&published=eq.true&order=sort.asc',
       ),
       rest<Row[]>('services?select=key,title,body,note,sort&visible=eq.true&order=sort.asc'),
       rest<Row[]>('content_blocks?select=key,value'),
@@ -164,6 +147,8 @@ export function buildContent(raw: Raw, locale: Locale): SiteContent {
         description: pick(p.description, locale).split(/\n{2,}/).map((s) => s.trim()).filter(Boolean),
         media,
         featured: !!p.featured,
+        seoTitle: pick(p.seo?.title, locale) || undefined,
+        seoDescription: pick(p.seo?.description, locale) || undefined,
       };
       return project;
     })

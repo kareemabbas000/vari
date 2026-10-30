@@ -29,9 +29,9 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const found = await load(locale, slug);
   if (!found) return {};
   const p = found.project;
-  const description = p.description.join(' ').slice(0, 300);
+  const description = p.seoDescription || p.description.join(' ').slice(0, 300);
   return {
-    title: p.title,
+    title: p.seoTitle || p.title,
     description,
     alternates: alternatesFor(locale, `/work/${p.slug}`),
     openGraph: {

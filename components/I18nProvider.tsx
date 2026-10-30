@@ -36,6 +36,11 @@ export function I18nProvider({ content, children }: { content: SiteContent; chil
   return <I18nContext.Provider value={value}>{children}</I18nContext.Provider>;
 }
 
+/** Site settings when inside the public site (null in the control panel). */
+export function useSiteSettingsOptional() {
+  return useContext(I18nContext)?.settings ?? null;
+}
+
 export function useI18n() {
   const ctx = useContext(I18nContext);
   if (!ctx) throw new Error('useI18n must be used inside <I18nProvider>');

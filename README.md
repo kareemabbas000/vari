@@ -32,3 +32,10 @@ Contact enquiries and newsletter sign-ups are stored in the **VARI** Supabase pr
   SQL editor or with `supabase db push`.
 - **Vercel environment variables:** `SUPABASE_SECRET_KEY`, `IP_HASH_SALT`, `RESEND_API_KEY`,
   `CONTACT_FROM_EMAIL` (see `.env.example`). Without them the forms fall back gracefully.
+
+## Control panel (CMS)
+
+`/admin` — manage projects, categories, services, home-page layout, every text in EN/DE/ES, the
+media library, brand & contact settings, the enquiry inbox, newsletter subscribers, team members,
+roles and the activity log. Mobile-first. Setup, roles and the verification checklist:
+**[docs/CONTROL_PANEL.md](docs/CONTROL_PANEL.md)**.

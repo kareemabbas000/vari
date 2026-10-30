@@ -36,7 +36,8 @@ const DOORS_OPEN = 'polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 
  * at step 4. No-WebGL devices get the same story as a 2D line drawing.
  */
 export default function Preloader({ enabled = true, languageGate = true }: { enabled?: boolean; languageGate?: boolean }) {
-  const { t, locale } = useI18n();
+  const { t, locale, settings } = useI18n();
+  const logoMask = `url(${settings.brand.logoLight})`;
   const router = useRouter();
   const root = useRef<HTMLDivElement>(null);
   const progress = useRef(0);
@@ -288,8 +289,8 @@ export default function Preloader({ enabled = true, languageGate = true }: { ena
               backgroundImage: 'linear-gradient(105deg, transparent 38%, rgba(255,248,226,0.95) 50%, transparent 62%)',
               backgroundSize: '250% 100%',
               backgroundPosition: '160% 0',
-              WebkitMaskImage: 'url(/brand/vari-logo-light.png)',
-              maskImage: 'url(/brand/vari-logo-light.png)',
+              WebkitMaskImage: logoMask,
+              maskImage: logoMask,
               WebkitMaskSize: '100% 100%',
               maskSize: '100% 100%',
               mixBlendMode: 'overlay',
