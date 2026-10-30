@@ -130,7 +130,7 @@ const en = {
   },
   story: {
     srTitle: 'The VARI approach',
-    pillars: <Pillar[]>[
+    pillars: [
       {
         title: 'VARI: Where Vision Meets Imagination',
         italic: ['Vision', 'Imagination'],
@@ -159,7 +159,7 @@ const en = {
         sub: "Transform your space into a work of art with VARI's dedicated professionals",
         body: "If you're looking for a team of dedicated professionals who can create visionary spaces that manifest your distinctive style, look no further than VARI.",
       },
-    ],
+    ] as Pillar[],
   },
   experience: {
     title: 'Delivering Exceptional Design Experiences',
