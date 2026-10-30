@@ -8,6 +8,7 @@ export type Tier = 'high' | 'low' | 'none';
  * Decides how much real-time 3D a device should get.
  * - none: no WebGL or the visitor prefers reduced motion → static compositions
  * - low:  phones / few cores / little memory / save-data → lighter scene, capped DPR
+ *         (hardware hints never disable 3D on their own)
  * - high: everything else
  */
 export function detectTier(): Tier {
@@ -32,8 +33,10 @@ export function detectTier(): Tier {
   const small = window.matchMedia('(max-width: 767px)').matches;
   const coarse = window.matchMedia('(pointer: coarse)').matches;
 
-  if (saveData || cores <= 2 || memory <= 2) return 'none';
-  if (small || coarse || cores <= 4 || memory <= 4) return 'low';
+  // Hardware hints only ever lighten the scene; they never switch 3D off. Browsers report
+  // these values inconsistently (capped, rounded or missing), so treating them as a hard
+  // gate wrongly sent capable desktops to the static fallback.
+  if (saveData || small || coarse || cores <= 4 || memory <= 4) return 'low';
   return 'high';
 }
 

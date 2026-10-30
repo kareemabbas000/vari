@@ -308,3 +308,13 @@ h3 {
   hyphens: auto;
   -webkit-hyphens: auto;
 }
+
+/* Intro fallback (no WebGL): the ring of project renders turns slowly */
+@keyframes ring {
+  from {
+    transform: rotateX(-6deg) rotateY(0deg);
+  }
+  to {
+    transform: rotateX(-6deg) rotateY(-360deg);
+  }
+}

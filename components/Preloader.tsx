@@ -1,11 +1,13 @@
 'use client';
 
 import dynamic from 'next/dynamic';
+import Image from 'next/image';
 import { useRouter } from 'next/navigation';
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from '@/lib/gsap';
 import { useDeviceTier } from '@/lib/device';
 import { getDictionary } from '@/lib/i18n';
+import { getProject } from '@/lib/content';
 import { localeMeta, locales, localizePath, type Locale } from '@/lib/i18n/config';
 import Logo from './Logo';
 import { useI18n } from './I18nProvider';
@@ -17,6 +19,8 @@ const HANDOFF_KEY = 'vari-intro-handoff';
 const PreloaderScene = dynamic(() => import('./three/PreloaderScene'), { ssr: false });
 
 const STAGE_AT = [0, 0.3, 0.62, 0.9];
+/** Without WebGL the projects still headline the intro: a slowly turning ring of real renders. */
+const RING = ['the-urban-nest', 'hearthstone-haven', 'black-home', 'sophisticated-home-office', 'hne-laboratory', 'elysian-aura'].map((s) => getProject(s)!.media[0]);
 const DOORS_SHUT = 'polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 0% 50%, 100% 50%, 100% 50%, 0% 50%, 0% 50%)';
 const DOORS_OPEN = 'polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 0% -1%, 100% -1%, 100% 101%, 0% 101%, 0% -1%)';
 
@@ -139,6 +143,7 @@ export default function Preloader() {
             .to('[data-tagline]', { opacity: 0, y: -12, duration: 0.7, ease: 'power3.in' }, '<')
             .to('[data-chrome]', { opacity: 0, duration: 0.5 }, '<')
             .to('[data-drawing]', { opacity: 0, scale: 1.1, duration: 0.9, ease: 'power3.in' }, '<')
+            .to('[data-ring-frame]', { opacity: 0, duration: 0.7, ease: 'power3.in' }, '<')
             .to('[data-seam]', { scaleX: 1, opacity: 1, duration: 0.6, ease: 'expo.out' }, '-=0.5')
             // The doors part: a hole opens along the seam and widens to the edges.
             .fromTo(el, { clipPath: DOORS_SHUT }, { clipPath: DOORS_OPEN, duration: 1.3, ease: 'expo.inOut' }, '-=0.1');
@@ -200,6 +205,23 @@ export default function Preloader() {
     };
   }, [locale, router]);
 
+  // The no-WebGL stage only exists once the device check has run, so it animates on its own.
+  useEffect(() => {
+    if (tier !== 'none' || !root.current) return;
+    const el = root.current;
+    const ctx = gsap.context(() => {
+      const paths = el.querySelectorAll<SVGPathElement>('[data-draw]');
+      paths.forEach((p) => {
+        const len = p.getTotalLength();
+        p.style.strokeDasharray = `${len}`;
+        p.style.strokeDashoffset = `${len}`;
+      });
+      gsap.to(paths, { strokeDashoffset: 0, duration: 2.4, ease: 'power2.inOut', stagger: 0.06 });
+      gsap.to('[data-ring-frame]', { opacity: 1, duration: 1.2, stagger: 0.15, ease: 'power2.out', delay: 0.6 });
+    }, el);
+    return () => ctx.revert();
+  }, [tier]);
+
   if (done || !active) return null;
 
   const webgl = tier === 'high' || tier === 'low';
@@ -221,7 +243,21 @@ export default function Preloader() {
           <PreloaderScene progress={progress} exit={exit} look={look} />
         ) : tier === 'none' ? (
           <div className="absolute inset-0 flex items-center justify-center">
-            <svg data-drawing viewBox="0 0 600 400" className="w-[min(88vw,760px)] text-gold" fill="none" stroke="currentColor" strokeWidth="0.8" aria-hidden>
+            <div aria-hidden className="absolute inset-0 flex items-center justify-center [perspective:1400px]">
+              <div className="relative h-[min(30vw,240px)] w-[min(24vw,190px)] animate-[ring_60s_linear_infinite] [transform-style:preserve-3d]">
+                {RING.map((m, i) => (
+                  <div
+                    key={m.id}
+                    data-ring-frame
+                    className="absolute inset-0 overflow-hidden border border-gold/50 bg-night opacity-0 shadow-[0_30px_60px_rgba(0,0,0,0.6)] [backface-visibility:hidden]"
+                    style={{ transform: `rotateY(${(i * 360) / RING.length}deg) translateZ(min(40vw, 420px))` }}
+                  >
+                    <Image src={m.id} alt="" fill sizes="200px" className="object-cover" />
+                  </div>
+                ))}
+              </div>
+            </div>
+            <svg data-drawing viewBox="0 0 600 400" className="relative w-[min(88vw,760px)] text-gold" fill="none" stroke="currentColor" strokeWidth="0.8" aria-hidden>
               <path data-draw d="M20 330 H580" />
               <path data-draw d="M300 40 V360" strokeOpacity="0.25" strokeDasharray="2 4" />
               <path data-draw d="M80 330 V110 M140 330 V140 M190 330 V164 M232 330 V182 M266 330 V196" />
