@@ -412,7 +412,7 @@ export default function PostEditor() {
               <Field label="Publish date & time" htmlFor="when" hint="A future date schedules the article — it appears automatically (within about 5 minutes).">
                 <Input id="when" type="datetime-local" value={toLocalInput(post.publish_at)} onChange={(e) => setP({ publish_at: e.target.value ? new Date(e.target.value).toISOString() : null })} />
               </Field>
-              <Switch checked={post.featured} onChange={(featured) => setP({ featured })} label="Feature on the journal page" />
+              <Switch checked={post.featured} onChange={(featured) => setP({ featured })} label="Feature on the blog page" />
               {live && trs[lang].ready && <a href={`/${lang}/blog/${tr.slug}`} target="_blank" rel="noreferrer" className="block text-sm text-gold hover:underline">View on the website ↗</a>}
             </div>
           </Card>

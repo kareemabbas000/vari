@@ -68,7 +68,7 @@ export default function BlogSettings() {
 
   return (
     <>
-      <Link href="/admin/blog" className="mb-4 inline-block text-sm text-bone/50 hover:text-gold">← Journal</Link>
+      <Link href="/admin/blog" className="mb-4 inline-block text-sm text-bone/50 hover:text-gold">← Blog</Link>
       <PageHeader title="Categories, authors & tags" description="Categories get their own page on the site (/blog/category/…); authors get a profile page that also helps search engines trust the content." />
       <fieldset disabled={!editable} className="grid gap-6 xl:grid-cols-2">
         <Card title="Categories" actions={<Button size="sm" variant="secondary" onClick={() => setData({ ...data, cats: [...data.cats, { slug: '', name: {}, description: {}, sort: (data.cats.length + 1) * 10 }] })}>Add</Button>}>

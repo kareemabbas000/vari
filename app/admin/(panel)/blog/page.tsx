@@ -63,7 +63,7 @@ export default function BlogList() {
     <>
       <PageHeader
         eyebrow="Content"
-        title="Journal (blog)"
+        title="Blog"
         description="Write, translate, schedule and optimise articles in English, German and Spanish."
         actions={
           <div className="flex gap-2">

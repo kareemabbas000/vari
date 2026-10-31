@@ -7,7 +7,7 @@ import PostCard, { BlogCta, GoldTitle } from './PostCard';
 
 export const PER_PAGE = 12;
 
-/** Journal listing: header, category filter, featured story, grid, pagination. */
+/** Blog listing: header, category filter, featured story, grid, pagination. */
 export default function BlogIndex({
   t,
   locale,

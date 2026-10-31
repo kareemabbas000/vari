@@ -33,6 +33,8 @@ export const SECTION_NAMES: Record<string, { name: string; about: string }> = {
   legal: { name: 'Consent & legal', about: 'Consent notes under the forms' },
   newsletterStatus: { name: 'Newsletter status page', about: 'Confirmed / unsubscribed messages' },
   emails: { name: 'Emails', about: 'Acknowledgement and confirmation emails' },
+  blog: { name: 'Blog', about: 'Blog page titles, labels and the call to action under articles' },
+  consent: { name: 'Cookie banner', about: 'Consent banner texts and the cookie paragraph of the privacy notice' },
   privacy: { name: 'Privacy notice', about: 'The privacy page (have it legally reviewed)' },
   welcomeLayer: { name: 'Welcome layer prefix', about: 'Small letter before layer numbers' },
 };

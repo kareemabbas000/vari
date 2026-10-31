@@ -26,7 +26,7 @@ const NAV: { group: string; items: Item[] }[] = [
       { href: '/admin/projects', label: 'Projects', min: 'viewer', icon: 'M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z' },
       { href: '/admin/categories', label: 'Categories', min: 'viewer', icon: 'M4 6h16M4 12h10M4 18h6' },
       { href: '/admin/services', label: 'Services', min: 'viewer', icon: 'M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5' },
-      { href: '/admin/blog', label: 'Journal (blog)', min: 'viewer', icon: 'M5 4h11l3 3v13H5zM8 9h8M8 13h8M8 17h5' },
+      { href: '/admin/blog', label: 'Blog', min: 'viewer', icon: 'M5 4h11l3 3v13H5zM8 9h8M8 13h8M8 17h5' },
       { href: '/admin/pages', label: 'Pages & builder', min: 'viewer', icon: 'M4 3h11l5 5v13H4zM15 3v5h5M8 13h8M8 17h5' },
       { href: '/admin/home', label: 'Home & intro', min: 'viewer', icon: 'M4 5h16v4H4zM4 11h16v4H4zM4 17h10v2H4z' },
       { href: '/admin/texts', label: 'Texts & translations', min: 'viewer', icon: 'M4 5h10M9 5v14M14 13h6M17 13v6M15 19h4' },

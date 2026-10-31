@@ -14,7 +14,7 @@ content if the database is unreachable.
 | `IP_HASH_SALT` | recommended | Any long random string (spam throttling). |
 | `RESEND_API_KEY` | recommended | Enables branded emails: enquiry notifications, visitor acknowledgements, newsletter confirmations, panel invitations. |
 | `CONTACT_FROM_EMAIL` | with Resend | e.g. `VARI Studio <website@vari-studio.com>` on a domain verified in Resend. |
-| `DEEPL_API_KEY` | optional | Adds “Draft with DeepL” to the journal editor (machine draft of German/Spanish translations, always reviewed by a person). |
+| `DEEPL_API_KEY` | optional | Adds “Draft with DeepL” to the blog editor (machine draft of German/Spanish translations, always reviewed by a person). |
 | `ADMIN_OWNER_EMAIL` | optional | Who may claim the first Owner account. Default: `kareemaitools@gmail.com`. |
 
 Redeploy after adding them.
@@ -46,7 +46,7 @@ Run it once in Supabase → SQL Editor (or `supabase db push`).
   page SEO with a Google preview. New pages start from templates and live at `/{lang}/{address}`.
   The built-in pages (home, work, services, studio, contact) open in the same builder: their
   designed sections stay intact and new blocks can be placed around them.
-- **Journal (blog)** — rich article editor (headings, images with captions and sizes, tip/note/warning
+- **Blog** — rich article editor (headings, images with captions and sizes, tip/note/warning
   boxes, quotes, tables, YouTube/Vimeo, call-to-action buttons), per-language title, address, excerpt,
   key takeaways, SEO title/description and focus keyword with a live SEO score, FAQ (Google rich
   results), categories, tags and author profiles, featured posts and scheduling (a future publish date

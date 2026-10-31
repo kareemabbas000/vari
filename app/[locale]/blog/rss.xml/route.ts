@@ -8,7 +8,7 @@ export const revalidate = 300;
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
-/** RSS 2.0 feed of the journal, one per language. */
+/** RSS 2.0 feed of the blog, one per language. */
 export async function GET(_req: Request, { params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
   if (!isLocale(locale)) return new Response('Not found', { status: 404 });

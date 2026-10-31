@@ -227,13 +227,14 @@ export function ConfirmDialog({
   body: ReactNode;
   confirmLabel: string;
   tone?: 'danger' | 'primary';
-  onConfirm: () => void;
+  onConfirm: () => void | Promise<void>;
   onCancel: () => void;
   busy?: boolean;
   /** Ask the user to type this exact text before confirming (for irreversible actions). */
   requireText?: string;
 }) {
   const [typed, setTyped] = useState('');
+  const [working, setWorking] = useState(false);
   useEffect(() => {
     if (!open) setTyped('');
     const onKey = (e: KeyboardEvent) => e.key === 'Escape' && open && onCancel();
@@ -241,7 +242,19 @@ export function ConfirmDialog({
     return () => window.removeEventListener('keydown', onKey);
   }, [open, onCancel]);
   if (!open) return null;
-  const blocked = !!requireText && typed.trim() !== requireText;
+  // Case and surrounding spaces don't matter: "DELETE" confirms "delete".
+  const norm = (v: string) => v.trim().toLowerCase();
+  const matches = !requireText || norm(typed) === norm(requireText);
+  const blocked = !matches;
+  const run = async () => {
+    if (blocked || working) return;
+    setWorking(true);
+    try {
+      await onConfirm();
+    } finally {
+      setWorking(false);
+    }
+  };
   return (
     <div role="dialog" aria-modal="true" aria-label={title} className="fixed inset-0 z-[90] flex items-end justify-center bg-night/80 p-0 backdrop-blur-sm sm:items-center sm:p-6">
       <div className="w-full max-w-md rounded-t-md border border-bone/15 bg-[#141312] p-5 pb-[max(1.25rem,env(safe-area-inset-bottom))] shadow-2xl sm:rounded-sm sm:p-6">
@@ -250,15 +263,18 @@ export function ConfirmDialog({
         {requireText && (
           <div className="mt-4">
             <Field label={`Type “${requireText}” to confirm`}>
-              <Input value={typed} onChange={(e) => setTyped(e.target.value)} autoFocus />
+              <Input value={typed} onChange={(e) => setTyped(e.target.value)} onKeyDown={(e) => e.key === 'Enter' && run()} autoFocus autoCapitalize="none" autoCorrect="off" spellCheck={false} />
             </Field>
+            <p className={`mt-1.5 text-xs ${typed && !matches ? 'text-[#E8A598]' : matches ? 'text-emerald-400' : 'text-bone/40'}`}>
+              {matches ? 'Confirmed — you can continue.' : typed ? 'Not matching yet.' : 'The button unlocks when the text matches.'}
+            </p>
           </div>
         )}
         <div className="mt-6 flex flex-col-reverse gap-2 sm:flex-row sm:justify-end">
           <Button variant="ghost" onClick={onCancel} disabled={busy}>
             Cancel
           </Button>
-          <Button variant={tone === 'danger' ? 'danger' : 'primary'} onClick={onConfirm} busy={busy} disabled={blocked}>
+          <Button variant={tone === 'danger' ? 'danger' : 'primary'} onClick={run} busy={busy || working} disabled={blocked}>
             {confirmLabel}
           </Button>
         </div>
