@@ -116,7 +116,8 @@ export function Switch({ checked, onChange, label, description, disabled }: { ch
           checked ? 'border-gold bg-gold/80' : 'border-bone/25 bg-bone/10'
         }`}
       >
-        <span className={`absolute top-0.5 h-5 w-5 rounded-full bg-bone shadow transition-transform ${checked ? 'translate-x-[1.35rem]' : 'translate-x-0.5'}`} />
+        {/* Anchored to the left edge: an un-anchored absolute child starts at the button's centre. */}
+        <span className={`absolute left-0.5 top-0.5 h-5 w-5 rounded-full bg-bone shadow transition-transform ${checked ? 'translate-x-5' : 'translate-x-0'}`} />
       </button>
     </div>
   );
