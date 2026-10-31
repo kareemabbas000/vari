@@ -77,3 +77,7 @@ update public.blog_categories set name = name || '{"tr":"3D Görselleştirme"}',
 update public.blog_categories set name = name || '{"tr":"İç Mimari"}', description = description || '{"tr":"İç mekânlar için fikirler, malzemeler ve süreçler."}' where slug = 'interior-design';
 update public.blog_categories set name = name || '{"tr":"Rehberler"}', description = description || '{"tr":"Geliştiriciler, mimarlar ve ev sahipleri için pratik rehberler."}' where slug = 'guides';
 update public.blog_authors set role = role || '{"tr":"Tasarım ve 3D görselleştirme stüdyosu"}', bio = bio || '{"tr":"VARI; dünyanın dört bir yanındaki müşterileri için fotogerçekçi renderlar, animasyonlar ve tasarım konseptleri üreten bir mimari görselleştirme ve iç mimarlık stüdyosudur."}' where slug = 'vari-studio';
+
+-- Project names are proper names and stay as they are (as in German and Spanish).
+update public.projects set title = title || jsonb_build_object('tr', title->>'en')
+where coalesce(title->>'en', '') <> '' and coalesce(title->>'tr', '') = '' and title->>'de' = title->>'en';

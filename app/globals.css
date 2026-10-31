@@ -160,6 +160,47 @@ img {
     background: var(--gold);
     color: var(--night);
   }
+  /* Outline button that stays readable over photography: smoked glass behind gold type. */
+  .btn-glass {
+    background: rgba(12, 11, 10, 0.42);
+    -webkit-backdrop-filter: blur(10px) saturate(120%);
+    backdrop-filter: blur(10px) saturate(120%);
+    box-shadow: inset 0 1px 0 rgba(244, 239, 230, 0.06);
+  }
+
+  /* Hero legibility veil — darkest where the copy sits (left, mid-height), clear on the right
+     so the render keeps its light. On phones the copy spans the width, so the shade runs upward. */
+  .hero-veil {
+    background:
+      radial-gradient(120% 75% at 0% 55%, rgba(12, 11, 10, 0.62) 0%, rgba(12, 11, 10, 0.38) 38%, rgba(12, 11, 10, 0) 70%),
+      linear-gradient(90deg, rgba(12, 11, 10, 0.35) 0%, rgba(12, 11, 10, 0) 55%);
+  }
+  @media (max-width: 767px) {
+    .hero-veil {
+      background: linear-gradient(0deg, rgba(12, 11, 10, 0.55) 0%, rgba(12, 11, 10, 0.4) 45%, rgba(12, 11, 10, 0.15) 75%, rgba(12, 11, 10, 0) 100%);
+    }
+  }
+
+  /* Eyebrow on a smoked-glass capsule with a gold hairline lead-in. */
+  .hero-eyebrow {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.9rem;
+    padding: 0.6rem 1.1rem 0.6rem 0.9rem;
+    border: 1px solid rgba(212, 175, 55, 0.3);
+    background: rgba(12, 11, 10, 0.4);
+    -webkit-backdrop-filter: blur(8px);
+    backdrop-filter: blur(8px);
+    text-shadow: 0 1px 12px rgba(12, 11, 10, 0.6);
+    max-width: 100%;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    width: 1.75rem;
+    height: 1px;
+    flex: none;
+    background: var(--gold);
+  }
   .btn-solid::before {
     background: var(--bone);
   }

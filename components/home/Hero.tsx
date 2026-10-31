@@ -120,19 +120,23 @@ export default function Hero() {
           <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-night to-transparent" />
         </div>
 
+        {/* Legibility veil: a soft, directional shade behind the copy only (fades with it), so the
+            gold and light type read on any image without dimming the whole render. */}
+        <div data-hero-copy aria-hidden className="hero-veil pointer-events-none absolute inset-0" />
+
         {/* Headline */}
         <div data-hero-copy className="wrap relative flex h-full flex-col justify-center pb-[max(11vh,5rem)] pt-[calc(var(--header-h)+2vh)]">
-          <p className="label mb-5 text-gold md:mb-7">{t.hero.label}</p>
+          <p className="hero-eyebrow label mb-5 self-start text-gold md:mb-7">{t.hero.label}</p>
           <RevealText
             as="h1"
             trigger="event"
             eventName={INTRO_EVENT}
-            className="display h-hero max-w-[16ch] text-bone [text-shadow:0_4px_40px_rgba(12,11,10,0.55)]"
+            className="display h-hero max-w-[16ch] text-bone [text-shadow:0_2px_24px_rgba(12,11,10,0.45),0_4px_60px_rgba(12,11,10,0.35)]"
             text={`${t.hero.line1}\n${t.hero.line2}`}
             italic={t.hero.italic}
           />
           <div className={`mt-8 flex flex-wrap gap-3 sm:gap-4 md:mt-10 transition-[opacity,transform] delay-700 duration-1000 ease-expo ${started ? 'translate-y-0 opacity-100' : 'translate-y-6 opacity-0'}`}>
-            <Link href={href('/contact?intent=design')} className="btn">
+            <Link href={href('/contact?intent=design')} className="btn btn-glass">
               <span>{t.hero.ctaDesign}</span>
             </Link>
             <Link href={href('/contact?intent=visualize')} className="btn btn-solid">
