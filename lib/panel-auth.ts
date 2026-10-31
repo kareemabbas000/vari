@@ -50,13 +50,28 @@ export async function sendAccessLink(admin: Admin, email: string, kind: Kind, or
     const inv = await admin.auth.admin.inviteUserByEmail(email, { redirectTo });
     if (!inv.error && inv.data.user) return { userId: inv.data.user.id };
   }
-  // Recovery, or an invite for an address that already has an account.
-  const lookup = await admin.auth.admin.generateLink({ type: 'recovery', email, options: { redirectTo } });
-  if (lookup.error || !lookup.data.user) return { error: lookup.error?.message || 'user_not_found' };
+  // Recovery, or an invite for an address that already has an account. Find the user without
+  // generateLink: that call counts as a recovery request itself and would trip Supabase's
+  // one-email-per-minute limit for the reset sent next.
+  const userId = await findUserId(admin, email);
+  if (!userId) return { error: 'user_not_found' };
   const anon = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: false, flowType: 'implicit' } });
   const reset = await anon.auth.resetPasswordForEmail(email, { redirectTo });
   if (reset.error) return { error: reset.error.message };
-  return { userId: lookup.data.user.id };
+  return { userId };
+}
+
+async function findUserId(admin: Admin, email: string) {
+  const { data: profile } = await admin.from('profiles').select('id').eq('email', email.toLowerCase()).maybeSingle();
+  if (profile) return profile.id;
+  for (let page = 1; page <= 10; page++) {
+    const { data, error } = await admin.auth.admin.listUsers({ page, perPage: 1000 });
+    if (error) return null;
+    const hit = data.users.find((u) => u.email?.toLowerCase() === email.toLowerCase());
+    if (hit) return hit.id;
+    if (data.users.length < 1000) return null;
+  }
+  return null;
 }
 
 /** "k••••••s@gmail.com" */
