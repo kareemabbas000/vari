@@ -57,6 +57,207 @@ export type Database = {
           },
         ]
       }
+      blog_authors: {
+        Row: {
+          avatar: string | null
+          bio: Json
+          created_at: string
+          id: string
+          links: Json
+          name: string
+          role: Json
+          slug: string
+          updated_at: string
+        }
+        Insert: {
+          avatar?: string | null
+          bio?: Json
+          created_at?: string
+          id?: string
+          links?: Json
+          name: string
+          role?: Json
+          slug: string
+          updated_at?: string
+        }
+        Update: {
+          avatar?: string | null
+          bio?: Json
+          created_at?: string
+          id?: string
+          links?: Json
+          name?: string
+          role?: Json
+          slug?: string
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      blog_categories: {
+        Row: {
+          created_at: string
+          description: Json
+          id: string
+          name: Json
+          slug: string
+          sort: number
+          updated_at: string
+        }
+        Insert: {
+          created_at?: string
+          description?: Json
+          id?: string
+          name?: Json
+          slug: string
+          sort?: number
+          updated_at?: string
+        }
+        Update: {
+          created_at?: string
+          description?: Json
+          id?: string
+          name?: Json
+          slug?: string
+          sort?: number
+          updated_at?: string
+        }
+        Relationships: []
+      }
+      blog_post_tags: {
+        Row: {
+          post_id: string
+          tag_id: string
+        }
+        Insert: {
+          post_id: string
+          tag_id: string
+        }
+        Update: {
+          post_id?: string
+          tag_id?: string
+        }
+        Relationships: []
+      }
+      blog_post_translations: {
+        Row: {
+          content: Json | null
+          excerpt: string
+          focus_keyword: string
+          html: string
+          locale: Database["public"]["Enums"]["site_locale"]
+          post_id: string
+          ready: boolean
+          seo_description: string
+          seo_title: string
+          slug: string
+          source_hash: string | null
+          takeaways: Json
+          title: string
+          updated_at: string
+          word_count: number
+        }
+        Insert: {
+          content?: Json | null
+          excerpt?: string
+          focus_keyword?: string
+          html?: string
+          locale: Database["public"]["Enums"]["site_locale"]
+          post_id: string
+          ready?: boolean
+          seo_description?: string
+          seo_title?: string
+          slug: string
+          source_hash?: string | null
+          takeaways?: Json
+          title?: string
+          updated_at?: string
+          word_count?: number
+        }
+        Update: {
+          content?: Json | null
+          excerpt?: string
+          focus_keyword?: string
+          html?: string
+          locale?: Database["public"]["Enums"]["site_locale"]
+          post_id?: string
+          ready?: boolean
+          seo_description?: string
+          seo_title?: string
+          slug?: string
+          source_hash?: string | null
+          takeaways?: Json
+          title?: string
+          updated_at?: string
+          word_count?: number
+        }
+        Relationships: []
+      }
+      blog_posts: {
+        Row: {
+          author_id: string | null
+          category_id: string | null
+          cover: string | null
+          cover_alt: Json
+          created_at: string
+          faq: Json
+          featured: boolean
+          id: string
+          publish_at: string | null
+          status: string
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          author_id?: string | null
+          category_id?: string | null
+          cover?: string | null
+          cover_alt?: Json
+          created_at?: string
+          faq?: Json
+          featured?: boolean
+          id?: string
+          publish_at?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          author_id?: string | null
+          category_id?: string | null
+          cover?: string | null
+          cover_alt?: Json
+          created_at?: string
+          faq?: Json
+          featured?: boolean
+          id?: string
+          publish_at?: string | null
+          status?: string
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
+      blog_tags: {
+        Row: {
+          created_at: string
+          id: string
+          name: Json
+          slug: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name?: Json
+          slug: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: Json
+          slug?: string
+        }
+        Relationships: []
+      }
       categories: {
         Row: {
           created_at: string

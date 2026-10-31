@@ -20,6 +20,7 @@ export function useNav(where: 'header' | 'footer'): NavEntry[] {
       { label: t.nav.work, path: '/work' },
       { label: t.nav.services, path: '/services' },
       { label: t.nav.studio, path: '/studio' },
+      { label: t.nav.blog, path: '/blog' },
       { label: t.nav.contact, path: '/contact' },
     ].map((n) => ({ key: n.path, label: n.label, path: n.path, href: href(n.path), external: false, newTab: false }));
   }

@@ -53,15 +53,6 @@ export default function HomeLayoutPage() {
     setStory(data.home?.storyImages ?? []);
   }, [data]);
 
-  const move = (i: number, dir: -1 | 1) =>
-    setSections((s) => {
-      const j = i + dir;
-      if (j < 0 || j >= s.length) return s;
-      const n = [...s];
-      [n[i], n[j]] = [n[j], n[i]];
-      return n;
-    });
-
   async function save() {
     if (!data) return;
     setSaving(true);

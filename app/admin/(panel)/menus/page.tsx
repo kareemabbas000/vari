@@ -16,6 +16,7 @@ const DEFAULT_MENU: Item[] = [
   { label: { en: 'Work', de: 'Projekte', es: 'Proyectos' }, href: '/work' },
   { label: { en: 'Services', de: 'Leistungen', es: 'Servicios' }, href: '/services' },
   { label: { en: 'Studio', de: 'Studio', es: 'Estudio' }, href: '/studio' },
+  { label: { en: 'Journal', de: 'Journal', es: 'Journal' }, href: '/blog' },
   { label: { en: 'Contact', de: 'Kontakt', es: 'Contacto' }, href: '/contact' },
 ];
 const BUILT_IN = ['/', '/work', '/services', '/studio', '/contact', '/blog', '/privacy'];
@@ -141,7 +142,7 @@ export default function MenusPage() {
       </Card>
 
       <div className="grid gap-6 xl:grid-cols-2">
-        <MenuEditor title="Main menu" items={header} onChange={setHeader} targets={targets} emptyNote="Using the built-in menu: Work, Services, Studio, Contact." />
+        <MenuEditor title="Main menu" items={header} onChange={setHeader} targets={targets} emptyNote="Using the built-in menu: Work, Services, Studio, Journal, Contact." />
         <MenuEditor title="Footer “Explore” links" items={footer} onChange={setFooter} targets={targets} emptyNote="Using the same links as the main menu." />
       </div>
     </>

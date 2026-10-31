@@ -14,6 +14,7 @@ content if the database is unreachable.
 | `IP_HASH_SALT` | recommended | Any long random string (spam throttling). |
 | `RESEND_API_KEY` | recommended | Enables branded emails: enquiry notifications, visitor acknowledgements, newsletter confirmations, panel invitations. |
 | `CONTACT_FROM_EMAIL` | with Resend | e.g. `VARI Studio <website@vari-studio.com>` on a domain verified in Resend. |
+| `DEEPL_API_KEY` | optional | Adds “Draft with DeepL” to the journal editor (machine draft of German/Spanish translations, always reviewed by a person). |
 | `ADMIN_OWNER_EMAIL` | optional | Who may claim the first Owner account. Default: `kareemaitools@gmail.com`. |
 
 Redeploy after adding them.
@@ -45,6 +46,15 @@ Run it once in Supabase → SQL Editor (or `supabase db push`).
   page SEO with a Google preview. New pages start from templates and live at `/{lang}/{address}`.
   The built-in pages (home, work, services, studio, contact) open in the same builder: their
   designed sections stay intact and new blocks can be placed around them.
+- **Journal (blog)** — rich article editor (headings, images with captions and sizes, tip/note/warning
+  boxes, quotes, tables, YouTube/Vimeo, call-to-action buttons), per-language title, address, excerpt,
+  key takeaways, SEO title/description and focus keyword with a live SEO score, FAQ (Google rich
+  results), categories, tags and author profiles, featured posts and scheduling (a future publish date
+  goes live on its own within about five minutes). Translation workflow: English is the source;
+  German and Spanish start from the English structure, can be compared side by side, and are flagged
+  when the English text changes later. Only languages marked “ready” are published, each with its own
+  address and hreflang. Public pages: `/{lang}/blog`, articles, category and author pages, RSS feed
+  (`/{lang}/blog/rss.xml`), articles in the sitemap with structured data (BlogPosting, Breadcrumb, FAQ).
 - **Menus & announcement** — main menu and footer links (including builder pages) and a gold
   announcement bar.
 - **Analytics & tracking** — GA4, Google Tag Manager, Google Ads, Meta Pixel + Conversions API,

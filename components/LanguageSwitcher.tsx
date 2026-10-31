@@ -30,7 +30,12 @@ export default function LanguageSwitcher({ variant = 'inline', tabIndex }: { var
     rememberLocale(target);
     if (target === locale) return e.preventDefault();
     e.preventDefault();
-    router.push(localizePath(target, rest) + window.location.search + window.location.hash, { scroll: false });
+    // Pages whose address differs per language (blog articles) declare it via hreflang.
+    const alt = document.querySelector<HTMLLinkElement>(`link[rel="alternate"][hreflang="${localeMeta[target].hreflang}"]`)?.getAttribute('href');
+    const translated = alt ? new URL(alt, window.location.origin).pathname : null;
+    const isArticle = /^\/blog\/[^/]+$/.test(rest);
+    const dest = translated && translated !== localizePath(target, rest) ? translated : isArticle && !translated ? localizePath(target, '/blog') : localizePath(target, rest);
+    router.push(dest + (dest === localizePath(target, rest) ? window.location.search + window.location.hash : ''), { scroll: false });
   };
 
   if (variant === 'menu') {
