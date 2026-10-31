@@ -3,6 +3,8 @@ import { notFound } from 'next/navigation';
 import { display, sans } from '@/lib/fonts';
 import '../globals.css';
 import SmoothScroll from '@/components/SmoothScroll';
+import Tracking from '@/components/Tracking';
+import { VERIFY_PATTERN } from '@/lib/tracking';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { I18nProvider } from '@/components/I18nProvider';
@@ -12,7 +14,7 @@ import { isLocale, localeMeta, locales, type Locale } from '@/lib/i18n/config';
 import { alternatesFor } from '@/lib/i18n';
 import { getSiteContent } from '@/lib/cms';
 
-const AUTH_LINK_FORWARD = `(function(){var h=location.hash,q=location.search;if(/[#&](access_token|error_code)=/.test(h)||/[?&]token_hash=/.test(q)){location.replace('/admin/accept'+q+h);}})();`;
+const AUTH_LINK_FORWARD = `document.documentElement.classList.add('js');(function(){var h=location.hash,q=location.search;if(/[#&](access_token|error_code)=/.test(h)||/[?&]token_hash=/.test(q)){location.replace('/admin/accept'+q+h);}})();`;
 
 
 const ogImage = mediaUrl('b80319_425c2f36f32b420da9c91cbd856c607d~mv2.jpg', 1200);
@@ -28,7 +30,13 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const { t } = await getSiteContent(locale);
+  const { t, settings } = await getSiteContent(locale);
+  const v = settings.verification;
+  const ok = (x?: string) => (x && VERIFY_PATTERN.test(x) ? x : undefined);
+  const other: Record<string, string> = {};
+  if (ok(v.bing)) other['msvalidate.01'] = v.bing!;
+  if (ok(v.facebook)) other['facebook-domain-verification'] = v.facebook!;
+  if (ok(v.pinterest)) other['p:domain_verify'] = v.pinterest!;
   return {
     metadataBase: new URL(site.url),
     title: { default: t.meta.siteTitle, template: t.meta.titleTemplate },
@@ -46,7 +54,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       images: [{ url: ogImage, width: 1200, alt: t.meta.ogAlt }],
     },
     twitter: { card: 'summary_large_image', title: t.meta.ogTitle, description: t.meta.description, images: [ogImage] },
-    verification: { google: '96MaJjmpseUkOLOGNvNTymidm2-lxTLQyuHL_vBQagk' },
+    verification: { google: ok(v.google), yandex: ok(v.yandex), other },
     icons: { icon: mediaUrl(brandAssets.emblem.id, 96), apple: mediaUrl(brandAssets.emblem.id, 180) },
   };
 }
@@ -79,7 +87,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   };
 
   return (
-    <html lang={locale} className={`${display.variable} ${sans.variable}`}>
+    <html lang={locale} className={`${display.variable} ${sans.variable}`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://static.wixstatic.com" crossOrigin="anonymous" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
@@ -97,6 +105,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
             <main id="main">{children}</main>
             <Footer />
           </SmoothScroll>
+          <Tracking />
         </I18nProvider>
       </body>
     </html>

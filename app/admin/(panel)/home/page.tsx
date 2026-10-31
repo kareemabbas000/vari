@@ -4,7 +4,7 @@ import Image from 'next/image';
 import { useEffect, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { mediaSrc } from '@/lib/media';
-import { Button, Card, PageHeader, Spinner, Switch, useToast } from '@/components/admin/ui';
+import { Button, Card, LinkButton, PageHeader, Spinner, Switch, useToast } from '@/components/admin/ui';
 import MediaLibrary from '@/components/admin/MediaLibrary';
 import Modal from '@/components/admin/Modal';
 import { must, usePublish, useLoad } from '@/components/admin/hooks';
@@ -37,6 +37,10 @@ export default function HomeLayoutPage() {
   const [story, setStory] = useState<string[]>([]);
   const [slot, setSlot] = useState<number | null>(null);
   const [saving, setSaving] = useState(false);
+  const [homeId, setHomeId] = useState<string | null>(null);
+  useEffect(() => {
+    db.from('pages').select('id').eq('slug', 'home').maybeSingle().then(({ data: p }) => setHomeId(p?.id ?? null));
+  }, [db]);
 
   const { data, loading, error } = useLoad(async () => must(await db.from('site_settings').select('data').eq('id', 1).single()).data as Data);
 
@@ -75,38 +79,24 @@ export default function HomeLayoutPage() {
     <>
       <PageHeader
         eyebrow="Content"
-        title="Home page"
-        description="Arrange the sections of the home page, switch the intro, and choose the story images."
+        title="Home & intro"
+        description="The 3D intro, the language choice and the story images. The layout is edited in the page builder."
         actions={canSave ? <Button onClick={save} busy={saving}>Save & publish</Button> : undefined}
       />
       {!canSave && <p className="mb-4 text-sm text-bone/50">Only admins can change the home page layout.</p>}
 
       <div className="grid gap-6 lg:grid-cols-5">
-        <Card title="Sections (top to bottom)" className="lg:col-span-3">
-          <ul className="-my-2 divide-y divide-bone/10">
-            {sections.map((s, i) => (
-              <li key={s.id} className="flex items-center gap-3 py-3">
-                <span className="w-6 font-sans text-xs text-gold">{String(i + 1).padStart(2, '0')}</span>
-                <div className={`min-w-0 flex-1 ${s.visible ? '' : 'opacity-45'}`}>
-                  <p>{LABELS[s.id]?.name}</p>
-                  <p className="text-xs text-bone/45">{LABELS[s.id]?.about}</p>
-                </div>
-                {canSave && (
-                  <div className="flex shrink-0 items-center gap-1">
-                    <Button variant="ghost" size="sm" aria-label="Move up" disabled={i === 0} onClick={() => move(i, -1)}>
-                      ↑
-                    </Button>
-                    <Button variant="ghost" size="sm" aria-label="Move down" disabled={i === sections.length - 1} onClick={() => move(i, 1)}>
-                      ↓
-                    </Button>
-                    <Button variant="ghost" size="sm" onClick={() => setSections((x) => x.map((y) => (y.id === s.id ? { ...y, visible: !y.visible } : y)))}>
-                      {s.visible ? 'Hide' : 'Show'}
-                    </Button>
-                  </div>
-                )}
-              </li>
-            ))}
-          </ul>
+        <Card title="Layout" className="lg:col-span-3">
+          <p className="text-sm leading-relaxed text-bone/65">
+            The order of the home page sections, hiding sections and adding new blocks between them now happens in the visual page builder — with a live preview on desktop, tablet and phone.
+          </p>
+          {homeId ? (
+            <LinkButton href={`/admin/pages/${homeId}`} variant="primary" className="mt-6">
+              Open the home page in the builder
+            </LinkButton>
+          ) : (
+            <p className="mt-4 text-sm text-bone/45">Loading…</p>
+          )}
         </Card>
 
         <div className="space-y-6 lg:col-span-2">

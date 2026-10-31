@@ -9,6 +9,9 @@ import Story from '@/components/home/Story';
 import Experience from '@/components/home/Experience';
 import ContactSection from '@/components/home/ContactSection';
 import { getSiteContent } from '@/lib/cms';
+import { getPage } from '@/lib/pages';
+import { Interleave } from '@/components/blocks/PageBlocks';
+import type { Block } from '@/lib/blocks/schema';
 import type { Locale } from '@/lib/i18n/config';
 
 /** Home sections by id — their order and visibility are set in the control panel. */
@@ -25,17 +28,17 @@ const SECTIONS: Record<string, () => ReactNode> = {
 
 export default async function Home({ params }: { params: Promise<{ locale: string }> }) {
   const { locale } = await params;
-  const { settings } = await getSiteContent(locale as Locale);
-  const order = settings.home.sections.filter((s) => s.visible && SECTIONS[s.id]);
+  const [{ settings }, page] = await Promise.all([getSiteContent(locale as Locale), getPage('home')]);
+  // The page builder's layout; before it exists (or offline), the section order from settings.
+  const blocks: Block[] =
+    page?.blocks ?? settings.home.sections.map((s) => ({ id: `m-${s.id}`, type: 'module', hidden: !s.visible, props: { module: s.id } }));
+  const used = new Set(blocks.filter((b) => b.type === 'module' && !b.hidden).map((b) => String(b.props.module)));
+  const modules = Object.fromEntries(Object.entries(SECTIONS).filter(([id]) => used.has(id)).map(([id, render]) => [id, render()]));
 
   return (
     <>
       <Preloader enabled={settings.intro.enabled} languageGate={settings.intro.languageGate} />
-      {order.map((s) => (
-        <div key={s.id} className="contents">
-          {SECTIONS[s.id]()}
-        </div>
-      ))}
+      <Interleave blocks={blocks} modules={modules} />
     </>
   );
 }

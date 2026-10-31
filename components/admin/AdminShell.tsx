@@ -26,12 +26,20 @@ const NAV: { group: string; items: Item[] }[] = [
       { href: '/admin/projects', label: 'Projects', min: 'viewer', icon: 'M3 3h8v8H3zM13 3h8v5h-8zM13 10h8v11h-8zM3 13h8v8H3z' },
       { href: '/admin/categories', label: 'Categories', min: 'viewer', icon: 'M4 6h16M4 12h10M4 18h6' },
       { href: '/admin/services', label: 'Services', min: 'viewer', icon: 'M12 3l9 5-9 5-9-5 9-5zM3 13l9 5 9-5' },
-      { href: '/admin/home', label: 'Home page', min: 'viewer', icon: 'M4 5h16v4H4zM4 11h16v4H4zM4 17h10v2H4z' },
+      { href: '/admin/pages', label: 'Pages & builder', min: 'viewer', icon: 'M4 3h11l5 5v13H4zM15 3v5h5M8 13h8M8 17h5' },
+      { href: '/admin/home', label: 'Home & intro', min: 'viewer', icon: 'M4 5h16v4H4zM4 11h16v4H4zM4 17h10v2H4z' },
       { href: '/admin/texts', label: 'Texts & translations', min: 'viewer', icon: 'M4 5h10M9 5v14M14 13h6M17 13v6M15 19h4' },
       { href: '/admin/media', label: 'Media library', min: 'viewer', icon: 'M3 5h18v14H3zM3 16l5-5 4 4 3-3 6 6M15 9a1 1 0 100-2 1 1 0 000 2' },
     ],
   },
-  { group: 'Site', items: [{ href: '/admin/settings', label: 'Brand & settings', min: 'admin', icon: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12l2-1-2-4-2 1-2-2V4h-4v2l-2 2-2-1-2 4 2 1v2l-2 1 2 4 2-1 2 2v2h4v-2l2-2 2 1 2-4-2-1z' }] },
+  {
+    group: 'Site',
+    items: [
+      { href: '/admin/menus', label: 'Menus & announcement', min: 'admin', icon: 'M4 6h16M4 12h16M4 18h10' },
+      { href: '/admin/tracking', label: 'Analytics & tracking', min: 'admin', icon: 'M4 20V10M10 20V4M16 20v-7M22 20H2' },
+      { href: '/admin/settings', label: 'Brand & settings', min: 'admin', icon: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12l2-1-2-4-2 1-2-2V4h-4v2l-2 2-2-1-2 4 2 1v2l-2 1 2 4 2-1 2 2v2h4v-2l2-2 2 1 2-4-2-1z' },
+    ],
+  },
   {
     group: 'Team',
     items: [

@@ -19,6 +19,7 @@ export default function I18nInput({
   hint,
   required = false,
   maxLength,
+  compact = false,
 }: {
   label: string;
   value: I18nValue;
@@ -28,6 +29,8 @@ export default function I18nInput({
   hint?: string;
   required?: boolean;
   maxLength?: number;
+  /** Always use language tabs (narrow panels such as the page builder). */
+  compact?: boolean;
 }) {
   const [tab, setTab] = useState<Locale>('en');
   const id = useId();
@@ -76,7 +79,7 @@ export default function I18nInput({
       </legend>
 
       {/* Phones / tablets: tabs */}
-      <div className="lg:hidden">
+      <div className={compact ? '' : 'lg:hidden'}>
         <div role="tablist" aria-label={`${label} language`} className="mb-2 flex gap-1">
           {locales.map((l) => (
             <button
@@ -103,7 +106,7 @@ export default function I18nInput({
       </div>
 
       {/* Desktop: side by side */}
-      <div className="hidden gap-3 lg:grid lg:grid-cols-3">
+      <div className={compact ? 'hidden' : 'hidden gap-3 lg:grid lg:grid-cols-3'}>
         {locales.map((l) => (
           <div key={l}>
             {header(l)}

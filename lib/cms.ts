@@ -1,6 +1,7 @@
 import { contact as staticContact, copy, projects as staticProjects, services as staticServices, type Media, type Project } from '@/lib/content';
 import { getDictionary, localizeProjects, type Dictionary } from '@/lib/i18n';
 import { defaultLocale, type Locale } from '@/lib/i18n/config';
+import type { TrackingSettings, Verification } from '@/lib/tracking';
 
 /**
  * Site content for the public website, read from the CMS (Supabase) with the
@@ -22,7 +23,14 @@ export type SiteSettings = {
   home: { sections: { id: string; visible: boolean }[]; storyImages: string[] };
   intro: { enabled: boolean; languageGate: boolean };
   seo: { title?: I18nText; description?: I18nText };
+  tracking: TrackingSettings;
+  verification: Verification;
+  navigation: { header: NavItem[]; footer: NavItem[] };
+  announcement: Announcement;
 };
+
+export type NavItem = { label: I18nText; href: string; newTab?: boolean };
+export type Announcement = { enabled: boolean; text: I18nText; link?: { label?: I18nText; href?: string }; dismissible: boolean; version: number };
 
 export type CategoryItem = { slug: string; name: string; sort: number };
 export type ServiceItem = { key: string; title: string; body: string; note: string };
@@ -45,6 +53,10 @@ export const defaultSettings: SiteSettings = {
   home: { sections: HOME_SECTIONS.map((id) => ({ id, visible: true })), storyImages: copy.pillars.map((p) => p.media.id) },
   intro: { enabled: true, languageGate: true },
   seo: {},
+  tracking: {},
+  verification: { google: '96MaJjmpseUkOLOGNvNTymidm2-lxTLQyuHL_vBQagk' },
+  navigation: { header: [], footer: [] },
+  announcement: { enabled: false, text: {}, dismissible: true, version: 1 },
 };
 
 /** Pick a locale's text with English as the fallback. */
@@ -168,6 +180,10 @@ export function buildContent(raw: Raw, locale: Locale): SiteContent {
     },
     intro: { ...defaultSettings.intro, ...(s.intro || {}) },
     seo: s.seo || {},
+    tracking: s.tracking || {},
+    verification: { ...defaultSettings.verification, ...(s.verification || {}) },
+    navigation: { header: s.navigation?.header || [], footer: s.navigation?.footer || [] },
+    announcement: { ...defaultSettings.announcement, ...(s.announcement || {}) },
   };
   // Settings SEO texts override the dictionary defaults.
   const seoTitle = pick(settings.seo.title, locale);

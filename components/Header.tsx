@@ -7,6 +7,8 @@ import Logo from './Logo';
 import { stripLocale } from '@/lib/i18n/config';
 import { useI18n } from './I18nProvider';
 import LanguageSwitcher from './LanguageSwitcher';
+import Announcement from './Announcement';
+import { useNav, NavLink } from './nav';
 import { useLenis } from './SmoothScroll';
 
 export default function Header() {
@@ -16,12 +18,7 @@ export default function Header() {
   const pathname = usePathname();
   const { t, href, settings } = useI18n();
   const contact = settings.contact;
-  const nav = [
-    { label: t.nav.work, path: '/work' },
-    { label: t.nav.services, path: '/services' },
-    { label: t.nav.studio, path: '/studio' },
-    { label: t.nav.contact, path: '/contact' },
-  ];
+  const nav = useNav('header');
   const lenis = useLenis();
   const last = useRef(0);
   const menuRef = useRef<HTMLDivElement>(null);
@@ -81,21 +78,22 @@ export default function Header() {
           hidden && !open ? '-translate-y-full' : 'translate-y-0'
         } ${scrolled && !open ? 'bg-night/70 backdrop-blur-md' : 'bg-transparent'}`}
       >
-        <div className="wrap flex h-[var(--header-h)] items-center justify-between">
+        <Announcement />
+        <div className="wrap flex h-[var(--header-row)] items-center justify-between">
           <Link href={href('/')} aria-label={t.common.homeAria} className="relative z-10 block w-[84px] md:w-[100px]">
             <Logo priority className="h-auto w-full" />
           </Link>
 
           <nav aria-label={t.nav.primary} className="hidden items-center gap-7 lg:flex xl:gap-10">
             {nav.map((item) => (
-              <Link
-                key={item.path}
-                href={href(item.path)}
-                aria-current={isActive(item.path) ? 'page' : undefined}
-                className={`label link-line pb-1 transition-colors hover:text-gold ${isActive(item.path) ? 'text-gold' : 'text-bone/80'}`}
+              <NavLink
+                key={item.key}
+                item={item}
+                aria-current={!item.external && isActive(item.path) ? 'page' : undefined}
+                className={`label link-line pb-1 transition-colors hover:text-gold ${!item.external && isActive(item.path) ? 'text-gold' : 'text-bone/80'}`}
               >
                 {item.label}
-              </Link>
+              </NavLink>
             ))}
             <LanguageSwitcher />
             <Link href={href('/contact?intent=design')} className="btn !px-5 !py-3 !min-h-0 !text-[0.65rem]">
@@ -133,11 +131,11 @@ export default function Header() {
       >
         <div className="blueprint absolute inset-0 opacity-60" aria-hidden />
         <nav aria-label={t.nav.mobile} className="wrap relative flex flex-1 flex-col justify-center gap-1 pt-[var(--header-h)]">
-          {[{ label: t.nav.home, path: '/' }, ...nav].map((item, i) => (
-            <Link
-              key={item.path}
-              href={href(item.path)}
-              aria-current={isActive(item.path) ? 'page' : undefined}
+          {[{ key: 'home', label: t.nav.home, path: '/', href: href('/'), external: false, newTab: false }, ...nav].map((item, i) => (
+            <NavLink
+              key={item.key}
+              item={item}
+              aria-current={!item.external && isActive(item.path) ? 'page' : undefined}
               tabIndex={open ? 0 : -1}
               onClick={() => setOpen(false)}
               className="group flex items-baseline gap-4 border-b border-bone/10 py-[min(1rem,1.8svh)]"
@@ -152,7 +150,7 @@ export default function Header() {
               >
                 {item.label}
               </span>
-            </Link>
+            </NavLink>
           ))}
         </nav>
         <div className="wrap relative pb-10 text-sm text-bone/60">

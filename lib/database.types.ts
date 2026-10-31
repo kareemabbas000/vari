@@ -192,6 +192,27 @@ export type Database = {
           },
         ]
       }
+      integrations_private: {
+        Row: {
+          data: Json
+          id: number
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          data?: Json
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          data?: Json
+          id?: number
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Relationships: []
+      }
       media: {
         Row: {
           alt: Json
@@ -278,6 +299,84 @@ export type Database = {
           unsubscribe_token?: string
           unsubscribed_at?: string | null
           updated_at?: string
+        }
+        Relationships: []
+      }
+      page_revisions: {
+        Row: {
+          blocks: Json
+          created_at: string
+          created_by: string | null
+          id: number
+          page_id: string
+          seo: Json
+          title: Json
+        }
+        Insert: {
+          blocks?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: never
+          page_id: string
+          seo?: Json
+          title?: Json
+        }
+        Update: {
+          blocks?: Json
+          created_at?: string
+          created_by?: string | null
+          id?: never
+          page_id?: string
+          seo?: Json
+          title?: Json
+        }
+        Relationships: []
+      }
+      pages: {
+        Row: {
+          blocks: Json
+          created_at: string
+          draft: Json | null
+          id: string
+          kind: string
+          published: boolean
+          published_at: string | null
+          seo: Json
+          slug: string
+          sort: number
+          title: Json
+          updated_at: string
+          updated_by: string | null
+        }
+        Insert: {
+          blocks?: Json
+          created_at?: string
+          draft?: Json | null
+          id?: string
+          kind?: string
+          published?: boolean
+          published_at?: string | null
+          seo?: Json
+          slug: string
+          sort?: number
+          title?: Json
+          updated_at?: string
+          updated_by?: string | null
+        }
+        Update: {
+          blocks?: Json
+          created_at?: string
+          draft?: Json | null
+          id?: string
+          kind?: string
+          published?: boolean
+          published_at?: string | null
+          seo?: Json
+          slug?: string
+          sort?: number
+          title?: Json
+          updated_at?: string
+          updated_by?: string | null
         }
         Relationships: []
       }

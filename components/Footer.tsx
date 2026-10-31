@@ -6,16 +6,13 @@ import Newsletter from './Newsletter';
 import BackToTop from './BackToTop';
 import { fmt } from '@/lib/i18n';
 import { useI18n } from './I18nProvider';
+import { ConsentLink } from './Tracking';
+import { NavLink, useNav } from './nav';
 
 export default function Footer() {
   const { t, href, settings } = useI18n();
   const contact = settings.contact;
-  const nav = [
-    { label: t.nav.work, path: '/work' },
-    { label: t.nav.services, path: '/services' },
-    { label: t.nav.studio, path: '/studio' },
-    { label: t.nav.contact, path: '/contact' },
-  ];
+  const nav = useNav('footer');
   return (
     <footer className="relative overflow-hidden border-t border-gold/15 bg-night pt-12 md:pt-16">
       <div className="wrap">
@@ -40,10 +37,10 @@ export default function Footer() {
             <p className="label mb-5 text-gold">{t.footer.explore}</p>
             <ul className="space-y-3">
               {nav.map((n) => (
-                <li key={n.path}>
-                  <Link href={href(n.path)} className="link-line text-bone/80 hover:text-bone">
+                <li key={n.key}>
+                  <NavLink item={n} className="link-line text-bone/80 hover:text-bone">
                     {n.label}
-                  </Link>
+                  </NavLink>
                 </li>
               ))}
             </ul>
@@ -86,6 +83,7 @@ export default function Footer() {
           <Link href={href('/privacy')} className="link-line hover:text-bone">
             {t.legal.privacy}
           </Link>
+          <ConsentLink className="link-line hover:text-bone" />
         </div>
         <BackToTop />
       </div>

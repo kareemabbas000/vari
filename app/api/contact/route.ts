@@ -3,6 +3,7 @@ import { EMAIL_RE, clean, isMailConfigured, sendMail } from '@/lib/mail';
 import { rpc } from '@/lib/supabase';
 import { contactAcknowledgement, studioNotification } from '@/lib/emails';
 import { ipHash, localeFrom } from '@/lib/request';
+import { sendMetaLead } from '@/lib/meta-capi';
 
 /**
  * Contact enquiries: stored in Supabase first (nothing is ever lost), then the studio
@@ -61,7 +62,13 @@ export async function POST(req: Request) {
     await sendMail({ to: email, subject: ack.subject, text: ack.text, html: ack.html });
   }
 
-  if (stored.ok || notified) return NextResponse.json({ ok: true });
+  if (stored.ok || notified) {
+    // Ad measurement only with the visitor's marketing consent (sent by the form).
+    if (data.marketingConsent === true) {
+      await sendMetaLead(req, { email, firstName, lastName, eventId: clean(data.eventId, 64), sourceUrl: clean(req.headers.get('referer'), 300) || undefined });
+    }
+    return NextResponse.json({ ok: true });
+  }
   // Neither the database nor email delivery is available: let the visitor send it themselves.
   return NextResponse.json({ ok: false, fallback: 'mailto' });
 }

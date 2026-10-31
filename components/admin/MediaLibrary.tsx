@@ -35,13 +35,18 @@ export default function MediaLibrary({
   const [confirmDelete, setConfirmDelete] = useState(false);
 
   const { data, setData, loading, error } = useLoad(async () => {
-    const [media, usage] = await Promise.all([
+    const [media, usage, pages, settings] = await Promise.all([
       must(await db.from('media').select(MEDIA_COLUMNS).order('created_at', { ascending: false })),
       must(await db.from('project_media').select('media_id')),
+      db.from('pages').select('blocks,draft,seo'),
+      db.from('site_settings').select('data').eq('id', 1).maybeSingle(),
     ]);
     const used = new Map<string, number>();
     usage.forEach((u) => used.set(u.media_id, (used.get(u.media_id) ?? 0) + 1));
-    return { media: media as MediaRow[], used };
+    // Pages, the blog and site settings refer to images by their address.
+    const elsewhere = JSON.stringify([pages.data ?? [], settings.data?.data ?? {}]);
+    const usedElsewhere = new Set((media as MediaRow[]).filter((m) => elsewhere.includes(JSON.stringify(mediaSrc(m.source, m.path)).slice(1, -1))).map((m) => m.id));
+    return { media: media as MediaRow[], used, usedElsewhere };
   });
 
   const rows = useMemo(() => {
@@ -100,6 +105,7 @@ export default function MediaLibrary({
   }
 
   const usedBy = editing ? data?.used.get(editing.id) ?? 0 : 0;
+  const inPages = editing ? !!data?.usedElsewhere.has(editing.id) : false;
 
   return (
     <div>
@@ -173,7 +179,7 @@ export default function MediaLibrary({
             <div className="mt-3 flex flex-wrap items-center gap-2 text-xs text-bone/45">
               <span>{editing.file_name || editing.path}</span>
               {editing.width && <span>· {editing.width}×{editing.height}</span>}
-              <Badge tone={usedBy ? 'green' : 'grey'}>{usedBy ? `Used in ${usedBy} project${usedBy > 1 ? 's' : ''}` : 'Not used'}</Badge>
+              <Badge tone={usedBy || inPages ? 'green' : 'grey'}>{usedBy ? `Used in ${usedBy} project${usedBy > 1 ? 's' : ''}` : inPages ? 'Used on pages or settings' : 'Not used'}</Badge>
             </div>
             <div className="mt-6">
               <I18nInput label="Alt text (describes the image for SEO and screen readers)" value={alt} onChange={(v) => setAlt(v as Record<string, string>)} maxLength={300} />
@@ -184,7 +190,7 @@ export default function MediaLibrary({
                 Copy link
               </Button>
               {can('editor') && (
-                <Button variant="danger" className="sm:ml-auto" disabled={usedBy > 0} title={usedBy ? 'Remove it from its projects first' : undefined} onClick={() => setConfirmDelete(true)}>
+                <Button variant="danger" className="sm:ml-auto" disabled={usedBy > 0 || inPages} title={usedBy ? 'Remove it from its projects first' : inPages ? 'Remove it from the pages or settings that use it first' : undefined} onClick={() => setConfirmDelete(true)}>
                   Delete
                 </Button>
               )}

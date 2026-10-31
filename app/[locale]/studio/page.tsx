@@ -6,14 +6,18 @@ import Logo from '@/components/Logo';
 import { isLocale, localizePath, type Locale } from '@/lib/i18n/config';
 import { alternatesFor } from '@/lib/i18n';
 import { getSiteContent } from '@/lib/cms';
+import { getPage, pageMeta, withSeo } from '@/lib/pages';
+import { PageBlocks } from '@/components/blocks/PageBlocks';
 
 type Params = { locale: string };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
+  const page = await getPage('studio');
+  const seo = pageMeta(page, locale);
   const { t } = await getSiteContent(locale);
-  return { title: t.meta.studioTitle, description: t.story.pillars[0].body, alternates: alternatesFor(locale, '/studio') };
+  return withSeo(seo, { title: t.meta.studioTitle, description: t.story.pillars[0].body, alternates: alternatesFor(locale, '/studio') });
 }
 
 export default async function StudioPage({ params }: { params: Promise<Params> }) {
@@ -22,6 +26,7 @@ export default async function StudioPage({ params }: { params: Promise<Params> }
   const href = (p: string) => localizePath(locale as Locale, p);
   const intro = t.story.pillars[0];
   return (
+    <PageBlocks slug="studio">
     <>
       <section className="wrap grid min-h-[100svh] items-end gap-12 pb-20 pt-[calc(var(--header-h)+10vh)] md:grid-cols-12">
         <div className="md:col-span-8">
@@ -72,5 +77,6 @@ export default async function StudioPage({ params }: { params: Promise<Params> }
         </div>
       </section>
     </>
+    </PageBlocks>
   );
 }

@@ -232,6 +232,7 @@ export default function Preloader({ enabled = true, languageGate = true }: { ena
   return (
     <div
       ref={root}
+      data-preloader=""
       className="fixed inset-0 z-[90] overflow-hidden bg-night"
       style={{ clipPath: DOORS_SHUT }}
       role={gate ? 'dialog' : 'status'}

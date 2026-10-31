@@ -36,14 +36,31 @@ Redeploy after adding them.
 privacy notice (enquiries after 24 months, unconfirmed/unsubscribed newsletter rows after 30 days).
 Run it once in Supabase → SQL Editor (or `supabase db push`).
 
-## 2. First sign-in
+## 2. What the panel manages
+
+- **Pages & builder** — visual block editor with live desktop / tablet / phone preview in all three
+  languages: 20 blocks (hero, text, image, gallery, cards, numbers, quote, call to action, video,
+  FAQ with Google rich results, projects, services, moving text, logos, contact form, newsletter,
+  map, spacer…), drag to reorder, undo/redo (⌘/Ctrl Z), auto-saved drafts, publish, version history,
+  page SEO with a Google preview. New pages start from templates and live at `/{lang}/{address}`.
+  The built-in pages (home, work, services, studio, contact) open in the same builder: their
+  designed sections stay intact and new blocks can be placed around them.
+- **Menus & announcement** — main menu and footer links (including builder pages) and a gold
+  announcement bar.
+- **Analytics & tracking** — GA4, Google Tag Manager, Google Ads, Meta Pixel + Conversions API,
+  Microsoft Clarity, LinkedIn, TikTok, search-engine verification codes and custom code. Trackers load
+  only after consent (banner in EN/DE/ES, Consent Mode v2); the privacy notice adapts automatically.
+  Enquiries are reported as `generate_lead` / `Lead`, newsletter sign-ups as `sign_up` /
+  `CompleteRegistration`.
+
+## 3. First sign-in
 
 1. Open `/admin/login`. While no owner exists, a **First-time setup** box offers to send the owner
    invitation — it can only ever email `ADMIN_OWNER_EMAIL`.
 2. Open the email → choose a password (10+ characters) → you land on the dashboard as **Owner**.
 3. Team → **Invite member** for the client (e.g. as Admin).
 
-## 3. Roles
+## 4. Roles
 
 | Role | Can |
 | --- | --- |
@@ -56,7 +73,7 @@ Enforced three times: the panel UI, the server routes, and the database (Row Lev
 Removing a member hard-deletes their Supabase Auth user; their profile cascades away and their
 email is scrubbed from the activity log.
 
-## 4. End-to-end checklist (run in a session that can reach `*.supabase.co`)
+## 5. End-to-end checklist (run in a session that can reach `*.supabase.co`)
 
 - [ ] `/admin/login` → First-time setup → invitation email arrives → accept → set password → dashboard.
 - [ ] Dashboard counts match Supabase (19 projects, 0 enquiries).

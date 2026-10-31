@@ -1,5 +1,6 @@
 'use client';
 
+import { newEventId, readConsent, track } from '@/lib/analytics';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
 import Link from 'next/link';
 import { useI18n } from './I18nProvider';
@@ -67,14 +68,17 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
     }
     setStatus('sending');
     setError('');
+    // One id for the browser pixel and the server-side Conversions API, so Meta counts it once.
+    const eventId = newEventId();
     try {
       const res = await fetch('/api/contact', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ ...values, intent, locale }),
+        body: JSON.stringify({ ...values, intent, locale, eventId, marketingConsent: !!readConsent()?.marketing }),
       });
       const json = await res.json().catch(() => ({}));
       if (res.ok && json.ok) {
+        track('lead', { eventId, params: { intent } });
         setStatus('sent');
         el.reset();
         return;

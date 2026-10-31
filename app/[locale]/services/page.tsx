@@ -6,18 +6,22 @@ import Services from '@/components/home/Services';
 import { isLocale, localizePath, type Locale } from '@/lib/i18n/config';
 import { alternatesFor, fmt } from '@/lib/i18n';
 import { getSiteContent } from '@/lib/cms';
+import { getPage, pageMeta, withSeo } from '@/lib/pages';
+import { PageBlocks } from '@/components/blocks/PageBlocks';
 
 type Params = { locale: string };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
+  const page = await getPage('services');
+  const seo = pageMeta(page, locale);
   const { t } = await getSiteContent(locale);
-  return {
+  return withSeo(seo, {
     title: t.meta.servicesTitle,
     description: `${t.services.title}. ${t.services.items.map((s) => s.title).join(', ')}.`,
     alternates: alternatesFor(locale, '/services'),
-  };
+  });
 }
 
 export default async function ServicesPage({ params }: { params: Promise<Params> }) {
@@ -27,6 +31,7 @@ export default async function ServicesPage({ params }: { params: Promise<Params>
   // Featured projects lead; fall back to the first three.
   const proofs = [...all.filter((p) => p.featured), ...all.filter((p) => !p.featured)].slice(0, 3);
   return (
+    <PageBlocks slug="services">
     <>
       <section className="wrap pb-16 pt-[calc(var(--header-h)+12vh)] md:pb-24">
         <p className="label text-gold">{t.services.pageLabel}</p>
@@ -75,5 +80,6 @@ export default async function ServicesPage({ params }: { params: Promise<Params>
         </div>
       </section>
     </>
+    </PageBlocks>
   );
 }

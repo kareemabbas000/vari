@@ -1,5 +1,6 @@
 'use client';
 
+import { track } from '@/lib/analytics';
 import Link from 'next/link';
 import { useState, type FormEvent } from 'react';
 import { fmt } from '@/lib/i18n';
@@ -33,6 +34,7 @@ export default function Newsletter() {
     }).catch(() => null);
     const json = res ? await res.json().catch(() => ({})) : {};
     if (res?.ok && json.ok) {
+      track('signup');
       setDoneMsg(json.status === 'check_inbox' ? 'check_inbox' : json.status === 'already' ? 'already' : 'confirmed');
       return setState('done');
     }

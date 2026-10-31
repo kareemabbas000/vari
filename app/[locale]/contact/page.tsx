@@ -5,14 +5,18 @@ import { getProject } from '@/lib/content';
 import { isLocale, type Locale } from '@/lib/i18n/config';
 import { alternatesFor } from '@/lib/i18n';
 import { getSiteContent } from '@/lib/cms';
+import { getPage, pageMeta, withSeo } from '@/lib/pages';
+import { PageBlocks } from '@/components/blocks/PageBlocks';
 
 type Params = { locale: string };
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
+  const page = await getPage('contact');
+  const seo = pageMeta(page, locale);
   const { t } = await getSiteContent(locale);
-  return { title: t.meta.contactTitle, description: t.contact.body, alternates: alternatesFor(locale, '/contact') };
+  return withSeo(seo, { title: t.meta.contactTitle, description: t.contact.body, alternates: alternatesFor(locale, '/contact') });
 }
 
 const still = getProject('elysian-aura')!.media[0];
@@ -22,6 +26,7 @@ export default async function ContactPage({ params }: { params: Promise<Params> 
   const { t, settings } = await getSiteContent(locale as Locale);
   const contact = settings.contact;
   return (
+    <PageBlocks slug="contact">
     <section className="relative min-h-[100svh] pt-[var(--header-h)]">
       <div className="absolute inset-0 -z-10">
         <Image src={still.id} alt="" fill priority sizes="100vw" className="object-cover opacity-25" />
@@ -74,5 +79,6 @@ export default async function ContactPage({ params }: { params: Promise<Params> 
         </div>
       </div>
     </section>
+    </PageBlocks>
   );
 }

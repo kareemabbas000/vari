@@ -11,12 +11,14 @@
   --ink: #1a1a1a;
   --bone: #f3eee4;
   --gutter: clamp(1rem, 4vw, 3.5rem);
-  --header-h: 72px;
+  --header-row: 72px;
+  /* The announcement bar (panel → Menus & announcement) sets --announce-h while shown. */
+  --header-h: calc(var(--header-row) + var(--announce-h, 0px));
   color-scheme: dark;
 }
 @media (min-width: 768px) {
   :root {
-    --header-h: 84px;
+    --header-row: 84px;
   }
 }
 
@@ -316,5 +318,36 @@ h3 {
   }
   to {
     transform: rotateX(-6deg) rotateY(-360deg);
+  }
+}
+
+/* ——— Page builder blocks ——— */
+html.js [data-reveal] {
+  opacity: 0;
+  transform: translateY(32px);
+  transition: opacity 1.1s cubic-bezier(0.16, 1, 0.3, 1), transform 1.3s cubic-bezier(0.16, 1, 0.3, 1);
+}
+html.js [data-reveal].is-in {
+  opacity: 1;
+  transform: none;
+}
+@media (prefers-reduced-motion: reduce) {
+  [data-reveal] {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+}
+.vari-marquee {
+  animation: vari-marquee 34s linear infinite;
+}
+@keyframes vari-marquee {
+  to {
+    transform: translateX(-50%);
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .vari-marquee {
+    animation: none;
   }
 }
