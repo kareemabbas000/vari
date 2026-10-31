@@ -6,7 +6,19 @@ import { useEffect, useState, type FormEvent } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { Button, Field, Input } from '@/components/admin/ui';
 
-type Setup = { needsSetup: boolean; ownerHint?: string; configured: boolean };
+type Setup = { needsSetup: boolean; ownerHint?: string; configured: boolean; problem?: string | null };
+
+/** What to tell the site owner when the server key in Vercel cannot be used. */
+const KEY_PROBLEMS: Record<string, string> = {
+  missing: 'SUPABASE_SECRET_KEY is not set in Vercel. Add the project’s secret key and redeploy.',
+  personal_token:
+    'SUPABASE_SECRET_KEY in Vercel holds a personal access token (sbp_…), not the project key. Replace it with the secret key from Supabase → Project Settings → API Keys (it starts with sb_secret_) and redeploy.',
+  publishable_key:
+    'SUPABASE_SECRET_KEY in Vercel holds the publishable key. Replace it with the secret key from Supabase → Project Settings → API Keys (it starts with sb_secret_) and redeploy.',
+  unrecognised: 'SUPABASE_SECRET_KEY in Vercel is not a Supabase project key. Use the secret key (sb_secret_…) from Project Settings → API Keys and redeploy.',
+  rejected: 'Supabase rejected SUPABASE_SECRET_KEY. It may belong to another project or have been revoked — copy the current secret key from Project Settings → API Keys and redeploy.',
+  unreachable: 'The database could not be reached. Please try again in a minute.',
+};
 
 export default function LoginForm() {
   const router = useRouter();
@@ -18,6 +30,7 @@ export default function LoginForm() {
   const [error, setError] = useState('');
   const [setup, setSetup] = useState<Setup | null>(null);
   const [setupState, setSetupState] = useState<'idle' | 'sending' | 'sent' | 'error'>('idle');
+  const [setupError, setSetupError] = useState('');
 
   useEffect(() => {
     fetch('/api/admin/bootstrap')
@@ -43,7 +56,14 @@ export default function LoginForm() {
   async function sendSetup() {
     setSetupState('sending');
     const res = await fetch('/api/admin/bootstrap', { method: 'POST' }).catch(() => null);
-    setSetupState(res?.ok ? 'sent' : 'error');
+    const body = (await res?.json().catch(() => null)) as { error?: string; detail?: string } | null;
+    if (res?.ok) return setSetupState('sent');
+    setSetupError(
+      (body?.error && KEY_PROBLEMS[body.error]) ||
+        (body?.error === 'already_set_up' ? 'An owner account already exists — sign in below.' : '') ||
+        `Could not send the invitation${body?.detail ? ` (${body.detail})` : ''}. Please try again.`,
+    );
+    setSetupState('error');
   }
 
   return (
@@ -54,14 +74,14 @@ export default function LoginForm() {
           {setupState === 'sent' ? (
             <p className="mt-1 text-bone/75">Invitation sent to {setup.ownerHint}. Open the email and choose your password.</p>
           ) : !setup.configured ? (
-            <p className="mt-1 text-bone/65">Setup is not available yet: the server is missing its Supabase configuration (see the README).</p>
+            <p className="mt-1 text-[#E8A598]">{KEY_PROBLEMS[setup.problem || 'missing'] || KEY_PROBLEMS.missing}</p>
           ) : (
             <>
               <p className="mt-1 text-bone/65">No owner account exists yet. Send the owner invitation to {setup.ownerHint}.</p>
               <Button className="mt-3" size="sm" onClick={sendSetup} busy={setupState === 'sending'}>
                 Send owner invitation
               </Button>
-              {setupState === 'error' && <p className="mt-2 text-[#E8A598]">Could not send the invitation. Please try again.</p>}
+              {setupState === 'error' && <p className="mt-2 text-[#E8A598]">{setupError}</p>}
             </>
           )}
         </div>

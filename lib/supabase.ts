@@ -9,11 +9,13 @@
  *   SUPABASE_SECRET_KEY              new-style secret key (sb_secret_…), or
  *   SUPABASE_SERVICE_ROLE_KEY        legacy service_role JWT
  */
+import { serverKey, serverKeyProblem } from '@/lib/supabase/admin';
+
 const DEFAULT_URL = 'https://wdejuqvggvayxtrvkqye.supabase.co';
 
 function config() {
   const url = (process.env.SUPABASE_URL || process.env.NEXT_PUBLIC_SUPABASE_URL || DEFAULT_URL).replace(/\/$/, '');
-  const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY || '';
+  const key = serverKeyProblem() ? '' : serverKey();
   return { url, key };
 }
 
