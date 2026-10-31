@@ -1,18 +1,62 @@
-export const locales = ['en', 'de', 'es'] as const;
-export type Locale = (typeof locales)[number];
-export const defaultLocale: Locale = 'en';
+/**
+ * Languages are data (panel → Languages, table `languages`). This file holds only what
+ * must exist without the database: the shape of a language, the source language that
+ * every text falls back to, and a fallback list for when the database is unreachable.
+ */
+
+/** A language code such as "en", "tr" or "pt-br". */
+export type Locale = string;
+
+/** Content is written in English first; any missing translation falls back to it. */
+export const SOURCE_LOCALE: Locale = 'en';
 
 /** Cookie that remembers the visitor's explicit language choice (read by middleware). */
 export const LOCALE_COOKIE = 'VARI_LOCALE';
 
-export const localeMeta: Record<Locale, { name: string; short: string; og: string; hreflang: string; welcome: string }> = {
-  en: { name: 'English', short: 'EN', og: 'en_US', hreflang: 'en', welcome: 'Welcome' },
-  de: { name: 'Deutsch', short: 'DE', og: 'de_DE', hreflang: 'de', welcome: 'Willkommen' },
-  es: { name: 'Español', short: 'ES', og: 'es_ES', hreflang: 'es', welcome: 'Bienvenidos' },
+export type Language = {
+  code: Locale;
+  /** Native name, e.g. "Türkçe". */
+  name: string;
+  englishName: string;
+  /** Short label, e.g. "TR". */
+  short: string;
+  og: string;
+  hreflang: string;
+  /** The word shown on the intro's language gate. */
+  welcome: string;
+  dir: 'ltr' | 'rtl';
+  enabled: boolean;
+  isDefault: boolean;
+  sort: number;
 };
 
+const lang = (code: string, name: string, englishName: string, og: string, welcome: string, enabled: boolean, sort: number): Language => ({
+  code,
+  name,
+  englishName,
+  short: code.toUpperCase(),
+  og,
+  hreflang: code,
+  welcome,
+  dir: 'ltr',
+  enabled,
+  isDefault: code === SOURCE_LOCALE,
+  sort,
+});
+
+/** Used only if the database cannot be reached. */
+export const FALLBACK_LANGUAGES: Language[] = [
+  lang('en', 'English', 'English', 'en_US', 'Welcome', true, 10),
+  lang('de', 'Deutsch', 'German', 'de_DE', 'Willkommen', true, 20),
+  lang('es', 'Español', 'Spanish', 'es_ES', 'Bienvenidos', true, 30),
+  lang('tr', 'Türkçe', 'Turkish', 'tr_TR', 'Hoş geldiniz', false, 40),
+];
+
+const PATTERN = /^[a-z]{2,3}(-[a-z]{2,4})?$/;
+
+/** Looks like a language code (whether it is enabled is decided by the registry). */
 export function isLocale(value: string | undefined | null): value is Locale {
-  return !!value && (locales as readonly string[]).includes(value);
+  return !!value && PATTERN.test(value);
 }
 
 /** `/work/x` → `/de/work/x`. Paths keep their English slugs in every language (stable URLs). */
@@ -22,9 +66,27 @@ export function localizePath(locale: Locale, path: string) {
   return clean === '/' ? `/${locale}` : `/${locale}${clean}`;
 }
 
-/** `/de/work/x?y` → `/work/x?y` */
-export function stripLocale(pathname: string) {
+/** `/de/work/x?y` → `/work/x?y` (for a known language code). */
+export function stripLocale(pathname: string, known?: Locale[]) {
   const parts = pathname.split('/');
-  if (isLocale(parts[1])) return '/' + parts.slice(2).join('/');
+  const first = parts[1];
+  if (isLocale(first) && (!known || known.includes(first))) return '/' + parts.slice(2).join('/');
   return pathname;
+}
+
+/** Database row → Language. */
+export function toLanguage(r: { code: string; name: string; english_name: string; og_locale: string; hreflang: string; welcome: string; dir: string; enabled: boolean; is_default: boolean; sort: number }): Language {
+  return {
+    code: r.code,
+    name: r.name,
+    englishName: r.english_name,
+    short: r.code.split('-')[0].toUpperCase(),
+    og: r.og_locale,
+    hreflang: r.hreflang,
+    welcome: r.welcome || r.name,
+    dir: r.dir === 'rtl' ? 'rtl' : 'ltr',
+    enabled: r.enabled,
+    isDefault: r.is_default,
+    sort: r.sort,
+  };
 }

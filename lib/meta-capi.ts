@@ -2,7 +2,7 @@ import { createHash } from 'node:crypto';
 import { supabaseAdmin } from '@/lib/supabase/admin';
 import { getSiteContent } from '@/lib/cms';
 import { cleanTracking } from '@/lib/tracking';
-import { defaultLocale } from '@/lib/i18n/config';
+import { SOURCE_LOCALE } from '@/lib/i18n/config';
 
 /**
  * Meta Conversions API: reports an enquiry server-side, deduplicated with the browser
@@ -19,7 +19,7 @@ function cookie(req: Request, name: string) {
 
 export async function sendMetaLead(req: Request, opts: { email: string; firstName?: string; lastName?: string; eventId?: string; sourceUrl?: string }) {
   try {
-    const { settings } = await getSiteContent(defaultLocale);
+    const { settings } = await getSiteContent(SOURCE_LOCALE);
     const t = cleanTracking(settings.tracking);
     if (!t.metaPixel || !t.metaCapi) return;
     const admin = supabaseAdmin();

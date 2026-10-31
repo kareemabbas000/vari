@@ -1,5 +1,6 @@
 import { CMS_TAG, SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, pick } from '@/lib/cms';
-import { locales, defaultLocale, localizePath, type Locale } from '@/lib/i18n/config';
+import { localizePath, type Locale } from '@/lib/i18n/config';
+import { getLanguages } from '@/lib/i18n/languages';
 
 /**
  * Public blog data. Row Level Security only returns posts that are published with a
@@ -124,14 +125,16 @@ export async function getAllPostSlugs(): Promise<{ id: string; locale: Locale; s
 }
 
 /** hreflang for a post: only the languages it is actually translated into. */
-export function postAlternates(locale: Locale, translations: Partial<Record<Locale, string>>) {
+export async function postAlternates(locale: Locale, translations: Partial<Record<Locale, string>>) {
+  const { enabled, defaultCode } = await getLanguages();
   const languages: Record<string, string> = {};
-  for (const l of locales) if (translations[l]) languages[l] = localizePath(l, `/blog/${translations[l]}`);
-  const xDefault = translations[defaultLocale] ? defaultLocale : (Object.keys(translations)[0] as Locale | undefined);
+  for (const l of enabled) if (translations[l.code]) languages[l.hreflang] = localizePath(l.code, `/blog/${translations[l.code]}`);
+  const live = enabled.map((l) => l.code).filter((c) => translations[c]);
+  const xDefault = live.includes(defaultCode) ? defaultCode : live[0];
   if (xDefault) languages['x-default'] = localizePath(xDefault, `/blog/${translations[xDefault]}`);
   return { canonical: localizePath(locale, `/blog/${translations[locale]}`), languages };
 }
 
 export function formatDate(iso: string, locale: Locale) {
-  return new Intl.DateTimeFormat({ en: 'en-GB', de: 'de-DE', es: 'es-ES' }[locale], { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso));
+  return new Intl.DateTimeFormat(({ en: 'en-GB', de: 'de-DE', es: 'es-ES', tr: 'tr-TR' } as Record<string, string>)[locale] ?? locale, { day: 'numeric', month: 'long', year: 'numeric' }).format(new Date(iso));
 }

@@ -8,8 +8,9 @@ import I18nInput, { type I18nValue } from '@/components/admin/I18nInput';
 import Modal from '@/components/admin/Modal';
 import { formatDate, must, usePublish } from '@/components/admin/hooks';
 import { useMember } from '@/components/admin/AdminShell';
-import { BLOCKS, BLOCK_MAP, MODULES, RESERVED_SLUGS, cloneBlock, createBlock, type Block, type BlockStyle } from '@/lib/blocks/schema';
-import { locales, localeMeta, type Locale } from '@/lib/i18n/config';
+import { BLOCKS, BLOCK_MAP, MODULES, RESERVED_SLUGS, cloneBlock, createBlock, newBlockId, type Block, type BlockStyle } from '@/lib/blocks/schema';
+import { SOURCE_LOCALE, type Locale } from '@/lib/i18n/config';
+import { useLanguages } from '@/components/admin/languages';
 import type { Json } from '@/lib/database.types';
 import { FieldEditor, Row, Segmented, StyleEditor, type Ctx } from './FieldEditor';
 
@@ -53,6 +54,9 @@ const blockSummary = (b: Block) => {
 };
 
 export default function Builder({ initial, onReload }: { initial: PageRow; onReload: () => void }) {
+  const { enabled: previewLangs } = useLanguages();
+  const locales = previewLangs.map((l) => l.code);
+  const localeMeta = Object.fromEntries(previewLangs.map((l) => [l.code, l]));
   const db = supabaseBrowser();
   const toast = useToast();
   const publishSite = usePublish();
@@ -71,7 +75,7 @@ export default function Builder({ initial, onReload }: { initial: PageRow; onRel
   const [leftTab, setLeftTab] = useState<'add' | 'layers'>('layers');
   const [rightTab, setRightTab] = useState<'content' | 'style'>('content');
   const [device, setDevice] = useState<Device>(() => (typeof window !== 'undefined' && window.innerWidth < 1024 ? 'mobile' : 'desktop'));
-  const [lang, setLang] = useState<Locale>('en');
+  const [lang, setLang] = useState<Locale>(SOURCE_LOCALE);
   const [pane, setPane] = useState<MobilePane>('preview');
   const [saveState, setSaveState] = useState<'saved' | 'saving' | 'dirty' | 'error'>('saved');
   const [hasDraft, setHasDraft] = useState(!!initial.draft);
@@ -142,7 +146,8 @@ export default function Builder({ initial, onReload }: { initial: PageRow; onRel
   const updateBlock = (id: string, fn: (b: Block) => Block, key = '') => setBlocks((bs) => bs.map((b) => (b.id === id ? fn(b) : b)), key);
 
   const addBlock = (type: string, at?: number) => {
-    const block = createBlock(type);
+    // "module:hero" adds one of the site's signature sections.
+    const block: Block = type.startsWith('module:') ? { id: newBlockId(), type: 'module', props: { module: type.slice(7) } } : createBlock(type);
     setBlocks((bs) => {
       const i = at ?? (selected ? bs.findIndex((b) => b.id === selected) + 1 : bs.length);
       const n = [...bs];
@@ -168,11 +173,11 @@ export default function Builder({ initial, onReload }: { initial: PageRow; onRel
         return n;
       });
       select(id, true);
-    } else if (what === 'duplicate' && b.type !== 'module') {
-      const copy = cloneBlock(b);
+    } else if (what === 'duplicate' && !(b.type === 'module' && b.props?.module === 'page')) {
+      const copy = b.type === 'module' ? { ...b, id: newBlockId() } : cloneBlock(b);
       setBlocks((bs) => [...bs.slice(0, i + 1), copy, ...bs.slice(i + 1)]);
       select(copy.id, true);
-    } else if (what === 'delete' && b.type !== 'module') {
+    } else if (what === 'delete' && !(b.type === 'module' && b.props?.module === 'page')) {
       setBlocks((bs) => bs.filter((x) => x.id !== id));
       setSelected(null);
       toast('info', `${blockName(b)} removed — press Undo to bring it back.`);
@@ -356,7 +361,7 @@ export default function Builder({ initial, onReload }: { initial: PageRow; onRel
   /* ——— Panels ——— */
 
   const sel = doc.blocks.find((b) => b.id === selected) || null;
-  const liveUrl = `/${lang}${isSystem ? (doc.slug === 'home' ? '' : `/${doc.slug}`) : `/${doc.slug}`}`;
+  const liveUrl = `/${lang}${isSystem ? (doc.slug === 'home' ? '' : doc.slug === 'project-template' ? '/work' : `/${doc.slug}`) : `/${doc.slug}`}`;
 
   const dragFrom = useRef<number>(-1);
   const dragType = useRef<string>('');
@@ -373,6 +378,39 @@ export default function Builder({ initial, onReload }: { initial: PageRow; onRel
   const library = (
     <div className="space-y-5 p-4">
       <Input type="search" placeholder="Search blocks…" value={query} onChange={(e) => setQuery(e.target.value)} aria-label="Search blocks" />
+      {(() => {
+        const mods = Object.entries(MODULES).filter(([id, m]) => id !== 'page' && (!query || `${m.label} ${m.about}`.toLowerCase().includes(query.toLowerCase())));
+        if (!mods.length) return null;
+        return (
+          <div>
+            <p className="mb-2 font-sans text-[0.62rem] uppercase tracking-[0.2em] text-gold/70">Signature sections</p>
+            <div className="grid grid-cols-2 gap-2">
+              {mods.map(([id, m]) => (
+                <button
+                  key={id}
+                  type="button"
+                  draggable={editable}
+                  onDragStart={() => {
+                    dragType.current = `module:${id}`;
+                    setLeftTab('layers');
+                  }}
+                  onDragEnd={() => (dragType.current = '')}
+                  disabled={!editable}
+                  onClick={() => addBlock(`module:${id}`)}
+                  title={m.about}
+                  className="group flex min-h-[92px] flex-col items-start gap-2 rounded-sm border border-gold/25 bg-gold/[0.04] p-3 text-left transition hover:-translate-y-0.5 hover:border-gold/60 hover:bg-gold/[0.08] disabled:opacity-40"
+                >
+                  <span className="grid h-9 w-9 place-items-center rounded-sm bg-gold/15 text-gold transition group-hover:bg-gold group-hover:text-night">
+                    <Icon d="M4 4h16v16H4zM9 9h6v6H9z" />
+                  </span>
+                  <span className="text-[0.82rem] font-medium leading-tight">{m.label}</span>
+                  <span className="line-clamp-2 text-[0.68rem] leading-snug text-bone/45">{m.about}</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        );
+      })()}
       {(['Layout', 'Text', 'Media', 'Showcase', 'Engage'] as const).map((cat) => {
         const items = BLOCKS.filter((b) => b.category === cat && (!query || `${b.label} ${b.description}`.toLowerCase().includes(query.toLowerCase())));
         if (!items.length) return null;
@@ -475,7 +513,7 @@ export default function Builder({ initial, onReload }: { initial: PageRow; onRel
           <span className="grid h-9 w-9 place-items-center rounded-sm bg-gold/10 text-gold"><Icon d={blockIcon(sel)} /></span>
           <div className="min-w-0 flex-1">
             <p className="text-sm font-medium">{blockName(sel)}</p>
-            <p className="line-clamp-1 text-[0.7rem] text-bone/40">{sel.type === 'module' ? 'Built-in section' : BLOCK_MAP[sel.type]?.description}</p>
+            <p className="line-clamp-1 text-[0.7rem] text-bone/40">{sel.type === 'module' ? 'Signature section' : BLOCK_MAP[sel.type]?.description}</p>
           </div>
           <button type="button" onClick={() => setSelected(null)} aria-label="Close block settings" className="grid h-9 w-9 place-items-center rounded-sm text-bone/50 hover:bg-bone/5">✕</button>
         </div>
@@ -503,7 +541,6 @@ export default function Builder({ initial, onReload }: { initial: PageRow; onRel
                 onChange={(v) => updateBlock(sel.id, (b) => ({ ...b, style: { ...b.style, hideOn: v as BlockStyle['hideOn'] } }))}
                 options={[{ value: '', label: 'All' }, { value: 'mobile', label: 'Desktop' }, { value: 'desktop', label: 'Mobile' }]}
               />
-              <p className="mt-2 text-[0.72rem] text-bone/40">Device visibility for built-in sections applies to custom blocks only.</p>
             </div>
           </>
         ) : rightTab === 'content' ? (
@@ -514,7 +551,7 @@ export default function Builder({ initial, onReload }: { initial: PageRow; onRel
           <StyleEditor style={sel.style || {}} defaults={BLOCK_MAP[sel.type]?.style || {}} isHero={sel.type === 'hero'} onChange={(style) => updateBlock(sel.id, (b) => ({ ...b, style }), `${sel.id}.style`)} />
         )}
         {sel.type === 'newsletter' && <p className="text-sm text-bone/50">The signup texts are edited under Texts & translations → Newsletter.</p>}
-        {sel.type !== 'module' && editable && (
+        {!(sel.type === 'module' && sel.props?.module === 'page') && editable && (
           <div className="flex gap-2 border-t border-bone/10 pt-5">
             <Button size="sm" variant="secondary" onClick={() => action(sel.id, 'duplicate')}>Duplicate</Button>
             <Button size="sm" variant="secondary" onClick={() => action(sel.id, 'hide')}>{sel.hidden ? 'Show' : 'Hide'}</Button>
@@ -688,7 +725,8 @@ function PageSettings({
   onSetLive: (on: boolean) => void;
   onDiscard: () => void;
 }) {
-  const [lang, setLang] = useState<Locale>('en');
+  const { codes: locales } = useLanguages();
+  const [lang, setLang] = useState<Locale>(SOURCE_LOCALE);
   const title = doc.seo.title?.[lang] || doc.title[lang] || doc.title.en || '';
   const desc = doc.seo.description?.[lang] || '';
   const path = isSystem ? (doc.slug === 'home' ? '' : `/${doc.slug}`) : `/${doc.slug}`;

@@ -376,6 +376,7 @@ const en = {
     home: 'Back to the website',
   },
   emails: {
+    replySubject: 'Your enquiry to VARI Studio',
     ackSubject: 'We received your message — VARI Studio',
     ackGreeting: 'Hello {name},',
     ackGreetingNoName: 'Hello,',

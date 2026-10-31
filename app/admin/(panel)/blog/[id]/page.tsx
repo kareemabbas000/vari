@@ -14,7 +14,8 @@ import { must, usePublish } from '@/components/admin/hooks';
 import { useMember } from '@/components/admin/AdminShell';
 import RichEditor, { type EditorValue } from '@/components/admin/blog/RichEditor';
 import { mediaSrc } from '@/lib/media';
-import { locales, localeMeta, type Locale } from '@/lib/i18n/config';
+import { type Locale } from '@/lib/i18n/config';
+import { useLanguages } from '@/components/admin/languages';
 import { seoChecks, sourceHash } from '@/lib/seo-check';
 import { textOf } from '@/lib/blog-html';
 import { postSlug } from '@/lib/blog-slug';
@@ -57,14 +58,16 @@ export default function PostEditor() {
   const editable = can('editor');
 
   const [post, setPost] = useState<Post | null>(null);
-  const [trs, setTrs] = useState<Record<Locale, Tr>>({ en: emptyTr(), de: emptyTr(), es: emptyTr() });
+  const { codes: locales, meta } = useLanguages();
+  const blank = <T,>(make: () => T) => Object.fromEntries(locales.map((l) => [l, make()])) as Record<Locale, T>;
+  const [trs, setTrs] = useState<Record<Locale, Tr>>(() => blank(emptyTr));
   const [tagIds, setTagIds] = useState<string[]>([]);
   const [cats, setCats] = useState<Opt[]>([]);
   const [authors, setAuthors] = useState<Opt[]>([]);
   const [tags, setTags] = useState<Opt[]>([]);
   const [lang, setLang] = useState<Locale>('en');
   const [compare, setCompare] = useState(true);
-  const [slugTouched, setSlugTouched] = useState<Record<Locale, boolean>>({ en: false, de: false, es: false });
+  const [slugTouched, setSlugTouched] = useState<Record<Locale, boolean>>(() => blank(() => false));
   const [dirty, setDirty] = useState(false);
   const [saving, setSaving] = useState(false);
   const [error, setError] = useState('');
@@ -86,10 +89,10 @@ export default function PostEditor() {
         db.from('blog_tags').select('id,name').order('created_at'),
       ]);
       setPost(must(p) as unknown as Post);
-      const next = { en: emptyTr(), de: emptyTr(), es: emptyTr() };
-      (must(t) as unknown as (Tr & { locale: Locale })[]).forEach((r) => (next[r.locale] = { ...emptyTr(), ...r, takeaways: Array.isArray(r.takeaways) ? r.takeaways : [], exists: true }));
+      const next = blank(emptyTr);
+      (must(t) as unknown as (Tr & { locale: Locale })[]).forEach((r) => locales.includes(r.locale) && (next[r.locale] = { ...emptyTr(), ...r, takeaways: Array.isArray(r.takeaways) ? r.takeaways : [], exists: true }));
       setTrs(next);
-      setSlugTouched({ en: !!next.en.slug, de: !!next.de.slug, es: !!next.es.slug });
+      setSlugTouched(Object.fromEntries(locales.map((l) => [l, !!next[l]?.slug])));
       setTagIds((must(pt) as { tag_id: string }[]).map((x) => x.tag_id));
       setCats((must(c) as { id: string; name: I18nValue }[]).map((x) => ({ id: x.id, label: x.name.en || '' })));
       setAuthors((must(a) as { id: string; name: string }[]).map((x) => ({ id: x.id, label: x.name })));
@@ -99,6 +102,7 @@ export default function PostEditor() {
     } catch (e) {
       setError((e as Error).message);
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [db, id]);
 
   useEffect(() => {
@@ -152,7 +156,7 @@ export default function PostEditor() {
       const x = trs[l];
       if (x.title.trim() && !/^[a-z0-9]+(-[a-z0-9]+)*$/.test(x.slug)) {
         setLang(l);
-        return toast('error', `Check the ${localeMeta[l].name} address (lowercase letters, numbers, hyphens).`);
+        return toast('error', `Check the ${meta(l).name} address (lowercase letters, numbers, hyphens).`);
       }
     }
     setSaving(true);
@@ -208,7 +212,7 @@ export default function PostEditor() {
   function startFromEnglish() {
     setTr(lang, { content: en.content, html: en.html, takeaways: [...en.takeaways], title: tr.title || en.title, excerpt: tr.excerpt || en.excerpt, source_hash: enHash });
     setEditorKey((k) => k + 1);
-    toast('info', `English copied into ${localeMeta[lang].name} — now translate the text, keeping images and structure.`);
+    toast('info', `English copied into ${meta(lang).name} — now translate the text, keeping images and structure.`);
   }
 
   async function machineTranslate() {
@@ -290,7 +294,7 @@ export default function PostEditor() {
               return (
                 <button key={l} type="button" onClick={() => setLang(l)} aria-pressed={lang === l} className={`flex min-h-[44px] items-center gap-2.5 rounded-sm border px-4 text-sm transition ${lang === l ? 'border-gold bg-gold/10 text-bone' : 'border-bone/15 text-bone/60 hover:border-bone/40'}`}>
                   <span className={`h-2 w-2 rounded-full ${dot(s)}`} />
-                  <span className="font-medium">{localeMeta[l].name}</span>
+                  <span className="font-medium">{meta(l).name}</span>
                   <span className="text-xs text-bone/45">{stLabel[s]}</span>
                 </button>
               );
@@ -309,9 +313,9 @@ export default function PostEditor() {
                   {status(lang) === 'outdated' ? (
                     <span className="text-[#E8A598]">The English article changed after this translation was made. Review the differences, then confirm.</span>
                   ) : tr.title ? (
-                    `Translating into ${localeMeta[lang].name}. Mark it ready when it reads well — only ready languages appear on the website.`
+                    `Translating into ${meta(lang).name}. Mark it ready when it reads well — only ready languages appear on the website.`
                   ) : (
-                    `No ${localeMeta[lang].name} version yet. Start from the English article (keeps images and structure) and translate the text.`
+                    `No ${meta(lang).name} version yet. Start from the English article (keeps images and structure) and translate the text.`
                   )}
                 </p>
                 <Button size="sm" variant="secondary" onClick={startFromEnglish} disabled={!en.html}>Start from English</Button>
@@ -333,7 +337,7 @@ export default function PostEditor() {
             )}
 
             <div className="min-w-0 space-y-6">
-              <Field label={`Title (${localeMeta[lang].name})`} htmlFor="title">
+              <Field label={`Title (${meta(lang).name})`} htmlFor="title">
                 <Input
                   id="title"
                   value={tr.title}
@@ -374,7 +378,7 @@ export default function PostEditor() {
                 />
               </div>
 
-              <Card title={`Search engines — ${localeMeta[lang].name}`}>
+              <Card title={`Search engines — ${meta(lang).name}`}>
                 <div className="space-y-5">
                   <Field label="Focus keyword" htmlFor="kw" hint="The main phrase people search for, e.g. “architectural rendering cost”.">
                     <Input id="kw" value={tr.focus_keyword} onChange={(e) => setTr(lang, { focus_keyword: e.target.value })} />
@@ -397,7 +401,7 @@ export default function PostEditor() {
                 <Switch
                   checked={tr.ready}
                   onChange={(ready) => setTr(lang, { ready, ...(lang !== 'en' && ready ? { source_hash: enHash } : {}) })}
-                  label={`${localeMeta[lang].name} version is ready`}
+                  label={`${meta(lang).name} version is ready`}
                   description="Only ready languages are shown on the website (and listed for search engines)."
                 />
               </div>
@@ -417,7 +421,7 @@ export default function PostEditor() {
             </div>
           </Card>
 
-          <Card title={`SEO score · ${localeMeta[lang].short}`}>
+          <Card title={`SEO score · ${meta(lang).short}`}>
             <div className="mb-4 flex items-center gap-4">
               <div className={`grid h-16 w-16 place-items-center rounded-full border-4 font-display text-2xl ${seo.score >= 80 ? 'border-emerald-400 text-emerald-300' : seo.score >= 55 ? 'border-gold text-gold' : 'border-[#E8A598] text-[#E8A598]'}`}>{seo.score}</div>
               <p className="text-sm text-bone/55">{seo.score >= 80 ? 'Well optimised.' : seo.score >= 55 ? 'Good — a few improvements left.' : 'Needs work before publishing.'}</p>

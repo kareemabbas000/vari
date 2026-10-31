@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation';
 import BlogIndex from '@/components/blog/BlogIndex';
 import { getSiteContent } from '@/lib/cms';
 import { getAuthor, getCategories, getPosts } from '@/lib/blog';
-import { alternatesFor, fmt } from '@/lib/i18n';
+import { fmt } from '@/lib/i18n';
+import { alternatesFor } from '@/lib/i18n/languages';
 import { isLocale, type Locale } from '@/lib/i18n/config';
 
 type Props = { params: Promise<{ locale: string; slug: string }>; searchParams: Promise<{ page?: string }> };
@@ -13,7 +14,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!isLocale(locale)) return {};
   const [author, { t }] = await Promise.all([getAuthor(locale, slug), getSiteContent(locale)]);
   if (!author) return {};
-  return { title: fmt(t.blog.authorTitle, { name: author.name }), description: author.bio || t.blog.metaDescription, alternates: alternatesFor(locale, `/blog/author/${slug}`) };
+  return { title: fmt(t.blog.authorTitle, { name: author.name }), description: author.bio || t.blog.metaDescription, alternates: await alternatesFor(locale, `/blog/author/${slug}`) };
 }
 
 export default async function AuthorPage({ params, searchParams }: Props) {

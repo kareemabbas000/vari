@@ -8,7 +8,8 @@ import { supabaseBrowser } from '@/lib/supabase/browser';
 import { Badge, Button, EmptyState, Input, LinkButton, PageHeader, Spinner, useToast } from '@/components/admin/ui';
 import { formatDate, must, useLoad } from '@/components/admin/hooks';
 import { useMember } from '@/components/admin/AdminShell';
-import { locales, type Locale } from '@/lib/i18n/config';
+import { type Locale } from '@/lib/i18n/config';
+import { useLanguages } from '@/components/admin/languages';
 
 type Row = {
   id: string;
@@ -29,6 +30,7 @@ export default function BlogList() {
   const router = useRouter();
   const toast = useToast();
   const { can } = useMember();
+  const { codes: locales } = useLanguages();
   const [q, setQ] = useState('');
   const [filter, setFilter] = useState<Filter>('all');
   const [creating, setCreating] = useState(false);

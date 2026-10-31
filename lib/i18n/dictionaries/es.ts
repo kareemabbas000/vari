@@ -383,6 +383,7 @@ const es: Dictionary = {
     home: 'Volver al sitio web',
   },
   emails: {
+    replySubject: 'Su consulta a VARI Studio',
     ackSubject: 'Hemos recibido tu mensaje — VARI Studio',
     ackGreeting: 'Hola, {name}:',
     ackGreetingNoName: 'Hola:',

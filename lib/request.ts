@@ -1,5 +1,5 @@
 import { createHash } from 'node:crypto';
-import { isLocale, type Locale, defaultLocale } from '@/lib/i18n/config';
+import { isLocale, type Locale, SOURCE_LOCALE } from '@/lib/i18n/config';
 
 /** Salted one-way hash of the client IP, for throttling only (the raw IP is never stored). */
 export function ipHash(req: Request) {
@@ -10,7 +10,7 @@ export function ipHash(req: Request) {
 }
 
 export function localeFrom(value: unknown): Locale {
-  return typeof value === 'string' && isLocale(value) ? value : defaultLocale;
+  return typeof value === 'string' && isLocale(value) ? value : SOURCE_LOCALE; // the database resolves disabled languages to the default
 }
 
 /** The public origin the visitor used (works on preview and production domains alike). */

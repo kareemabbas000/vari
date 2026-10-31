@@ -10,8 +10,9 @@ import Footer from '@/components/Footer';
 import { I18nProvider } from '@/components/I18nProvider';
 import { brandAssets, site } from '@/lib/content';
 import { mediaUrl } from '@/lib/image-loader';
-import { isLocale, localeMeta, locales, type Locale } from '@/lib/i18n/config';
-import { alternatesFor } from '@/lib/i18n';
+import { isLocale, type Locale } from '@/lib/i18n/config';
+import { getLanguages } from '@/lib/i18n/languages';
+import { alternatesFor } from '@/lib/i18n/languages';
 import { getSiteContent } from '@/lib/cms';
 
 const AUTH_LINK_FORWARD = `document.documentElement.classList.add('js');(function(){var h=location.hash,q=location.search;if(/[#&](access_token|error_code)=/.test(h)||/[?&]token_hash=/.test(q)){location.replace('/admin/accept'+q+h);}})();`;
@@ -21,16 +22,19 @@ const ogImage = mediaUrl('b80319_425c2f36f32b420da9c91cbd856c607d~mv2.jpg', 1200
 
 type Params = { locale: string };
 
-export const dynamicParams = false;
+// Enabled languages are pre-rendered; a language enabled later renders on first visit.
+export const dynamicParams = true;
 
-export function generateStaticParams() {
-  return locales.map((locale) => ({ locale }));
+export async function generateStaticParams() {
+  return (await getLanguages()).enabled.map((l) => ({ locale: l.code }));
 }
 
 export async function generateMetadata({ params }: { params: Promise<Params> }): Promise<Metadata> {
   const { locale } = await params;
   if (!isLocale(locale)) return {};
-  const { t, settings } = await getSiteContent(locale);
+  const [{ t, settings }, langs] = await Promise.all([getSiteContent(locale), getLanguages()]);
+  const meta = langs.byCode[locale];
+  if (!meta?.enabled) return {};
   const v = settings.verification;
   const ok = (x?: string) => (x && VERIFY_PATTERN.test(x) ? x : undefined);
   const other: Record<string, string> = {};
@@ -42,12 +46,12 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     title: { default: t.meta.siteTitle, template: t.meta.titleTemplate },
     description: t.meta.description,
     applicationName: site.name,
-    alternates: alternatesFor(locale, '/'),
+    alternates: await alternatesFor(locale, '/'),
     openGraph: {
       type: 'website',
       siteName: 'VARI Studio',
-      locale: localeMeta[locale].og,
-      alternateLocale: locales.filter((l) => l !== locale).map((l) => localeMeta[l].og),
+      locale: meta.og,
+      alternateLocale: langs.enabled.filter((l) => l.code !== locale).map((l) => l.og),
       title: t.meta.ogTitle,
       description: t.meta.description,
       url: `/${locale}`,
@@ -67,7 +71,10 @@ export const viewport: Viewport = {
 
 export default async function LocaleLayout({ children, params }: { children: React.ReactNode; params: Promise<Params> }) {
   const { locale } = await params;
-  if (!isLocale(locale)) notFound();
+  const langs = await getLanguages();
+  // Disabled or unknown languages do not exist on the site (middleware redirects them).
+  if (!isLocale(locale) || !langs.byCode[locale]?.enabled) notFound();
+  const meta = langs.byCode[locale];
   const content = await getSiteContent(locale as Locale);
   const { t, settings } = content;
 
@@ -77,8 +84,8 @@ export default async function LocaleLayout({ children, params }: { children: Rea
     name: site.name,
     url: `${site.url.replace(/\/$/, '')}/${locale}`,
     description: t.meta.description,
-    inLanguage: localeMeta[locale].hreflang,
-    availableLanguage: locales.map((l) => localeMeta[l].name),
+    inLanguage: meta.hreflang,
+    availableLanguage: langs.enabled.map((l) => l.englishName),
     email: settings.contact.email,
     logo: `${site.url.replace(/\/$/, '')}/brand/vari-logo-dark.png`,
     image: ogImage,
@@ -87,7 +94,7 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   };
 
   return (
-    <html lang={locale} className={`${display.variable} ${sans.variable}`} suppressHydrationWarning>
+    <html lang={meta.hreflang} dir={meta.dir} className={`${display.variable} ${sans.variable}`} suppressHydrationWarning>
       <head>
         <link rel="preconnect" href="https://static.wixstatic.com" crossOrigin="anonymous" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />

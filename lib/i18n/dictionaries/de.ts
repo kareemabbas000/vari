@@ -382,6 +382,7 @@ const de: Dictionary = {
     home: 'Zurück zur Website',
   },
   emails: {
+    replySubject: 'Ihre Anfrage an VARI Studio',
     ackSubject: 'Wir haben Ihre Nachricht erhalten — VARI Studio',
     ackGreeting: 'Guten Tag {name},',
     ackGreetingNoName: 'Guten Tag,',

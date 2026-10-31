@@ -6,7 +6,8 @@ import { getSiteContent } from '@/lib/cms';
 import { formatDate, getPost, getPosts, postAlternates } from '@/lib/blog';
 import { readingMinutes, renderArticle } from '@/lib/blog-html';
 import { fmt } from '@/lib/i18n';
-import { isLocale, localeMeta, localizePath, type Locale } from '@/lib/i18n/config';
+import { isLocale, localizePath, type Locale } from '@/lib/i18n/config';
+import { getLanguages } from '@/lib/i18n/languages';
 import { site } from '@/lib/content';
 import { mediaUrl } from '@/lib/image-loader';
 import PostCard, { BlogCta } from '@/components/blog/PostCard';
@@ -19,7 +20,7 @@ const abs = (src: string) => (/^https?:/.test(src) ? src : mediaUrl(src, 1600));
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
   if (!isLocale(locale)) return {};
-  const post = await getPost(locale, slug);
+  const [post, langs] = await Promise.all([getPost(locale, slug), getLanguages()]);
   if (!post) return {};
   const title = post.seoTitle || post.title;
   const description = post.seoDescription || post.excerpt;
@@ -27,7 +28,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title: { absolute: `${title} | VARI Studio` },
     description,
-    alternates: postAlternates(locale, post.translations),
+    alternates: await postAlternates(locale, post.translations),
     authors: post.author ? [{ name: post.author.name, url: localizePath(locale, `/blog/author/${post.author.slug}`) }] : undefined,
     openGraph: {
       type: 'article',
@@ -38,7 +39,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       modifiedTime: post.updatedAt,
       section: post.category?.name,
       tags: post.tags.map((t) => t.name),
-      locale: localeMeta[locale].og,
+      locale: langs.byCode[locale]?.og,
       images: image ? [{ url: image, width: 1600, alt: post.coverAlt }] : undefined,
     },
     twitter: { card: 'summary_large_image', title, description, images: image ? [image] : undefined },
@@ -48,7 +49,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
 export default async function ArticlePage({ params }: Props) {
   const { locale, slug } = await params;
   const l = locale as Locale;
-  const [post, { t }, all] = await Promise.all([getPost(l, slug), getSiteContent(l), getPosts(l)]);
+  const [post, { t }, all, langs] = await Promise.all([getPost(l, slug), getSiteContent(l), getPosts(l), getLanguages()]);
   if (!post) notFound();
   const href = (p: string) => localizePath(l, p);
   const { html, toc } = renderArticle(post.html, href);
@@ -65,7 +66,7 @@ export default async function ArticlePage({ params }: Props) {
       image: post.cover ? [abs(post.cover)] : undefined,
       datePublished: post.publishedAt,
       dateModified: post.updatedAt,
-      inLanguage: localeMeta[l].hreflang,
+      inLanguage: langs.byCode[l]?.hreflang ?? l,
       wordCount: post.words,
       timeRequired: `PT${minutes}M`,
       articleSection: post.category?.name,

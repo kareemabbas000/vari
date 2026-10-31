@@ -4,7 +4,8 @@ import Link from 'next/link';
 import RevealText from '@/components/RevealText';
 import Services from '@/components/home/Services';
 import { isLocale, localizePath, type Locale } from '@/lib/i18n/config';
-import { alternatesFor, fmt } from '@/lib/i18n';
+import { fmt } from '@/lib/i18n';
+import { alternatesFor } from '@/lib/i18n/languages';
 import { getSiteContent } from '@/lib/cms';
 import { getPage, pageMeta, withSeo } from '@/lib/pages';
 import { PageBlocks } from '@/components/blocks/PageBlocks';
@@ -20,7 +21,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return withSeo(seo, {
     title: t.meta.servicesTitle,
     description: `${t.services.title}. ${t.services.items.map((s) => s.title).join(', ')}.`,
-    alternates: alternatesFor(locale, '/services'),
+    alternates: await alternatesFor(locale, '/services'),
   });
 }
 

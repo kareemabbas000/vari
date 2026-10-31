@@ -8,7 +8,7 @@ import { gsap } from '@/lib/gsap';
 import { useDeviceTier } from '@/lib/device';
 import { getDictionary } from '@/lib/i18n';
 import { getProject } from '@/lib/content';
-import { localeMeta, locales, localizePath, type Locale } from '@/lib/i18n/config';
+import { localizePath, type Locale } from '@/lib/i18n/config';
 import Logo from './Logo';
 import { useI18n } from './I18nProvider';
 import { LANG_CHOSEN_KEY, rememberLocale } from './LanguageSwitcher';
@@ -36,7 +36,9 @@ const DOORS_OPEN = 'polygon(evenodd, 0% 0%, 100% 0%, 100% 100%, 0% 100%, 0% 0%, 
  * at step 4. No-WebGL devices get the same story as a 2D line drawing.
  */
 export default function Preloader({ enabled = true, languageGate = true }: { enabled?: boolean; languageGate?: boolean }) {
-  const { t, locale, settings } = useI18n();
+  const { t, locale, settings, languages } = useI18n();
+  // With a single language there is nothing to choose.
+  const gateOn = languageGate && languages.length > 1;
   const logoMask = `url(${settings.brand.logoLight})`;
   const router = useRouter();
   const root = useRef<HTMLDivElement>(null);
@@ -69,7 +71,7 @@ export default function Preloader({ enabled = true, languageGate = true }: { ena
       sessionStorage.removeItem(HANDOFF_KEY);
       seen = sessionStorage.getItem('vari-intro') === '1';
       sessionStorage.setItem('vari-intro', '1');
-      chosen = !languageGate || !!localStorage.getItem(LANG_CHOSEN_KEY);
+      chosen = !gateOn || !!localStorage.getItem(LANG_CHOSEN_KEY);
     } catch {}
 
     // Disabled in the panel: finish at once (the hero still waits for this signal).
@@ -205,7 +207,7 @@ export default function Preloader({ enabled = true, languageGate = true }: { ena
       ctx.revert();
       document.documentElement.style.overflow = '';
     };
-  }, [locale, router, enabled, languageGate]);
+  }, [locale, router, enabled, gateOn]);
 
   // The no-WebGL stage only exists once the device check has run, so it animates on its own.
   useEffect(() => {
@@ -227,7 +229,8 @@ export default function Preloader({ enabled = true, languageGate = true }: { ena
   if (done || !active) return null;
 
   const webgl = tier === 'high' || tier === 'low';
-  const prompts = locales.map((l) => ({ l, text: getDictionary(l).language.choose }));
+  const prompts = languages.map(({ code: l }) => ({ l, text: getDictionary(l).language.choose }));
+  const cols = ({ 2: 'sm:grid-cols-2', 3: 'sm:grid-cols-3', 4: 'sm:grid-cols-4' } as Record<number, string>)[languages.length] ?? 'sm:grid-cols-3';
 
   return (
     <div
@@ -318,18 +321,18 @@ export default function Preloader({ enabled = true, languageGate = true }: { ena
               </span>
             ))}
           </p>
-          <div className="mt-5 grid w-full max-w-[760px] grid-cols-1 gap-2 sm:mt-8 sm:grid-cols-3 sm:gap-4" role="group" aria-label={t.language.choose} data-gate-group tabIndex={-1} style={{ outline: 'none' }}>
-            {locales.map((l, i) => (
+          <div className={`mt-5 grid w-full grid-cols-1 gap-2 sm:mt-8 sm:gap-4 ${cols} ${languages.length > 3 ? 'max-w-[980px]' : 'max-w-[760px]'}`} role="group" aria-label={t.language.choose} data-gate-group tabIndex={-1} style={{ outline: 'none' }}>
+            {languages.map(({ code: l, welcome, name, short }, i) => (
               <button
                 key={l}
                 type="button"
                 data-door={l}
                 lang={l}
                 onClick={() => choose.current(l)}
-                onPointerEnter={() => (look.current = i - 1)}
-                onFocus={() => (look.current = i - 1)}
+                onPointerEnter={() => (look.current = i - (languages.length - 1) / 2)}
+                onFocus={() => (look.current = i - (languages.length - 1) / 2)}
                 onPointerLeave={() => (look.current = 0)}
-                aria-label={`${localeMeta[l].welcome} — ${localeMeta[l].name}`}
+                aria-label={`${welcome} — ${name}`}
                 className="group relative flex items-center justify-between gap-4 overflow-hidden border border-gold/30 bg-night/55 px-5 py-4 text-left backdrop-blur-md transition-[border-color,background-color] duration-500 hover:border-gold focus-visible:border-gold focus-visible:outline-none sm:aspect-[5/6] sm:flex-col sm:items-start sm:p-6"
                 style={{ clipPath: 'inset(100% 0% 0% 0%)' }}
               >
@@ -340,12 +343,12 @@ export default function Preloader({ enabled = true, languageGate = true }: { ena
                 />
                 <span className="label relative shrink-0 text-gold/80">{String(i + 1).padStart(2, '0')}</span>
                 <span className="display relative flex-1 text-[1.65rem] leading-none text-bone transition-colors duration-500 group-hover:text-gold group-focus-visible:text-gold sm:flex-none sm:text-[clamp(1.5rem,2.5vw,2.3rem)]">
-                  {localeMeta[l].welcome}
+                  {welcome}
                 </span>
                 <span className="relative flex shrink-0 items-center gap-3">
                   <span className="label text-bone/70">
-                    <span className="sm:hidden">{localeMeta[l].short}</span>
-                    <span className="hidden sm:inline">{localeMeta[l].name}</span>
+                    <span className="sm:hidden">{short}</span>
+                    <span className="hidden sm:inline">{name}</span>
                   </span>
                   <span aria-hidden className="block h-px w-6 bg-gold transition-[width] duration-700 ease-expo group-hover:w-12 group-focus-visible:w-12" />
                 </span>

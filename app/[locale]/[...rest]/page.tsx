@@ -1,9 +1,9 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
-import BlockRenderer from '@/components/blocks/Blocks';
+import { Interleave } from '@/components/blocks/PageBlocks';
 import { getPage, pageMeta } from '@/lib/pages';
 import { pick } from '@/lib/cms';
-import { alternatesFor } from '@/lib/i18n';
+import { alternatesFor } from '@/lib/i18n/languages';
 import { isLocale, type Locale } from '@/lib/i18n/config';
 import { RESERVED_SLUGS } from '@/lib/blocks/schema';
 
@@ -27,7 +27,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return {
     title,
     description: seo.description || undefined,
-    alternates: alternatesFor(locale, `/${page.slug}`),
+    alternates: await alternatesFor(locale, `/${page.slug}`),
     openGraph: { title, description: seo.description || undefined, ...(seo.image ? { images: [{ url: seo.image }] } : {}) },
     robots: seo.noindex ? { index: false, follow: true } : undefined,
   };
@@ -41,9 +41,9 @@ export default async function CustomPage({ params }: { params: Promise<Params> }
   const hasH1 = blocks.some((b) => b.type === 'hero' || (b.type === 'heading' && b.props?.level === 'h1'));
   return (
     // Leave room for the fixed header unless the page opens with a full-bleed hero.
-    <div className={blocks[0]?.type === 'hero' ? '' : 'pt-[var(--header-h)]'}>
+    <div className={blocks[0]?.type === 'hero' || (blocks[0]?.type === 'module' && blocks[0]?.props?.module === 'hero') ? '' : 'pt-[var(--header-h)]'}>
       {!hasH1 && <h1 className="sr-only">{pick(page.title, locale as Locale)}</h1>}
-      <BlockRenderer blocks={blocks} />
+      <Interleave blocks={blocks} modules={{}} />
     </div>
   );
 }

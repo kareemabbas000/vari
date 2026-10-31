@@ -4,7 +4,7 @@ import RevealText from '@/components/RevealText';
 import Story from '@/components/home/Story';
 import Logo from '@/components/Logo';
 import { isLocale, localizePath, type Locale } from '@/lib/i18n/config';
-import { alternatesFor } from '@/lib/i18n';
+import { alternatesFor } from '@/lib/i18n/languages';
 import { getSiteContent } from '@/lib/cms';
 import { getPage, pageMeta, withSeo } from '@/lib/pages';
 import { PageBlocks } from '@/components/blocks/PageBlocks';
@@ -17,7 +17,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const page = await getPage('studio');
   const seo = pageMeta(page, locale);
   const { t } = await getSiteContent(locale);
-  return withSeo(seo, { title: t.meta.studioTitle, description: t.story.pillars[0].body, alternates: alternatesFor(locale, '/studio') });
+  return withSeo(seo, { title: t.meta.studioTitle, description: t.story.pillars[0].body, alternates: await alternatesFor(locale, '/studio') });
 }
 
 export default async function StudioPage({ params }: { params: Promise<Params> }) {

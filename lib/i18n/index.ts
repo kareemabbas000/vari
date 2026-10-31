@@ -1,15 +1,22 @@
 import { projects as baseProjects, type Project } from '@/lib/content';
-import { type Locale, locales, localizePath, defaultLocale } from './config';
+import { type Locale, SOURCE_LOCALE } from './config';
 import en, { type Dictionary } from './dictionaries/en';
 import de from './dictionaries/de';
 import es from './dictionaries/es';
+import tr from './dictionaries/tr';
 
 export type { Dictionary };
 
-const dictionaries: Record<Locale, Dictionary> = { en, de, es };
+/**
+ * Languages that ship with a complete built-in translation. Languages added in the panel
+ * start from English and are translated under Texts & translations (stored in the CMS).
+ */
+const dictionaries: Record<Locale, Dictionary> = { en, de, es, tr };
+
+export const BUILTIN_LOCALES = Object.keys(dictionaries);
 
 export function getDictionary(locale: Locale): Dictionary {
-  return dictionaries[locale] ?? dictionaries[defaultLocale];
+  return dictionaries[locale] ?? dictionaries[SOURCE_LOCALE];
 }
 
 /** `fmt('All {n} interiors', { n: 12 })` */
@@ -33,12 +40,4 @@ export function localizeProjects(t: Dictionary): Project[] {
       categoryName: t.work.filters[p.discipline === 'Interior' ? 'interior' : 'exterior'],
     };
   });
-}
-
-/** hreflang alternates + canonical for a locale-agnostic path such as `/work`. */
-export function alternatesFor(locale: Locale, path: string) {
-  const languages: Record<string, string> = {};
-  for (const l of locales) languages[l] = localizePath(l, path);
-  languages['x-default'] = localizePath(defaultLocale, path);
-  return { canonical: localizePath(locale, path), languages };
 }

@@ -1,6 +1,6 @@
 import { NextResponse, type NextRequest } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
-import { defaultLocale, isLocale, LOCALE_COOKIE, locales, type Locale } from '@/lib/i18n/config';
+import { FALLBACK_LANGUAGES, isLocale, LOCALE_COOKIE, type Locale } from '@/lib/i18n/config';
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '@/lib/supabase/config';
 
 /** Old Wix URLs → new routes (kept for existing links and search results). */
@@ -9,9 +9,32 @@ const LEGACY: Record<string, string> = { '/home': '/', '/about': '/studio', '/co
 /** Control-panel pages reachable without a session. */
 const ADMIN_PUBLIC = ['/admin/login', '/admin/forgot', '/admin/accept'];
 
-function preferred(req: NextRequest): Locale {
+type Registry = { known: Locale[]; enabled: Locale[]; fallback: Locale };
+let cache: { at: number; value: Registry } | null = null;
+
+/** Languages from the panel, cached for a minute (the fallback list if unreachable). */
+async function registry(): Promise<Registry> {
+  if (cache && Date.now() - cache.at < 60_000) return cache.value;
+  let rows: { code: string; enabled: boolean; is_default: boolean; sort: number }[] = FALLBACK_LANGUAGES.map((l) => ({ code: l.code, enabled: l.enabled, is_default: l.isDefault, sort: l.sort }));
+  try {
+    const res = await fetch(`${SUPABASE_URL}/rest/v1/languages?select=code,enabled,is_default,sort&order=sort.asc`, {
+      headers: { apikey: SUPABASE_PUBLISHABLE_KEY },
+      signal: AbortSignal.timeout(2500),
+    });
+    if (res.ok) {
+      const data = await res.json();
+      if (Array.isArray(data) && data.length) rows = data;
+    }
+  } catch {}
+  const enabled = rows.filter((r) => r.enabled).map((r) => r.code);
+  const value = { known: rows.map((r) => r.code), enabled, fallback: rows.find((r) => r.is_default && r.enabled)?.code ?? enabled[0] ?? 'en' };
+  cache = { at: Date.now(), value };
+  return value;
+}
+
+function preferred(req: NextRequest, reg: Registry): Locale {
   const saved = req.cookies.get(LOCALE_COOKIE)?.value;
-  if (isLocale(saved)) return saved;
+  if (isLocale(saved) && reg.enabled.includes(saved)) return saved;
   // Accept-Language: "de-DE,de;q=0.9,en;q=0.8"
   const header = req.headers.get('accept-language') || '';
   const ranked = header
@@ -21,8 +44,8 @@ function preferred(req: NextRequest): Locale {
       return { lang: tag.toLowerCase().split('-')[0], q: q ? Number(q) : 1 };
     })
     .sort((a, b) => b.q - a.q);
-  for (const { lang } of ranked) if ((locales as readonly string[]).includes(lang)) return lang as Locale;
-  return defaultLocale;
+  for (const { lang } of ranked) if (reg.enabled.includes(lang)) return lang;
+  return reg.fallback;
 }
 
 /**
@@ -63,12 +86,16 @@ export async function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
   if (pathname === '/admin' || pathname.startsWith('/admin/')) return admin(req);
 
+  const reg = await registry();
   const first = pathname.split('/')[1];
-  if (isLocale(first)) return NextResponse.next();
+  if (reg.enabled.includes(first)) return NextResponse.next();
 
-  const path = LEGACY[pathname] ?? pathname;
+  // A language that is switched off (or no longer exists): same page, visitor's language.
+  const known = reg.known.includes(first) || (isLocale(first) && first.length === 2 && pathname.split('/').length > 2);
+  const rest = known ? '/' + pathname.split('/').slice(2).join('/') : pathname;
+  const path = LEGACY[rest] ?? rest;
   const url = req.nextUrl.clone();
-  url.pathname = `/${preferred(req)}${path === '/' ? '' : path}`;
+  url.pathname = `/${preferred(req, reg)}${path === '/' ? '' : path}`;
   url.search = search;
   const res = NextResponse.redirect(url, 307);
   res.headers.set('Vary', 'Accept-Language, Cookie');

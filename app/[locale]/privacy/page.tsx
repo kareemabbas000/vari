@@ -1,7 +1,8 @@
 import type { Metadata } from 'next';
 import { isLocale, type Locale } from '@/lib/i18n/config';
-import { alternatesFor } from '@/lib/i18n';
+import { alternatesFor } from '@/lib/i18n/languages';
 import { getSiteContent } from '@/lib/cms';
+import { PageBlocks } from '@/components/blocks/PageBlocks';
 import { hasTracking } from '@/lib/tracking';
 
 const COOKIE_SECTION = 6;
@@ -12,7 +13,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const { locale } = await params;
   if (!isLocale(locale)) return {};
   const t = (await getSiteContent(locale)).t.privacy;
-  return { title: t.title, description: t.intro, alternates: alternatesFor(locale, '/privacy') };
+  return { title: t.title, description: t.intro, alternates: await alternatesFor(locale, '/privacy') };
 }
 
 export default async function PrivacyPage({ params }: { params: Promise<Params> }) {
@@ -23,6 +24,7 @@ export default async function PrivacyPage({ params }: { params: Promise<Params> 
   const tracking = hasTracking(settings.tracking);
   const sections = t.sections.map((s, i) => (tracking && i === COOKIE_SECTION ? { ...s, p: dict.consent.privacyCookies } : s));
   return (
+    <PageBlocks slug="privacy">
     <article className="wrap pb-28 pt-[calc(var(--header-h)+8vh)]">
       <header className="max-w-3xl">
         <p className="label text-gold">{t.updated}</p>
@@ -44,5 +46,6 @@ export default async function PrivacyPage({ params }: { params: Promise<Params> 
         ))}
       </div>
     </article>
+    </PageBlocks>
   );
 }

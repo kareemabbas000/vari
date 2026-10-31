@@ -144,7 +144,7 @@ export type Database = {
           excerpt: string
           focus_keyword: string
           html: string
-          locale: Database["public"]["Enums"]["site_locale"]
+          locale: string
           post_id: string
           ready: boolean
           seo_description: string
@@ -161,7 +161,7 @@ export type Database = {
           excerpt?: string
           focus_keyword?: string
           html?: string
-          locale: Database["public"]["Enums"]["site_locale"]
+          locale: string
           post_id: string
           ready?: boolean
           seo_description?: string
@@ -178,7 +178,7 @@ export type Database = {
           excerpt?: string
           focus_keyword?: string
           html?: string
-          locale?: Database["public"]["Enums"]["site_locale"]
+          locale?: string
           post_id?: string
           ready?: boolean
           seo_description?: string
@@ -309,7 +309,7 @@ export type Database = {
           intent: Database["public"]["Enums"]["enquiry_intent"]
           ip_hash: string | null
           last_name: string | null
-          locale: Database["public"]["Enums"]["site_locale"]
+          locale: string
           message: string | null
           notes: string | null
           notified_at: string | null
@@ -327,7 +327,7 @@ export type Database = {
           intent?: Database["public"]["Enums"]["enquiry_intent"]
           ip_hash?: string | null
           last_name?: string | null
-          locale?: Database["public"]["Enums"]["site_locale"]
+          locale?: string
           message?: string | null
           notes?: string | null
           notified_at?: string | null
@@ -345,7 +345,7 @@ export type Database = {
           intent?: Database["public"]["Enums"]["enquiry_intent"]
           ip_hash?: string | null
           last_name?: string | null
-          locale?: Database["public"]["Enums"]["site_locale"]
+          locale?: string
           message?: string | null
           notes?: string | null
           notified_at?: string | null
@@ -414,6 +414,51 @@ export type Database = {
         }
         Relationships: []
       }
+      languages: {
+        Row: {
+          code: string
+          created_at: string
+          dir: string
+          enabled: boolean
+          english_name: string
+          hreflang: string
+          is_default: boolean
+          name: string
+          og_locale: string
+          sort: number
+          updated_at: string
+          welcome: string
+        }
+        Insert: {
+          code: string
+          created_at?: string
+          dir?: string
+          enabled?: boolean
+          english_name: string
+          hreflang: string
+          is_default?: boolean
+          name: string
+          og_locale: string
+          sort?: number
+          updated_at?: string
+          welcome?: string
+        }
+        Update: {
+          code?: string
+          created_at?: string
+          dir?: string
+          enabled?: boolean
+          english_name?: string
+          hreflang?: string
+          is_default?: boolean
+          name?: string
+          og_locale?: string
+          sort?: number
+          updated_at?: string
+          welcome?: string
+        }
+        Relationships: []
+      }
       media: {
         Row: {
           alt: Json
@@ -467,7 +512,7 @@ export type Database = {
           id: string
           ip_hash: string | null
           last_requested_at: string
-          locale: Database["public"]["Enums"]["site_locale"]
+          locale: string
           status: Database["public"]["Enums"]["subscriber_status"]
           unsubscribe_token: string
           unsubscribed_at: string | null
@@ -481,7 +526,7 @@ export type Database = {
           id?: string
           ip_hash?: string | null
           last_requested_at?: string
-          locale?: Database["public"]["Enums"]["site_locale"]
+          locale?: string
           status?: Database["public"]["Enums"]["subscriber_status"]
           unsubscribe_token?: string
           unsubscribed_at?: string | null
@@ -495,7 +540,7 @@ export type Database = {
           id?: string
           ip_hash?: string | null
           last_requested_at?: string
-          locale?: Database["public"]["Enums"]["site_locale"]
+          locale?: string
           status?: Database["public"]["Enums"]["subscriber_status"]
           unsubscribe_token?: string
           unsubscribed_at?: string | null
@@ -827,6 +872,8 @@ export type Database = {
           unsubscribe_token: string
         }[]
       }
+      resolve_locale: { Args: { p: string }; Returns: string }
+      set_default_language: { Args: { p_code: string }; Returns: undefined }
       unsubscribe_newsletter: {
         Args: { p_token: string }
         Returns: {

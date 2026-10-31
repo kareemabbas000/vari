@@ -1,5 +1,6 @@
 'use client';
 
+import { getDictionary } from '@/lib/i18n';
 import Link from 'next/link';
 import { useParams, useRouter } from 'next/navigation';
 import { useEffect, useState } from 'react';
@@ -11,7 +12,6 @@ import type { Database } from '@/lib/database.types';
 
 type Status = Database['public']['Enums']['enquiry_status'];
 const STATUSES: Status[] = ['new', 'read', 'replied', 'archived', 'spam'];
-const SUBJECT = { en: 'Your enquiry to VARI Studio', de: 'Ihre Anfrage an VARI Studio', es: 'Tu consulta a VARI Studio' } as const;
 
 export default function EnquiryPage() {
   const { id } = useParams<{ id: string }>();
@@ -59,7 +59,7 @@ export default function EnquiryPage() {
   if (error || !e) return <p className="text-[#E8A598]">{error || 'Not found.'}</p>;
 
   const name = [e.first_name, e.last_name].filter(Boolean).join(' ');
-  const mailto = `mailto:${e.email}?subject=${encodeURIComponent(SUBJECT[e.locale])}&body=${encodeURIComponent(`\n\n— \n> ${(e.message || '').replace(/\n/g, '\n> ')}`)}`;
+  const mailto = `mailto:${e.email}?subject=${encodeURIComponent(getDictionary(e.locale).emails.replySubject)}&body=${encodeURIComponent(`\n\n— \n> ${(e.message || '').replace(/\n/g, '\n> ')}`)}`;
 
   return (
     <>

@@ -16,7 +16,7 @@ export default function Header() {
   const [hidden, setHidden] = useState(false);
   const [scrolled, setScrolled] = useState(false);
   const pathname = usePathname();
-  const { t, href, settings } = useI18n();
+  const { t, href, settings, languages } = useI18n();
   const contact = settings.contact;
   const nav = useNav('header');
   const lenis = useLenis();
@@ -95,10 +95,12 @@ export default function Header() {
                 {item.label}
               </NavLink>
             ))}
-            <LanguageSwitcher />
+            {settings.layout.header.languages && <LanguageSwitcher />}
+            {settings.layout.header.cta && (
             <Link href={href('/contact?intent=design')} className="btn !px-5 !py-3 !min-h-0 !text-[0.65rem]">
               <span>{t.nav.cta}</span>
             </Link>
+            )}
           </nav>
 
           <button
@@ -154,10 +156,12 @@ export default function Header() {
           ))}
         </nav>
         <div className="wrap relative pb-10 text-sm text-bone/60">
-          <div className="mb-8">
-            <p className="label mb-3 text-bone/40">{t.nav.language}</p>
-            <LanguageSwitcher variant="menu" tabIndex={open ? 0 : -1} />
-          </div>
+          {settings.layout.header.languages && languages.length > 1 && (
+            <div className="mb-8">
+              <p className="label mb-3 text-bone/40">{t.nav.language}</p>
+              <LanguageSwitcher variant="menu" tabIndex={open ? 0 : -1} />
+            </div>
+          )}
           <a href={`mailto:${contact.email}`} tabIndex={open ? 0 : -1} className="block text-gold">
             {contact.email}
           </a>

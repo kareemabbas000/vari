@@ -7,6 +7,8 @@ import Logo from '@/components/Logo';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import type { AppRole } from '@/lib/supabase/server';
 import { Badge } from './ui';
+import { LanguagesProvider } from './languages';
+import type { Language } from '@/lib/i18n/config';
 
 const RANK: Record<AppRole, number> = { viewer: 1, editor: 2, admin: 3, owner: 4 };
 
@@ -36,7 +38,8 @@ const NAV: { group: string; items: Item[] }[] = [
   {
     group: 'Site',
     items: [
-      { href: '/admin/menus', label: 'Menus & announcement', min: 'admin', icon: 'M4 6h16M4 12h16M4 18h10' },
+      { href: '/admin/languages', label: 'Languages', min: 'admin', icon: 'M12 21a9 9 0 100-18 9 9 0 000 18zM3 12h18M12 3c2.5 2.7 3.8 5.7 3.8 9s-1.3 6.3-3.8 9c-2.5-2.7-3.8-5.7-3.8-9S9.5 5.7 12 3z' },
+      { href: '/admin/menus', label: 'Menus, header & footer', min: 'admin', icon: 'M4 6h16M4 12h16M4 18h10' },
       { href: '/admin/tracking', label: 'Analytics & tracking', min: 'admin', icon: 'M4 20V10M10 20V4M16 20v-7M22 20H2' },
       { href: '/admin/settings', label: 'Brand & settings', min: 'admin', icon: 'M12 15a3 3 0 100-6 3 3 0 000 6zM19 12l2-1-2-4-2 1-2-2V4h-4v2l-2 2-2-1-2 4 2 1v2l-2 1 2 4 2-1 2 2v2h4v-2l2-2 2 1 2-4-2-1z' },
     ],
@@ -70,7 +73,7 @@ function Icon({ d }: { d: string }) {
   );
 }
 
-export default function AdminShell({ member, newEnquiries, children }: { member: Member; newEnquiries: number; children: ReactNode }) {
+export default function AdminShell({ member, newEnquiries, children, languages = [] }: { member: Member; newEnquiries: number; children: ReactNode; languages?: Language[] }) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -143,6 +146,7 @@ export default function AdminShell({ member, newEnquiries, children }: { member:
 
   return (
     <MemberContext.Provider value={member}>
+      <LanguagesProvider languages={languages}>
     <div className="min-h-[100svh] lg:pl-64">
       {/* Desktop sidebar */}
       <aside className="fixed inset-y-0 left-0 z-30 hidden w-64 flex-col border-r border-bone/10 bg-[#100f0e] lg:flex">
@@ -199,6 +203,7 @@ export default function AdminShell({ member, newEnquiries, children }: { member:
 
       <main className="mx-auto w-full max-w-6xl px-4 pb-24 pt-6 sm:px-6 sm:pt-8 lg:px-10 lg:pt-10">{children}</main>
     </div>
+      </LanguagesProvider>
     </MemberContext.Provider>
   );
 }

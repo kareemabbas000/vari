@@ -16,7 +16,7 @@ import type { Json } from '@/lib/database.types';
 
 type Row = { id: string; slug: string; kind: 'custom' | 'system'; title: I18nValue; blocks: Block[]; draft: unknown; published: boolean; updated_at: string; sort: number };
 
-const SYSTEM_PATH: Record<string, string> = { home: '/', work: '/work', services: '/services', studio: '/studio', contact: '/contact' };
+const SYSTEM_PATH: Record<string, string> = { home: '/', work: '/work', services: '/services', studio: '/studio', contact: '/contact', blog: '/blog', privacy: '/privacy', 'project-template': '/work/… (every project)' };
 
 export default function PagesList() {
   const db = supabaseBrowser();

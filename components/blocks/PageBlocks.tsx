@@ -2,6 +2,7 @@ import type { ReactNode } from 'react';
 import BlockRenderer from './Blocks';
 import { getPage } from '@/lib/pages';
 import type { Block } from '@/lib/blocks/schema';
+import { MODULE_RENDER } from './modules';
 
 /**
  * A system page's layout from the builder: runs of custom blocks interleaved with the
@@ -30,8 +31,11 @@ export function Interleave({ blocks, modules }: { blocks: Block[] | null; module
   for (const b of visible) {
     if (b.type === 'module') {
       flush();
-      const node = modules[String(b.props?.module)];
-      if (node !== undefined) out.push(<div key={b.id} className="contents">{node}</div>);
+      const id = String(b.props?.module);
+      // Page-specific content first, then any signature section from the shared registry.
+      const node = id in modules ? modules[id] : MODULE_RENDER[id]?.();
+      const show = b.style?.hideOn === 'mobile' ? 'hidden md:contents' : b.style?.hideOn === 'desktop' ? 'contents md:hidden' : 'contents';
+      if (node !== undefined && node !== null) out.push(<div key={b.id} className={show}>{node}</div>);
     } else run.push(b);
   }
   flush();

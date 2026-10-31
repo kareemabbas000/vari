@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { rpc } from '@/lib/supabase';
-import { isLocale, LOCALE_COOKIE, defaultLocale } from '@/lib/i18n/config';
+import { isLocale, LOCALE_COOKIE, SOURCE_LOCALE } from '@/lib/i18n/config';
 import { originOf } from '@/lib/request';
 
 const UUID_RE = /^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i;
@@ -13,7 +13,7 @@ export async function handleNewsletterLink(req: Request, fn: 'confirm_newsletter
   const url = new URL(req.url);
   const token = url.searchParams.get('token') || '';
   const cookieLocale = (req.headers.get('cookie') || '').match(new RegExp(`${LOCALE_COOKIE}=(\\w+)`))?.[1];
-  let locale = isLocale(cookieLocale) ? cookieLocale : defaultLocale;
+  let locale = isLocale(cookieLocale) ? cookieLocale : SOURCE_LOCALE;
   let status = 'invalid';
 
   if (UUID_RE.test(token)) {

@@ -102,9 +102,9 @@ export default function Preview() {
                 [
                   ['up', '↑', 'Move up'],
                   ['down', '↓', 'Move down'],
-                  ...(b.type === 'module' ? [] : [['duplicate', '⧉', 'Duplicate']]),
+                  ...(locked ? [] : [['duplicate', '⧉', 'Duplicate']]),
                   ...(locked ? [] : [['hide', b.hidden ? '◉' : '◌', b.hidden ? 'Show' : 'Hide']]),
-                  ...(b.type === 'module' ? [] : [['delete', '✕', 'Delete']]),
+                  ...(locked ? [] : [['delete', '✕', 'Delete']]),
                 ] as [string, string, string][]
               ).map(([action, icon, label]) => (
                 <button

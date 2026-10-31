@@ -1,16 +1,17 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import ProjectExhibition from '@/components/work/ProjectExhibition';
+import { PageBlocks } from '@/components/blocks/PageBlocks';
 import { mediaUrl } from '@/lib/image-loader';
-import { isLocale, localeMeta, locales, type Locale } from '@/lib/i18n/config';
-import { alternatesFor } from '@/lib/i18n';
+import { isLocale, type Locale } from '@/lib/i18n/config';
+import { alternatesFor, getLanguages } from '@/lib/i18n/languages';
 import { getProjectSlugs, getSiteContent } from '@/lib/cms';
 
 type Params = { locale: string; slug: string };
 
 export async function generateStaticParams() {
-  const slugs = await getProjectSlugs();
-  return locales.flatMap((locale) => slugs.map((slug) => ({ locale, slug })));
+  const [slugs, langs] = await Promise.all([getProjectSlugs(), getLanguages()]);
+  return langs.codes.flatMap((locale) => slugs.map((slug) => ({ locale, slug })));
 }
 
 // Projects added in the panel later are rendered on first request, then cached.
@@ -33,11 +34,11 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return {
     title: p.seoTitle || p.title,
     description,
-    alternates: alternatesFor(locale, `/work/${p.slug}`),
+    alternates: await alternatesFor(locale, `/work/${p.slug}`),
     openGraph: {
       title: `${p.title} — VARI Studio`,
       description,
-      locale: localeMeta[locale].og,
+      locale: (await getLanguages()).byCode[locale]?.og,
       images: [{ url: mediaUrl(p.media[0].id, 1200), alt: p.media[0].alt }],
     },
   };
@@ -56,7 +57,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
     '@context': 'https://schema.org',
     '@type': 'CreativeWork',
     name: project.title,
-    inLanguage: localeMeta[locale].hreflang,
+    inLanguage: (await getLanguages()).byCode[locale]?.hreflang ?? locale,
     description: project.description.join(' '),
     image: project.media.map((m) => mediaUrl(m.id, 1600)),
     creator: { '@type': 'Organization', name: 'VARI Studio' },
@@ -66,7 +67,10 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
   return (
     <>
       <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
-      <ProjectExhibition project={project} prev={prev} next={next} index={i} total={list.length} />
+      {/* Blocks placed around "Project page" in the builder appear on every project. */}
+      <PageBlocks slug="project-template">
+        <ProjectExhibition project={project} prev={prev} next={next} index={i} total={list.length} />
+      </PageBlocks>
     </>
   );
 }

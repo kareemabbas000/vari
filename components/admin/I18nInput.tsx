@@ -1,7 +1,8 @@
 'use client';
 
 import { useId, useState } from 'react';
-import { locales, localeMeta, type Locale } from '@/lib/i18n/config';
+import { SOURCE_LOCALE, type Locale } from '@/lib/i18n/config';
+import { useLanguages } from './languages';
 import { Input, Textarea } from './ui';
 
 export type I18nValue = Partial<Record<Locale, string>>;
@@ -32,10 +33,14 @@ export default function I18nInput({
   /** Always use language tabs (narrow panels such as the page builder). */
   compact?: boolean;
 }) {
-  const [tab, setTab] = useState<Locale>('en');
+  const { codes: locales, meta } = useLanguages();
+  const [tab, setTab] = useState<Locale>(SOURCE_LOCALE);
   const id = useId();
   const v = value || {};
-  const missing = (l: Locale) => !!v.en?.trim() && !v[l]?.trim();
+  const missing = (l: Locale) => l !== SOURCE_LOCALE && !!v[SOURCE_LOCALE]?.trim() && !v[l]?.trim();
+  // Side by side only while it stays readable.
+  const tabsOnly = compact || locales.length > 3;
+  const off = (l: Locale) => !meta(l).enabled;
   const set = (l: Locale, text: string) => onChange({ ...v, [l]: text });
 
   const editor = (l: Locale) => {
@@ -44,8 +49,8 @@ export default function I18nInput({
       value: v[l] ?? '',
       lang: l,
       maxLength,
-      'aria-label': `${label} (${localeMeta[l].name})`,
-      placeholder: l === 'en' ? '' : v.en ? `${localeMeta[l].name} translation…` : '',
+      'aria-label': `${label} (${meta(l).name})`,
+      placeholder: l === 'en' ? '' : v.en ? `${meta(l).name} translation…` : '',
     };
     return multiline ? (
       <Textarea {...common} rows={rows} onChange={(e) => set(l, e.target.value)} />
@@ -57,7 +62,8 @@ export default function I18nInput({
   const header = (l: Locale) => (
     <div className="mb-1.5 flex items-center justify-between gap-2">
       <span className="flex items-center gap-2 font-sans text-[0.68rem] uppercase tracking-[0.16em] text-bone/45">
-        {localeMeta[l].short}
+        {meta(l).short}
+        {off(l) && <span className="rounded-sm bg-bone/10 px-1 text-[0.55rem] tracking-normal text-bone/45">off</span>}
         {missing(l) && <span className="h-1.5 w-1.5 rounded-full bg-gold" title="Missing translation" />}
       </span>
       {l !== 'en' && missing(l) && (
@@ -79,7 +85,7 @@ export default function I18nInput({
       </legend>
 
       {/* Phones / tablets: tabs */}
-      <div className={compact ? '' : 'lg:hidden'}>
+      <div className={tabsOnly ? '' : 'lg:hidden'}>
         <div role="tablist" aria-label={`${label} language`} className="mb-2 flex gap-1">
           {locales.map((l) => (
             <button
@@ -92,7 +98,7 @@ export default function I18nInput({
                 tab === l ? 'border-gold bg-gold/10 text-gold' : 'border-bone/15 text-bone/55'
               }`}
             >
-              {localeMeta[l].short}
+              {meta(l).short}
               {missing(l) && <span className="absolute right-1.5 top-1.5 h-1.5 w-1.5 rounded-full bg-gold" aria-label="missing" />}
             </button>
           ))}
@@ -106,7 +112,7 @@ export default function I18nInput({
       </div>
 
       {/* Desktop: side by side */}
-      <div className={compact ? 'hidden' : 'hidden gap-3 lg:grid lg:grid-cols-3'}>
+      <div className={tabsOnly ? 'hidden' : 'hidden gap-3 lg:grid lg:grid-cols-3'}>
         {locales.map((l) => (
           <div key={l}>
             {header(l)}

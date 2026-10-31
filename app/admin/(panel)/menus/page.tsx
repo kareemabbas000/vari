@@ -6,22 +6,27 @@ import { Button, Card, Input, PageHeader, Spinner, Switch, useToast } from '@/co
 import I18nInput, { type I18nValue } from '@/components/admin/I18nInput';
 import { must, usePublish, useLoad } from '@/components/admin/hooks';
 import { useMember } from '@/components/admin/AdminShell';
+import { useLanguages } from '@/components/admin/languages';
+import { getDictionary } from '@/lib/i18n';
 import type { Json } from '@/lib/database.types';
+import { DEFAULT_LAYOUT, type Layout } from '@/lib/layout';
 
 type Item = { label: I18nValue; href: string; newTab?: boolean };
 type Announcement = { enabled: boolean; text: I18nValue; link?: { label?: I18nValue; href?: string }; dismissible: boolean; version: number };
-type Data = { navigation?: { header?: Item[]; footer?: Item[] }; announcement?: Announcement; [k: string]: unknown };
+type Data = { navigation?: { header?: Item[]; footer?: Item[] }; announcement?: Announcement; layout?: Partial<Layout>; [k: string]: unknown };
 
-const DEFAULT_MENU: Item[] = [
-  { label: { en: 'Work', de: 'Projekte', es: 'Proyectos' }, href: '/work' },
-  { label: { en: 'Services', de: 'Leistungen', es: 'Servicios' }, href: '/services' },
-  { label: { en: 'Studio', de: 'Studio', es: 'Estudio' }, href: '/studio' },
-  { label: { en: 'Blog', de: 'Blog', es: 'Blog' }, href: '/blog' },
-  { label: { en: 'Contact', de: 'Kontakt', es: 'Contacto' }, href: '/contact' },
-];
+/** The built-in menu, labelled in every language from that language's own texts. */
+const NAV_KEYS = [
+  ['work', '/work'],
+  ['services', '/services'],
+  ['studio', '/studio'],
+  ['blog', '/blog'],
+  ['contact', '/contact'],
+] as const;
+const defaultMenu = (codes: string[]): Item[] => NAV_KEYS.map(([k, href]) => ({ label: Object.fromEntries(codes.map((c) => [c, getDictionary(c).nav[k]])), href }));
 const BUILT_IN = ['/', '/work', '/services', '/studio', '/contact', '/blog', '/privacy'];
 
-function MenuEditor({ title, items, onChange, targets, emptyNote }: { title: string; items: Item[]; onChange: (v: Item[]) => void; targets: string[]; emptyNote: string }) {
+function MenuEditor({ title, items, onChange, targets, emptyNote, codes }: { title: string; items: Item[]; onChange: (v: Item[]) => void; targets: string[]; emptyNote: string; codes: string[] }) {
   const move = (i: number, d: number) => {
     const j = i + d;
     if (j < 0 || j >= items.length) return;
@@ -34,7 +39,7 @@ function MenuEditor({ title, items, onChange, targets, emptyNote }: { title: str
       title={title}
       actions={
         <div className="flex gap-2">
-          {!items.length && <Button size="sm" variant="ghost" onClick={() => onChange(DEFAULT_MENU)}>Start from current menu</Button>}
+          {!items.length && <Button size="sm" variant="ghost" onClick={() => onChange(defaultMenu(codes))}>Start from current menu</Button>}
           {items.length < 10 && <Button size="sm" variant="secondary" onClick={() => onChange([...items, { label: {}, href: '/' }])}>Add link</Button>}
         </div>
       }
@@ -78,10 +83,12 @@ export default function MenusPage() {
   const toast = useToast();
   const publish = usePublish();
   const { can } = useMember();
+  const { codes } = useLanguages();
   const [header, setHeader] = useState<Item[]>([]);
   const [footer, setFooter] = useState<Item[]>([]);
   const [ann, setAnn] = useState<Announcement>({ enabled: false, text: {}, dismissible: true, version: 1 });
   const [targets, setTargets] = useState<string[]>(BUILT_IN);
+  const [layout, setLayout] = useState<Layout>(DEFAULT_LAYOUT);
   const [saving, setSaving] = useState(false);
 
   const { data, loading, error } = useLoad(async () => must(await db.from('site_settings').select('data').eq('id', 1).single()).data as Data);
@@ -91,6 +98,7 @@ export default function MenusPage() {
     setHeader(data.navigation?.header || []);
     setFooter(data.navigation?.footer || []);
     setAnn({ enabled: false, text: {}, dismissible: true, version: 1, ...(data.announcement || {}) });
+    setLayout({ header: { ...DEFAULT_LAYOUT.header, ...(data.layout?.header || {}) }, footer: { ...DEFAULT_LAYOUT.footer, ...(data.layout?.footer || {}) } });
     db.from('pages').select('slug').eq('kind', 'custom').then(({ data: pages }) => setTargets([...BUILT_IN, ...(pages || []).map((p) => `/${p.slug}`)]));
   }, [data, db]);
 
@@ -107,7 +115,7 @@ export default function MenusPage() {
     // A changed announcement is shown again to visitors who closed the previous one.
     const prev = data.announcement;
     const changed = JSON.stringify(prev?.text) !== JSON.stringify(ann.text) || JSON.stringify(prev?.link) !== JSON.stringify(ann.link);
-    const next = { ...data, navigation: { header, footer }, announcement: { ...ann, version: changed ? (prev?.version || 1) + 1 : ann.version } };
+    const next = { ...data, layout, navigation: { header, footer }, announcement: { ...ann, version: changed ? (prev?.version || 1) + 1 : ann.version } };
     const res = await db.from('site_settings').update({ data: next as unknown as Json }).eq('id', 1).select('id');
     setSaving(false);
     if (res.error || !res.data?.length) return toast('error', res.error?.message || 'Not saved — sign in again.');
@@ -116,7 +124,7 @@ export default function MenusPage() {
 
   return (
     <>
-      <PageHeader eyebrow="Site" title="Menus & announcement" description="Choose the links in the main menu and the footer — including pages you build — and show a message bar above the menu." actions={<Button onClick={save} busy={saving}>Save & publish</Button>} />
+      <PageHeader eyebrow="Site" title="Menus, header & footer" description="Choose the menu links (including pages you build), what the header and footer show, and a message bar above the menu." actions={<Button onClick={save} busy={saving}>Save & publish</Button>} />
 
       <Card title="Announcement bar" className="mb-6">
         <div className="space-y-5">
@@ -141,9 +149,35 @@ export default function MenusPage() {
         </div>
       </Card>
 
+      <Card title="Header & footer" className="mb-6">
+        <div className="grid gap-x-10 gap-y-4 md:grid-cols-2">
+          <div className="space-y-4">
+            <p className="font-sans text-[0.72rem] uppercase tracking-[0.16em] text-gold">Header</p>
+            <Switch checked={layout.header.cta} onChange={(cta) => setLayout({ ...layout, header: { ...layout.header, cta } })} label="“Design with us” button" />
+            <Switch checked={layout.header.languages} onChange={(languages) => setLayout({ ...layout, header: { ...layout.header, languages } })} label="Language switcher" description="Hidden automatically when only one language is on." />
+          </div>
+          <div className="space-y-4">
+            <p className="font-sans text-[0.72rem] uppercase tracking-[0.16em] text-gold">Footer</p>
+            {(
+              [
+                ['cta', '“Begin your design journey” call to action'],
+                ['newsletter', 'Newsletter sign-up'],
+                ['explore', '“Explore” links'],
+                ['contact', 'Contact details'],
+                ['social', 'Social links'],
+                ['signature', 'Drawing-style signature block'],
+                ['backToTop', '“Go up” button'],
+              ] as [keyof Layout['footer'], string][]
+            ).map(([k, label]) => (
+              <Switch key={k} checked={layout.footer[k]} onChange={(v) => setLayout({ ...layout, footer: { ...layout.footer, [k]: v } })} label={label} />
+            ))}
+          </div>
+        </div>
+      </Card>
+
       <div className="grid gap-6 xl:grid-cols-2">
-        <MenuEditor title="Main menu" items={header} onChange={setHeader} targets={targets} emptyNote="Using the built-in menu: Work, Services, Studio, Blog, Contact." />
-        <MenuEditor title="Footer “Explore” links" items={footer} onChange={setFooter} targets={targets} emptyNote="Using the same links as the main menu." />
+        <MenuEditor title="Main menu" items={header} onChange={setHeader} targets={targets} emptyNote="Using the built-in menu: Work, Services, Studio, Blog, Contact." codes={codes} />
+        <MenuEditor title="Footer “Explore” links" items={footer} onChange={setFooter} targets={targets} emptyNote="Using the same links as the main menu." codes={codes} />
       </div>
     </>
   );

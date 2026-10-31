@@ -3,7 +3,8 @@ import { notFound } from 'next/navigation';
 import BlogIndex from '@/components/blog/BlogIndex';
 import { getSiteContent } from '@/lib/cms';
 import { getCategories, getPosts } from '@/lib/blog';
-import { alternatesFor, fmt } from '@/lib/i18n';
+import { fmt } from '@/lib/i18n';
+import { alternatesFor } from '@/lib/i18n/languages';
 import { isLocale, type Locale } from '@/lib/i18n/config';
 
 type Props = { params: Promise<{ locale: string; slug: string }>; searchParams: Promise<{ page?: string }> };
@@ -23,7 +24,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   return {
     title,
     description: data.category.description || t.blog.metaDescription,
-    alternates: alternatesFor(locale, `/blog/category/${slug}`),
+    alternates: await alternatesFor(locale, `/blog/category/${slug}`),
     // Thin category pages stay out of the index until they hold a few articles.
     robots: data.posts.length < 2 ? { index: false, follow: true } : undefined,
   };

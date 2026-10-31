@@ -1,6 +1,7 @@
 import { contact as staticContact, copy, projects as staticProjects, services as staticServices, type Media, type Project } from '@/lib/content';
 import { getDictionary, localizeProjects, type Dictionary } from '@/lib/i18n';
-import { defaultLocale, type Locale } from '@/lib/i18n/config';
+import { SOURCE_LOCALE, type Language, type Locale } from '@/lib/i18n/config';
+import { getLanguages } from '@/lib/i18n/languages';
 import type { TrackingSettings, Verification } from '@/lib/tracking';
 
 /**
@@ -11,7 +12,8 @@ import type { TrackingSettings, Verification } from '@/lib/tracking';
  * goes blank.
  */
 
-export const CMS_TAG = 'cms';
+export { CMS_TAG } from '@/lib/cms-tag';
+import { CMS_TAG } from '@/lib/cms-tag';
 export { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '@/lib/supabase/config';
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '@/lib/supabase/config';
 
@@ -27,7 +29,11 @@ export type SiteSettings = {
   verification: Verification;
   navigation: { header: NavItem[]; footer: NavItem[] };
   announcement: Announcement;
+  layout: Layout;
 };
+
+export { DEFAULT_LAYOUT, type Layout } from '@/lib/layout';
+import { DEFAULT_LAYOUT, type Layout } from '@/lib/layout';
 
 export type NavItem = { label: I18nText; href: string; newTab?: boolean };
 export type Announcement = { enabled: boolean; text: I18nText; link?: { label?: I18nText; href?: string }; dismissible: boolean; version: number };
@@ -43,6 +49,9 @@ export type SiteContent = {
   services: ServiceItem[];
   settings: SiteSettings;
   source: 'cms' | 'static';
+  /** Enabled languages (in panel order) and the default one. */
+  languages: Language[];
+  defaultLocale: Locale;
 };
 
 export const HOME_SECTIONS = ['hero', 'welcome', 'exteriors', 'interiors', 'services', 'story', 'experience', 'contact'] as const;
@@ -57,13 +66,14 @@ export const defaultSettings: SiteSettings = {
   verification: { google: '96MaJjmpseUkOLOGNvNTymidm2-lxTLQyuHL_vBQagk' },
   navigation: { header: [], footer: [] },
   announcement: { enabled: false, text: {}, dismissible: true, version: 1 },
+  layout: DEFAULT_LAYOUT,
 };
 
 /** Pick a locale's text with English as the fallback. */
 export function pick(v: unknown, locale: Locale): string {
   if (!v || typeof v !== 'object') return typeof v === 'string' ? v : '';
   const o = v as I18nText;
-  return o[locale] || o[defaultLocale] || '';
+  return o[locale] || o[SOURCE_LOCALE] || '';
 }
 
 export { mediaSrc } from '@/lib/media';
@@ -110,7 +120,7 @@ async function loadRaw(): Promise<Raw | null> {
   }
 }
 
-function staticContent(locale: Locale): SiteContent {
+function staticContent(locale: Locale): Omit<SiteContent, 'languages' | 'defaultLocale'> {
   const t = getDictionary(locale);
   return {
     locale,
@@ -126,7 +136,7 @@ function staticContent(locale: Locale): SiteContent {
   };
 }
 
-export function buildContent(raw: Raw, locale: Locale): SiteContent {
+export function buildContent(raw: Raw, locale: Locale): Omit<SiteContent, 'languages' | 'defaultLocale'> {
   // Texts: static dictionary + CMS overrides for this locale
   let t = getDictionary(locale);
   for (const b of raw.blocks) {
@@ -184,6 +194,7 @@ export function buildContent(raw: Raw, locale: Locale): SiteContent {
     verification: { ...defaultSettings.verification, ...(s.verification || {}) },
     navigation: { header: s.navigation?.header || [], footer: s.navigation?.footer || [] },
     announcement: { ...defaultSettings.announcement, ...(s.announcement || {}) },
+    layout: { header: { ...DEFAULT_LAYOUT.header, ...(s.layout?.header || {}) }, footer: { ...DEFAULT_LAYOUT.footer, ...(s.layout?.footer || {}) } },
   };
   // Settings SEO texts override the dictionary defaults.
   const seoTitle = pick(settings.seo.title, locale);
@@ -195,8 +206,9 @@ export function buildContent(raw: Raw, locale: Locale): SiteContent {
 
 /** Everything a page needs for one language. Cached per request cycle via fetch tags. */
 export async function getSiteContent(locale: Locale): Promise<SiteContent> {
-  const raw = await loadRaw();
-  return raw ? buildContent(raw, locale) : staticContent(locale);
+  const [raw, langs] = await Promise.all([loadRaw(), getLanguages()]);
+  const base = raw ? buildContent(raw, locale) : staticContent(locale);
+  return { ...base, languages: langs.enabled, defaultLocale: langs.defaultCode };
 }
 
 /** All project slugs (for static generation). */

@@ -1,11 +1,12 @@
 'use client';
 
 import Link from 'next/link';
-import { useParams } from 'next/navigation';
+import { useParams, useSearchParams } from 'next/navigation';
 import { useEffect, useMemo, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/browser';
 import { getDictionary, type Dictionary } from '@/lib/i18n';
-import { locales, type Locale } from '@/lib/i18n/config';
+import { type Locale } from '@/lib/i18n/config';
+import { useLanguages } from '@/components/admin/languages';
 import { deepMerge, getAt, setAt } from '@/lib/merge';
 import { Button, Card, Input, PageHeader, Spinner, Switch, useToast } from '@/components/admin/ui';
 import I18nInput, { type I18nValue } from '@/components/admin/I18nInput';
@@ -23,10 +24,12 @@ export default function TextSectionEditor() {
   const toast = useToast();
   const publish = usePublish();
   const { can } = useMember();
+  const { codes: locales } = useLanguages();
   const leafs = useMemo(() => sectionLeaves(key), [key]);
   const original = (l: Locale) => getDictionary(l)[key as keyof Dictionary];
   const [values, setValues] = useState<Values>({});
-  const [q, setQ] = useState('');
+  const initialQ = useSearchParams().get('q') ?? '';
+  const [q, setQ] = useState(initialQ);
   const [onlyMissing, setOnlyMissing] = useState(false);
   const [saving, setSaving] = useState(false);
 

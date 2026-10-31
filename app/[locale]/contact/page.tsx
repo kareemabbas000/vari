@@ -3,7 +3,7 @@ import Image from 'next/image';
 import ContactForm from '@/components/ContactForm';
 import { getProject } from '@/lib/content';
 import { isLocale, type Locale } from '@/lib/i18n/config';
-import { alternatesFor } from '@/lib/i18n';
+import { alternatesFor } from '@/lib/i18n/languages';
 import { getSiteContent } from '@/lib/cms';
 import { getPage, pageMeta, withSeo } from '@/lib/pages';
 import { PageBlocks } from '@/components/blocks/PageBlocks';
@@ -16,7 +16,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const page = await getPage('contact');
   const seo = pageMeta(page, locale);
   const { t } = await getSiteContent(locale);
-  return withSeo(seo, { title: t.meta.contactTitle, description: t.contact.body, alternates: alternatesFor(locale, '/contact') });
+  return withSeo(seo, { title: t.meta.contactTitle, description: t.contact.body, alternates: await alternatesFor(locale, '/contact') });
 }
 
 const still = getProject('elysian-aura')!.media[0];

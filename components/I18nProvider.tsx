@@ -2,7 +2,7 @@
 
 import { createContext, useContext, useMemo, type ReactNode } from 'react';
 import type { Project } from '@/lib/content';
-import { type Locale, localizePath } from '@/lib/i18n/config';
+import { type Language, type Locale, localizePath } from '@/lib/i18n/config';
 import type { Dictionary } from '@/lib/i18n';
 import type { CategoryItem, ServiceItem, SiteContent, SiteSettings } from '@/lib/cms';
 
@@ -15,6 +15,9 @@ type I18n = {
   categories: CategoryItem[];
   services: ServiceItem[];
   settings: SiteSettings;
+  /** Enabled languages, in the order set in the panel. */
+  languages: Language[];
+  defaultLocale: Locale;
 };
 
 const I18nContext = createContext<I18n | null>(null);
@@ -30,6 +33,8 @@ export function I18nProvider({ content, children }: { content: SiteContent; chil
       categories: content.categories,
       services: content.services,
       settings: content.settings,
+      languages: content.languages,
+      defaultLocale: content.defaultLocale,
     }),
     [content],
   );

@@ -2,7 +2,8 @@ import type { Metadata } from 'next';
 import { Suspense } from 'react';
 import WorkIndex from '@/components/work/WorkIndex';
 import { isLocale, type Locale } from '@/lib/i18n/config';
-import { alternatesFor, fmt } from '@/lib/i18n';
+import { fmt } from '@/lib/i18n';
+import { alternatesFor } from '@/lib/i18n/languages';
 import { getSiteContent } from '@/lib/cms';
 import { getPage, pageMeta, withSeo } from '@/lib/pages';
 import { PageBlocks } from '@/components/blocks/PageBlocks';
@@ -18,7 +19,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   return withSeo(seo, {
     title: t.meta.workTitle,
     description: fmt(t.meta.workDescription, { n: projects.length }),
-    alternates: alternatesFor(locale, '/work'),
+    alternates: await alternatesFor(locale, '/work'),
   });
 }
 
