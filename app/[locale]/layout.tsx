@@ -12,6 +12,8 @@ import { isLocale, localeMeta, locales, type Locale } from '@/lib/i18n/config';
 import { alternatesFor } from '@/lib/i18n';
 import { getSiteContent } from '@/lib/cms';
 
+const AUTH_LINK_FORWARD = `(function(){var h=location.hash,q=location.search;if(/[#&](access_token|error_code)=/.test(h)||/[?&]token_hash=/.test(q)){location.replace('/admin/accept'+q+h);}})();`;
+
 
 const ogImage = mediaUrl('b80319_425c2f36f32b420da9c91cbd856c607d~mv2.jpg', 1200);
 
@@ -81,6 +83,9 @@ export default async function LocaleLayout({ children, params }: { children: Rea
       <head>
         <link rel="preconnect" href="https://static.wixstatic.com" crossOrigin="anonymous" />
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+        {/* Sign-in links from Supabase land on the Site URL when /admin/accept is not an allowed
+            redirect; forward them to the control panel before anything renders. */}
+        <script dangerouslySetInnerHTML={{ __html: AUTH_LINK_FORWARD }} />
       </head>
       <body>
         <I18nProvider content={content}>

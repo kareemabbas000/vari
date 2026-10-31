@@ -43,10 +43,15 @@ export default function SmoothScroll({ children }: { children: ReactNode }) {
       return;
     }
     const hash = window.location.hash;
-    if (hash) {
-      const el = document.querySelector(hash);
-      if (el && lenis) lenis.scrollTo(el as HTMLElement, { immediate: true });
-      else el?.scrollIntoView();
+    // getElementById, not querySelector: a fragment such as "#access_token=…" is not a valid selector.
+    let target = '';
+    try {
+      target = decodeURIComponent(hash.slice(1));
+    } catch {}
+    const el = target ? document.getElementById(target) : null;
+    if (el) {
+      if (lenis) lenis.scrollTo(el, { immediate: true });
+      else el.scrollIntoView();
     } else if (lenis) {
       lenis.scrollTo(0, { immediate: true });
     } else {
