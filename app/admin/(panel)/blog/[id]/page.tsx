@@ -136,7 +136,7 @@ export default function PostEditor() {
   };
 
   const seo = useMemo(
-    () => seoChecks({ title: tr.title, slug: tr.slug, excerpt: tr.excerpt, html: tr.html, seoTitle: tr.seo_title, seoDescription: tr.seo_description, focus: tr.focus_keyword, takeaways: tr.takeaways }, { hasCover: !!post?.cover, hasCoverAlt: !!post?.cover_alt?.[lang], faqCount: (post?.faq || []).filter((f) => f.q?.[lang] && f.a?.[lang]).length }),
+    () => seoChecks({ title: tr.title, slug: tr.slug, excerpt: tr.excerpt, html: tr.html, seoTitle: tr.seo_title, seoDescription: tr.seo_description, focus: tr.focus_keyword, takeaways: tr.takeaways }, { hasCover: !!post?.cover, hasCoverAlt: !!post?.cover_alt?.[lang], faqCount: (post?.faq || []).filter((f) => f.q?.[lang] && f.a?.[lang]).length, locale: lang }),
     [tr, post, lang],
   );
 
@@ -225,7 +225,7 @@ export default function PostEditor() {
       ]);
       if (!a.ok || !b.ok) throw new Error(a.error || b.error);
       const [title, excerpt, seoTitle, seoDesc, focus, ...take] = a.texts as string[];
-      setTr(lang, { title, excerpt, seo_title: seoTitle, seo_description: seoDesc, focus_keyword: focus.trim(), takeaways: take, content: b.texts[0], html: b.texts[0], slug: slugTouched[lang] ? tr.slug : postSlug(title), source_hash: enHash, ready: false });
+      setTr(lang, { title, excerpt, seo_title: seoTitle, seo_description: seoDesc, focus_keyword: focus.trim(), takeaways: take, content: b.texts[0], html: b.texts[0], slug: slugTouched[lang] ? tr.slug : postSlug(title, lang), source_hash: enHash, ready: false });
       setEditorKey((k) => k + 1);
       toast('success', 'Draft translation ready — please read it through, then mark it ready.');
     } catch (e) {
@@ -342,7 +342,7 @@ export default function PostEditor() {
                   id="title"
                   value={tr.title}
                   maxLength={200}
-                  onChange={(e) => setTr(lang, { title: e.target.value, ...(slugTouched[lang] ? {} : { slug: postSlug(e.target.value) }) })}
+                  onChange={(e) => setTr(lang, { title: e.target.value, ...(slugTouched[lang] ? {} : { slug: postSlug(e.target.value, lang) }) })}
                   className="font-display !text-2xl"
                   placeholder={lang === 'en' ? 'A clear, specific title' : en.title}
                 />

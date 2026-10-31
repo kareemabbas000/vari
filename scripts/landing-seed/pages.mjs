@@ -14,7 +14,8 @@ const IMG = {
 let n = 0;
 const id = () => `lp${(++n).toString(36)}${Math.random().toString(36).slice(2, 7)}`;
 const b = (type, props, style = {}) => ({ id: id(), type, props, style });
-const t = (en, de, es) => ({ en, de, es });
+import TR from './tr.mjs';
+const t = (en, de, es) => (TR[en] ? { en, de, es, tr: TR[en] } : { en, de, es });
 const link = (label, href) => ({ label, href });
 const contactBtn = link(t('Request a quote', 'Angebot anfragen', 'Pedir presupuesto'), '/contact');
 const workBtn = link(t('See our work', 'Unsere Projekte', 'Ver proyectos'), '/work');

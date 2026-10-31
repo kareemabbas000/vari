@@ -39,24 +39,37 @@ Run it once in Supabase → SQL Editor (or `supabase db push`).
 
 ## 2. What the panel manages
 
-- **Pages & builder** — visual block editor with live desktop / tablet / phone preview in all three
-  languages: 20 blocks (hero, text, image, gallery, cards, numbers, quote, call to action, video,
+- **Languages** (admins) — switch any language on or off for the whole website, choose the default
+  language, reorder, and add new ones (presets for French, Italian, Portuguese, Dutch, Polish, Arabic
+  (right-to-left), Russian, Chinese and Japanese, or any code). A language that is off disappears
+  everywhere — menus, switcher, intro, blog, sitemap and hreflang — and its old addresses redirect to
+  the visitor's preferred language. Each language shows how much content is translated. A new language
+  shows English until its texts are translated in **Texts & translations**. Turkish is fully
+  translated and ships switched off: run `scripts/db/turkish-content.sql` once, then switch it on.
+- **Texts & translations** — every interface text in every language. One search box finds any
+  sentence on the site in any language and jumps to it; each section shows how many texts each
+  language is missing.
+- **Pages & builder** — visual block editor with live desktop / tablet / phone preview in every enabled
+  language: 20 blocks (hero, text, image, gallery, cards, numbers, quote, call to action, video,
   FAQ with Google rich results, projects, services, moving text, logos, contact form, newsletter,
   map, spacer…), drag to reorder, undo/redo (⌘/Ctrl Z), auto-saved drafts, publish, version history,
   page SEO with a Google preview. New pages start from templates and live at `/{lang}/{address}`.
-  The built-in pages (home, work, services, studio, contact) open in the same builder: their
-  designed sections stay intact and new blocks can be placed around them.
+  The built-in pages (home, work, services, studio, contact, blog, privacy and the project page
+  template) open in the same builder. Their designed sections are **signature section** modules that can
+  be moved, hidden per device, duplicated or removed, and the same modules (hero, welcome, exteriors,
+  interiors, services, story, experience, contact) can be added to any page from the block library.
 - **Blog** — rich article editor (headings, images with captions and sizes, tip/note/warning
   boxes, quotes, tables, YouTube/Vimeo, call-to-action buttons), per-language title, address, excerpt,
   key takeaways, SEO title/description and focus keyword with a live SEO score, FAQ (Google rich
   results), categories, tags and author profiles, featured posts and scheduling (a future publish date
   goes live on its own within about five minutes). Translation workflow: English is the source;
-  German and Spanish start from the English structure, can be compared side by side, and are flagged
+  every other language starts from the English structure, can be compared side by side, and are flagged
   when the English text changes later. Only languages marked “ready” are published, each with its own
   address and hreflang. Public pages: `/{lang}/blog`, articles, category and author pages, RSS feed
   (`/{lang}/blog/rss.xml`), articles in the sitemap with structured data (BlogPosting, Breadcrumb, FAQ).
-- **Menus & announcement** — main menu and footer links (including builder pages) and a gold
-  announcement bar.
+- **Menus, header & footer** — main menu and footer links (including builder pages), a gold
+  announcement bar, and switches for every header and footer part (call-to-action button, language
+  switcher, newsletter, explore links, contact details, social links, signature, back-to-top).
 - **Analytics & tracking** — GA4, Google Tag Manager, Google Ads, Meta Pixel + Conversions API,
   Microsoft Clarity, LinkedIn, TikTok, search-engine verification codes and custom code. Trackers load
   only after consent (banner in EN/DE/ES, Consent Mode v2); the privacy notice adapts automatically.

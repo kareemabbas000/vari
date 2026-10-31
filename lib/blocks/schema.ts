@@ -50,7 +50,8 @@ export type BlockDef = {
   style?: BlockStyle;
 };
 
-const t = (en: string, de: string, es: string): I18n => ({ en, de, es });
+/** Starter text for a new block in each built-in language; languages added later fall back to English. */
+const t = (en: string, de: string, es: string, tr: string): I18n => ({ en, de, es, tr });
 const opt = (pairs: [string, string][]) => pairs.map(([value, label]) => ({ value, label }));
 
 export const BLOCKS: BlockDef[] = [
@@ -71,10 +72,10 @@ export const BLOCKS: BlockDef[] = [
       { key: 'align', kind: 'select', label: 'Text position', options: opt([['left', 'Left'], ['center', 'Centre']]) },
     ],
     defaults: () => ({
-      eyebrow: t('VARI Studio', 'VARI Studio', 'VARI Studio'),
-      title: t('A new *chapter* begins', 'Ein neues *Kapitel* beginnt', 'Comienza un nuevo *capítulo*'),
+      eyebrow: t('VARI Studio', 'VARI Studio', 'VARI Studio', 'VARI Studio'),
+      title: t('A new *chapter* begins', 'Ein neues *Kapitel* beginnt', 'Comienza un nuevo *capítulo*', 'Yeni bir *sayfa* açılıyor'),
       subtitle: {},
-      buttons: [{ link: { label: t('Start a project', 'Projekt starten', 'Iniciar un proyecto'), href: '/contact' } }],
+      buttons: [{ link: { label: t('Start a project', 'Projekt starten', 'Iniciar un proyecto', 'Projeye başlayın'), href: '/contact' } }],
       height: 'large',
       overlay: 45,
       align: 'left',
@@ -94,7 +95,7 @@ export const BLOCKS: BlockDef[] = [
       { key: 'size', kind: 'select', label: 'Size', options: opt([['xl', 'Extra large'], ['lg', 'Large'], ['md', 'Medium']]) },
       { key: 'level', kind: 'select', label: 'Heading level (SEO)', options: opt([['h2', 'H2 — section'], ['h1', 'H1 — page title (use once)'], ['h3', 'H3 — sub-section']]) },
     ],
-    defaults: () => ({ eyebrow: {}, title: t('Section *title*', 'Abschnitts*titel*', 'Título de *sección*'), intro: {}, size: 'lg', level: 'h2' }),
+    defaults: () => ({ eyebrow: {}, title: t('Section *title*', 'Abschnitts*titel*', 'Título de *sección*', 'Bölüm *başlığı*'), intro: {}, size: 'lg', level: 'h2' }),
   },
   {
     type: 'text',
@@ -107,7 +108,7 @@ export const BLOCKS: BlockDef[] = [
       { key: 'columns', kind: 'select', label: 'Columns', options: opt([['1', 'One'], ['2', 'Two (desktop)']]) },
       { key: 'large', kind: 'toggle', label: 'Large text' },
     ],
-    defaults: () => ({ body: t('Write something *memorable*.', 'Schreiben Sie etwas *Unvergessliches*.', 'Escriba algo *memorable*.'), columns: '1', large: false }),
+    defaults: () => ({ body: t('Write something *memorable*.', 'Schreiben Sie etwas *Unvergessliches*.', 'Escriba algo *memorable*.', '*Akılda kalıcı* bir şey yazın.'), columns: '1', large: false }),
     style: { width: 'narrow' },
   },
   {
@@ -140,7 +141,7 @@ export const BLOCKS: BlockDef[] = [
       { key: 'link', kind: 'link', label: 'Button' },
       { key: 'side', kind: 'select', label: 'Image side', options: opt([['left', 'Left'], ['right', 'Right']]) },
     ],
-    defaults: () => ({ image: '', eyebrow: {}, title: t('Spaces with *character*', 'Räume mit *Charakter*', 'Espacios con *carácter*'), body: {}, link: {}, side: 'left' }),
+    defaults: () => ({ image: '', eyebrow: {}, title: t('Spaces with *character*', 'Räume mit *Charakter*', 'Espacios con *carácter*', '*Karakteri* olan mekânlar'), body: {}, link: {}, side: 'left' }),
   },
   {
     type: 'gallery',
@@ -184,8 +185,8 @@ export const BLOCKS: BlockDef[] = [
     ],
     defaults: () => ({
       eyebrow: {},
-      title: t('What we *offer*', 'Was wir *bieten*', 'Lo que *ofrecemos*'),
-      items: [1, 2, 3].map((n) => ({ title: t(`Feature ${n}`, `Merkmal ${n}`, `Característica ${n}`), body: {}, image: '', link: {} })),
+      title: t('What we *offer*', 'Was wir *bieten*', 'Lo que *ofrecemos*', 'Neler *sunuyoruz*?'),
+      items: [1, 2, 3].map((n) => ({ title: t(`Feature ${n}`, `Merkmal ${n}`, `Característica ${n}`, `Özellik ${n}`), body: {}, image: '', link: {} })),
       columns: '3',
       numbered: true,
     }),
@@ -202,7 +203,7 @@ export const BLOCKS: BlockDef[] = [
         { key: 'label', kind: 'text', label: 'Label', i18n: true, max: 60 },
       ] },
     ],
-    defaults: () => ({ items: [{ value: '19', label: t('Projects shown', 'Gezeigte Projekte', 'Proyectos') }, { value: '8', label: t('Services', 'Leistungen', 'Servicios') }, { value: '3', label: t('Languages', 'Sprachen', 'Idiomas') }] }),
+    defaults: () => ({ items: [{ value: '19', label: t('Projects shown', 'Gezeigte Projekte', 'Proyectos', 'Sergilenen proje') }, { value: '8', label: t('Services', 'Leistungen', 'Servicios', 'Hizmet') }, { value: '3', label: t('Languages', 'Sprachen', 'Idiomas', 'Dil') }] }),
   },
   {
     type: 'quote',
@@ -216,7 +217,7 @@ export const BLOCKS: BlockDef[] = [
       { key: 'role', kind: 'text', label: 'Role / company', i18n: true, max: 80 },
       { key: 'image', kind: 'image', label: 'Portrait (optional)' },
     ],
-    defaults: () => ({ quote: t('Design is the silent ambassador of your brand.', 'Design ist der stille Botschafter Ihrer Marke.', 'El diseño es el embajador silencioso de su marca.'), author: '', role: {} }),
+    defaults: () => ({ quote: t('Design is the silent ambassador of your brand.', 'Design ist der stille Botschafter Ihrer Marke.', 'El diseño es el embajador silencioso de su marca.', 'Tasarım, markanızın sessiz elçisidir.'), author: '', role: {} }),
     style: { width: 'narrow', align: 'center' },
   },
   {
@@ -232,10 +233,10 @@ export const BLOCKS: BlockDef[] = [
       { key: 'secondary', kind: 'link', label: 'Second button (optional)' },
     ],
     defaults: () => ({
-      title: t('Ready to see it *before it exists*?', 'Bereit, es zu sehen, *bevor es existiert*?', '¿Listo para verlo *antes de que exista*?'),
+      title: t('Ready to see it *before it exists*?', 'Bereit, es zu sehen, *bevor es existiert*?', '¿Listo para verlo *antes de que exista*?', 'Projenizi *var olmadan önce* görmeye hazır mısınız?'),
       body: {},
-      primary: { label: t('Start a project', 'Projekt starten', 'Iniciar un proyecto'), href: '/contact' },
-      secondary: { label: t('See our work', 'Unsere Projekte', 'Ver proyectos'), href: '/work' },
+      primary: { label: t('Start a project', 'Projekt starten', 'Iniciar un proyecto', 'Projeye başlayın'), href: '/contact' },
+      secondary: { label: t('See our work', 'Unsere Projekte', 'Ver proyectos', 'Projelerimizi görün'), href: '/work' },
     }),
     style: { bg: 'charcoal', align: 'center' },
   },
@@ -268,7 +269,7 @@ export const BLOCKS: BlockDef[] = [
         { key: 'a', kind: 'text', label: 'Answer', i18n: true, multiline: true, rows: 4, max: 1500 },
       ] },
     ],
-    defaults: () => ({ title: t('Frequently asked *questions*', 'Häufige *Fragen*', 'Preguntas *frecuentes*'), items: [{ q: t('How long does a rendering take?', 'Wie lange dauert ein Rendering?', '¿Cuánto tarda un render?'), a: {} }] }),
+    defaults: () => ({ title: t('Frequently asked *questions*', 'Häufige *Fragen*', 'Preguntas *frecuentes*', 'Sıkça sorulan *sorular*'), items: [{ q: t('How long does a rendering take?', 'Wie lange dauert ein Rendering?', '¿Cuánto tarda un render?', 'Bir render ne kadar sürede hazırlanır?'), a: {} }] }),
     style: { width: 'narrow' },
   },
   {
@@ -285,7 +286,7 @@ export const BLOCKS: BlockDef[] = [
       { key: 'limit', kind: 'number', label: 'How many', min: 1, max: 24 },
       { key: 'layout', kind: 'select', label: 'Layout', options: opt([['grid', 'Grid'], ['wide', 'Large alternating']]) },
     ],
-    defaults: () => ({ eyebrow: {}, title: t('Selected *work*', 'Ausgewählte *Projekte*', 'Proyectos *seleccionados*'), source: 'featured', slugs: [], limit: 6, layout: 'grid' }),
+    defaults: () => ({ eyebrow: {}, title: t('Selected *work*', 'Ausgewählte *Projekte*', 'Proyectos *seleccionados*', 'Seçili *projeler*'), source: 'featured', slugs: [], limit: 6, layout: 'grid' }),
     style: { width: 'wide' },
   },
   {
@@ -298,7 +299,7 @@ export const BLOCKS: BlockDef[] = [
       { key: 'title', kind: 'text', label: 'Title', i18n: true, max: 140 },
       { key: 'link', kind: 'link', label: 'Button (optional)' },
     ],
-    defaults: () => ({ title: t('What we *do*', 'Was wir *tun*', 'Lo que *hacemos*'), link: {} }),
+    defaults: () => ({ title: t('What we *do*', 'Was wir *tun*', 'Lo que *hacemos*', 'Ne *yapıyoruz*?'), link: {} }),
   },
   {
     type: 'marquee',
@@ -311,7 +312,7 @@ export const BLOCKS: BlockDef[] = [
       { key: 'speed', kind: 'select', label: 'Speed', options: opt([['slow', 'Slow'], ['normal', 'Normal'], ['fast', 'Fast']]) },
       { key: 'outline', kind: 'toggle', label: 'Outlined letters' },
     ],
-    defaults: () => ({ items: [{ text: t('Visualize', 'Visualisieren', 'Visualizar') }, { text: t('Design', 'Gestalten', 'Diseñar') }, { text: t('Inspire', 'Inspirieren', 'Inspirar') }], speed: 'normal', outline: false }),
+    defaults: () => ({ items: [{ text: t('Visualize', 'Visualisieren', 'Visualizar', 'Görselleştir') }, { text: t('Design', 'Gestalten', 'Diseñar', 'Tasarla') }, { text: t('Inspire', 'Inspirieren', 'Inspirar', 'İlham ver') }], speed: 'normal', outline: false }),
     style: { pad: 'sm', width: 'full' },
   },
   {
@@ -338,7 +339,7 @@ export const BLOCKS: BlockDef[] = [
       { key: 'title', kind: 'text', label: 'Title', i18n: true, max: 140 },
       { key: 'intro', kind: 'text', label: 'Intro', i18n: true, multiline: true, rows: 3, max: 400 },
     ],
-    defaults: () => ({ eyebrow: {}, title: t('Tell us about your *project*', 'Erzählen Sie uns von Ihrem *Projekt*', 'Cuéntenos su *proyecto*'), intro: {} }),
+    defaults: () => ({ eyebrow: {}, title: t('Tell us about your *project*', 'Erzählen Sie uns von Ihrem *Projekt*', 'Cuéntenos su *proyecto*', 'Projenizi bize *anlatın*'), intro: {} }),
   },
   {
     type: 'newsletter',

@@ -4,12 +4,14 @@ import { postSlug } from './blog-slug';
 /** On-page SEO checks for one translation of an article (shown live in the editor). */
 export type Check = { ok: boolean; label: string; tip: string; weight: number };
 
-const norm = (s: string) => s.toLowerCase().normalize('NFKD').replace(/[̀-ͯ]/g, '');
+/** Words needed for the same depth of content, relative to English. */
+const WORD_FACTOR: Record<string, number> = { tr: 0.75, fi: 0.75, hu: 0.8, ja: 0.6, zh: 0.6 };
+const norm = (s: string) => s.toLowerCase().replace(/ı/g, 'i').normalize('NFKD').replace(/[̀-ͯ]/g, '');
 /** Search engines match keyword words in any order: the exact phrase, or every meaningful word. */
 const words = (kw: string) => kw.split(/\s+/).filter((w) => w.length > 3);
 const has = (text: string, kw: string) => !!kw && (text.includes(kw) || (words(kw).length > 0 && words(kw).every((w) => text.includes(w))));
 
-export function seoChecks(t: { title: string; slug: string; excerpt: string; html: string; seoTitle: string; seoDescription: string; focus: string; takeaways: string[] }, opts: { hasCover: boolean; hasCoverAlt: boolean; faqCount: number }): { checks: Check[]; score: number } {
+export function seoChecks(t: { title: string; slug: string; excerpt: string; html: string; seoTitle: string; seoDescription: string; focus: string; takeaways: string[] }, opts: { hasCover: boolean; hasCoverAlt: boolean; faqCount: number; locale?: string }): { checks: Check[]; score: number } {
   const kw = norm(t.focus.trim());
   const text = textOf(t.html);
   const wordCount = text ? text.split(/\s+/).length : 0;
@@ -30,7 +32,9 @@ export function seoChecks(t: { title: string; slug: string; excerpt: string; htm
   const density = wordCount ? (occurrences * Math.max(1, words(kw).length) * 100) / wordCount : 0;
   const sentences = text.split(/[.!?]+\s/).filter((s) => s.trim().length > 0);
   const avgSentence = sentences.length ? wordCount / sentences.length : 0;
-  const slugKw = postSlug(t.focus);
+  const slugKw = postSlug(t.focus, opts.locale);
+  // Agglutinative languages say the same thing in fewer, longer words (Turkish ≈ 25% fewer than English).
+  const minWords = Math.round(900 * (WORD_FACTOR[opts.locale || ''] ?? 1));
 
   const checks: Check[] = [
     { ok: !!kw, label: 'Focus keyword set', tip: 'Choose the main search phrase this article should rank for.', weight: 2 },
@@ -42,7 +46,7 @@ export function seoChecks(t: { title: string; slug: string; excerpt: string; htm
     { ok: has(first, kw), label: 'Keyword in the first paragraph', tip: 'Use the keyword in the opening paragraph.', weight: 2 },
     { ok: !!kw && headings.some((h) => has(h, kw)), label: 'Keyword in a sub-heading', tip: 'Use the keyword (or its words) in at least one H2/H3.', weight: 1 },
     { ok: !kw || (density >= 0.4 && density <= 2.8), label: `Keyword density ${density.toFixed(1)}%`, tip: 'Between about 0.5% and 2.5% — natural use, no stuffing.', weight: 1 },
-    { ok: wordCount >= 900, label: `Length: ${wordCount} words`, tip: 'In-depth guides (900–2,500 words) rank better for informational searches.', weight: 2 },
+    { ok: wordCount >= minWords, label: `Length: ${wordCount} words`, tip: `In-depth guides (${minWords}–${Math.round(minWords * 2.8)} words) rank better for informational searches.`, weight: 2 },
     { ok: h2 >= 3, label: `Structure: ${h2} H2 sections`, tip: 'Break the article into at least three H2 sections.', weight: 1 },
     { ok: internal >= 2, label: `Internal links: ${internal}`, tip: 'Link to at least two of your pages (services, projects, other articles).', weight: 2 },
     { ok: external >= 1, label: `External sources: ${external}`, tip: 'Cite at least one trustworthy external source.', weight: 1 },
