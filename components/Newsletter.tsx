@@ -76,7 +76,7 @@ export default function Newsletter() {
   }
 
   return (
-    <form onSubmit={onSubmit} noValidate className="w-full max-w-md">
+    <form data-clarity-mask="true" onSubmit={onSubmit} noValidate className="w-full max-w-md">
       <p className="label mb-4 text-bone/70">{n.title}</p>
       <div className="flex items-end gap-4">
         <label className="field flex-1" data-invalid={state === 'error' ? '' : undefined}>

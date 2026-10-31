@@ -152,7 +152,7 @@ export default function ContactForm({ compact = false }: { compact?: boolean }) 
   }
 
   return (
-    <form ref={form} onSubmit={onSubmit} noValidate className="grid gap-x-8 gap-y-6 sm:grid-cols-2" aria-busy={status === 'sending'}>
+    <form data-clarity-mask="true" ref={form} onSubmit={onSubmit} noValidate className="grid gap-x-8 gap-y-6 sm:grid-cols-2" aria-busy={status === 'sending'}>
       {intent && (
         <p className="label flex items-center gap-3 text-gold sm:col-span-2">
           <span className="block h-px w-8 bg-gold" />

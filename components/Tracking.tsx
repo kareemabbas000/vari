@@ -40,6 +40,36 @@ function addSnippet(html: string, where: 'head' | 'body', id: string) {
   });
 }
 
+type ClarityFn = (...a: unknown[]) => void;
+const clarity = (...a: unknown[]) => (window as unknown as { clarity?: ClarityFn }).clarity?.(...a);
+
+/** What kind of page this is — lets Clarity filter recordings and heatmaps by page type. */
+function pageType(rest: string) {
+  if (rest === '/' || rest === '') return 'home';
+  if (/^\/work\/[^/]+/.test(rest)) return 'project';
+  if (/^\/blog\/(category|author)\//.test(rest)) return 'blog-list';
+  if (/^\/blog\/[^/]+/.test(rest)) return 'article';
+  const first = rest.split('/')[1];
+  return ['work', 'services', 'studio', 'contact', 'blog', 'privacy'].includes(first) ? first : 'landing';
+}
+
+/** Custom tags for the current page (Clarity keeps the last value per key for the page). */
+function tagClarityPage() {
+  const [, locale = '', ...parts] = window.location.pathname.split('/');
+  const rest = `/${parts.join('/')}`.replace(/\/$/, '') || '/';
+  clarity('set', 'language', locale);
+  clarity('set', 'page_type', pageType(rest));
+  if (/^\/(work|blog)\/[^/]+$/.test(rest)) clarity('set', 'content', parts[parts.length - 1]);
+}
+
+/** Remove Clarity's first-party cookies when analytics consent is withdrawn. */
+function clearClarityCookies() {
+  const host = location.hostname.split('.').slice(-2).join('.');
+  for (const name of ['_clck', '_clsk']) {
+    for (const domain of ['', `; domain=${location.hostname}`, `; domain=.${host}`]) document.cookie = `${name}=; path=/; max-age=0${domain}`;
+  }
+}
+
 function load(t: TrackingSettings, c: Consent) {
   const w = window as unknown as W;
   const anyGoogle = t.ga4 || t.gtm || t.googleAds;
@@ -84,10 +114,16 @@ function load(t: TrackingSettings, c: Consent) {
     (w.fbq as (...a: unknown[]) => void)('init', t.metaPixel);
     (w.fbq as (...a: unknown[]) => void)('track', 'PageView');
   }
-  if (t.clarity && c.analytics && !w.clarity) {
-    // eslint-disable-next-line prefer-rest-params
-    w.clarity = function clarity() { ((w.clarity as { q?: unknown[] }).q = (w.clarity as { q?: unknown[] }).q || []).push(arguments); };
-    addScript(`https://www.clarity.ms/tag/${t.clarity}`);
+  if (t.clarity && c.analytics) {
+    // Microsoft Clarity — official loader (queue first, async tag), then Consent API v2 so
+    // Clarity knows it may set its cookies (_clck/_clsk) and link pages into one session.
+    if (!w.clarity) {
+      // eslint-disable-next-line prefer-rest-params
+      w.clarity = function clarity() { ((w.clarity as { q?: unknown[] }).q = (w.clarity as { q?: unknown[] }).q || []).push(arguments); };
+      addScript(`https://www.clarity.ms/tag/${t.clarity}`);
+    }
+    clarity('consentv2', { analytics_Storage: 'granted', ad_Storage: c.marketing ? 'granted' : 'denied' });
+    tagClarityPage();
   }
   if (t.linkedin && c.marketing && !w._linkedin_partner_id) {
     w._linkedin_partner_id = t.linkedin;
@@ -121,12 +157,14 @@ function saveConsent(c: Consent) {
 export default function Tracking() {
   const { settings, t } = useI18n();
   const config = cleanTracking(settings.tracking);
-  const active = hasTracking(settings.tracking);
+  const pathname = usePathname();
+  // The page builder's live preview is an editor tool, not a visit: never track it.
+  const preview = /\/builder-preview(\/|$)/.test(pathname || '');
+  const active = hasTracking(settings.tracking) && !preview;
   const necessaryOnly = (config.snippets || []).filter((s) => s.category === 'necessary');
   const [open, setOpen] = useState(false);
   const [details, setDetails] = useState(false);
   const [choice, setChoice] = useState<Consent>({ analytics: false, marketing: false });
-  const pathname = usePathname();
   const first = useRef(true);
   const cfgKey = JSON.stringify(config);
 
@@ -139,6 +177,7 @@ export default function Tracking() {
   );
 
   useEffect(() => {
+    if (preview) return;
     if (necessaryOnly.length) load({ snippets: necessaryOnly }, { analytics: false, marketing: false });
     if (!active) return;
     const saved = readConsent();
@@ -180,6 +219,8 @@ export default function Tracking() {
     const w = window as unknown as { fbq?: (...a: unknown[]) => void; ttq?: { page: () => void } };
     w.fbq?.('track', 'PageView');
     w.ttq?.page();
+    // Clarity follows client-side navigation itself; refresh the page tags for the new page.
+    tagClarityPage();
   }, [pathname]);
 
   const decide = (c: Consent) => {
@@ -187,8 +228,14 @@ export default function Tracking() {
     saveConsent(c);
     setChoice(c);
     setOpen(false);
-    // Withdrawing consent: reload so already-loaded trackers are gone.
-    if (before && ((before.analytics && !c.analytics) || (before.marketing && !c.marketing))) window.location.reload();
+    // Withdrawing consent: tell Clarity, drop its cookies and reload so loaded trackers are gone.
+    if (before && ((before.analytics && !c.analytics) || (before.marketing && !c.marketing))) {
+      if (!c.analytics) {
+        clarity('consentv2', { analytics_Storage: 'denied', ad_Storage: 'denied' });
+        clearClarityCookies();
+      }
+      window.location.reload();
+    }
     else apply(c);
   };
 

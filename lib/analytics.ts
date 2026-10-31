@@ -12,6 +12,7 @@ type W = Window & {
   fbq?: (...a: unknown[]) => void;
   ttq?: { track: (e: string, p?: object, o?: object) => void };
   lintrk?: (a: string, o: object) => void;
+  clarity?: (...a: unknown[]) => void;
 };
 
 export function readConsent(): Consent | null {
@@ -41,4 +42,7 @@ export function track(kind: 'lead' | 'signup', opts: { eventId?: string; params?
   const meta = kind === 'lead' ? 'Lead' : 'CompleteRegistration';
   w.fbq?.('track', meta, params, opts.eventId ? { eventID: opts.eventId } : undefined);
   w.ttq?.track(kind === 'lead' ? 'SubmitForm' : 'CompleteRegistration', params, opts.eventId ? { event_id: opts.eventId } : undefined);
+  // Clarity: a filterable conversion event, and keep this visitor's recording (upgrade = never sampled out).
+  w.clarity?.('event', ga);
+  w.clarity?.('upgrade', ga);
 }
