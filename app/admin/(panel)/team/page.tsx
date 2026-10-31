@@ -32,14 +32,16 @@ export default function TeamPage() {
   const [form, setForm] = useState({ email: '', name: '', role: 'editor' as AppRole });
   const [busy, setBusy] = useState<string | null>(null);
   const [remove, setRemove] = useState<Member | null>(null);
+  const [share, setShare] = useState<{ email: string; link: string; reason: string } | null>(null);
 
   const canManage = (m: Member) => !!data && m.id !== data.me.id && (data.me.role === 'owner' || RANK[m.role] < RANK[data.me.role]);
 
   async function send() {
     setBusy('invite');
     try {
-      await api('/api/admin/team', { method: 'POST', body: JSON.stringify(form) });
-      toast('success', `Invitation sent to ${form.email}.`);
+      const res = await api('/api/admin/team', { method: 'POST', body: JSON.stringify(form) });
+      if (res.emailed) toast('success', `Invitation sent to ${form.email}.`);
+      else setShare({ email: form.email, link: res.link, reason: res.reason });
       setInvite(false);
       setForm({ email: '', name: '', role: 'editor' });
       reload();
@@ -66,8 +68,9 @@ export default function TeamPage() {
   async function resend(m: Member) {
     setBusy(m.id);
     try {
-      await api(`/api/admin/team/${m.id}/resend`, { method: 'POST' });
-      toast('success', `A new link was sent to ${m.email}.`);
+      const res = await api(`/api/admin/team/${m.id}/resend`, { method: 'POST' });
+      if (res.emailed) toast('success', `A new link was sent to ${m.email}.`);
+      else setShare({ email: m.email, link: res.link, reason: res.reason });
     } catch (e) {
       toast('error', (e as Error).message);
     } finally {
@@ -180,11 +183,35 @@ export default function TeamPage() {
               ))}
             </Select>
           </Field>
-          <p className="text-xs leading-relaxed text-bone/45">They receive an email with a link to choose their password. Links expire after 24 hours; you can resend them.</p>
+          <p className="text-xs leading-relaxed text-bone/45">They receive an email with a link to choose their password. If email can’t be sent, you get the link to pass on yourself. Links expire after 24 hours; you can resend them.</p>
           <Button className="w-full" onClick={send} busy={busy === 'invite'} disabled={!form.email}>
             Send invitation
           </Button>
         </div>
+      </Modal>
+
+      <Modal open={!!share} title="Send this link yourself" onClose={() => setShare(null)}>
+        {share && (
+          <div className="space-y-4 pb-5 text-sm leading-relaxed">
+            <p className="text-bone/70">
+              {share.email} is on the team, but no email went out. {share.reason}
+            </p>
+            <p className="text-bone/70">Send them this private link (WhatsApp, Slack, your own email…). It works once, expires in 24 hours, and lets them choose their password.</p>
+            <Input readOnly value={share.link} onFocus={(e) => e.currentTarget.select()} aria-label="Invitation link" className="font-mono text-xs" />
+            <Button
+              className="w-full"
+              onClick={() =>
+                navigator.clipboard.writeText(share.link).then(
+                  () => toast('success', 'Link copied.'),
+                  () => toast('error', 'Copy failed — select the link and copy it manually.'),
+                )
+              }
+            >
+              Copy link
+            </Button>
+            <p className="text-xs text-bone/45">Treat it like a password: anyone with the link can claim this account. To send invitations by email automatically, add RESEND_API_KEY in Vercel or custom SMTP in Supabase.</p>
+          </div>
+        )}
       </Modal>
 
       <ConfirmDialog

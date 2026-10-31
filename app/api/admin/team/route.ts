@@ -38,11 +38,11 @@ export async function POST(req: Request) {
   const { data: existing } = await ok.admin.from('profiles').select('id').eq('email', email).maybeSingle();
   if (existing) return NextResponse.json({ ok: false, error: 'This person is already on the team.' }, { status: 409 });
 
-  const sent = await sendAccessLink(ok.admin, email, 'invite', originOf(req));
-  if ('error' in sent) return NextResponse.json({ ok: false, error: `Could not send the invitation (${sent.error}).` }, { status: 502 });
+  const sent = await sendAccessLink(ok.admin, email, 'invite', originOf(req), { shareable: true });
+  if ('error' in sent) return NextResponse.json({ ok: false, error: `Could not create the invitation: ${sent.error}` }, { status: 502 });
 
   const { error } = await ok.admin.from('profiles').upsert({ id: sent.userId, email, full_name: name, role }, { onConflict: 'id' });
   if (error) return NextResponse.json({ ok: false, error: error.message }, { status: 500 });
   await logTeam(ok, 'invite', `Invited a new ${role}`, sent.userId);
-  return NextResponse.json({ ok: true });
+  return NextResponse.json(sent.emailed ? { ok: true, emailed: true } : { ok: true, emailed: false, link: sent.link, reason: sent.reason });
 }

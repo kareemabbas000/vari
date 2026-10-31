@@ -24,41 +24,80 @@ const COPY: Record<Kind, { subject: string; heading: string; body: string; butto
   },
 };
 
+export type AccessLinkResult =
+  | { userId: string; emailed: true }
+  /** No email went out; `link` is a private one-time link to hand over another way. */
+  | { userId: string; emailed: false; link: string; reason: string }
+  | { error: string };
+
 /**
  * Create (if needed) and email a control-panel access link.
  * With Resend configured we send our own branded email using a token-hash link;
- * otherwise Supabase Auth sends its default email. Returns the auth user id.
+ * otherwise Supabase Auth sends its default email. If no email can be sent (Supabase's
+ * built-in email is limited to a few per hour and to the Supabase organisation's members),
+ * `shareable` callers — team admins only — get the link back to pass on themselves.
  */
-export async function sendAccessLink(admin: Admin, email: string, kind: Kind, origin: string): Promise<{ userId: string } | { error: string }> {
+export async function sendAccessLink(
+  admin: Admin,
+  email: string,
+  kind: Kind,
+  origin: string,
+  { shareable = false }: { shareable?: boolean } = {},
+): Promise<AccessLinkResult> {
   const redirectTo = `${origin}/admin/accept`;
+  let failure = '';
 
   if (isMailConfigured()) {
-    let link = await admin.auth.admin.generateLink({ type: kind === 'invite' ? 'invite' : 'recovery', email, options: { redirectTo } });
-    // Already registered → an invite cannot be generated; a magic link signs them in instead.
-    if (link.error && kind === 'invite') link = await admin.auth.admin.generateLink({ type: 'magiclink', email, options: { redirectTo } });
-    if (link.error || !link.data.user) return { error: link.error?.message || 'link_failed' };
-    const p = link.data.properties;
-    const url = `${redirectTo}?token_hash=${encodeURIComponent(p.hashed_token)}&type=${encodeURIComponent(p.verification_type)}`;
+    const link = await makeLink(admin, email, kind, redirectTo);
+    if ('error' in link) return link;
     const c = COPY[kind];
-    const mail = panelLinkEmail({ heading: c.heading, body: c.body, button: c.button, url, footnote: c.footnote });
-    const sent = await sendMail({ to: email, subject: c.subject, text: mail.text, html: mail.html });
-    return sent ? { userId: link.data.user.id } : { error: 'mail_failed' };
+    const mail = panelLinkEmail({ heading: c.heading, body: c.body, button: c.button, url: link.url, footnote: c.footnote });
+    if (await sendMail({ to: email, subject: c.subject, text: mail.text, html: mail.html })) return { userId: link.userId, emailed: true };
+    if (!shareable) return { error: 'The email could not be sent.' };
+    return { userId: link.userId, emailed: false, link: link.url, reason: 'The email could not be sent.' };
   }
 
   // Supabase's own email (default SMTP — fine for the project owner; add custom SMTP for others).
+  let existing = kind === 'recovery';
   if (kind === 'invite') {
     const inv = await admin.auth.admin.inviteUserByEmail(email, { redirectTo });
-    if (!inv.error && inv.data.user) return { userId: inv.data.user.id };
+    if (!inv.error && inv.data.user) return { userId: inv.data.user.id, emailed: true };
+    if (inv.error?.code === 'email_exists' || /already been registered/i.test(inv.error?.message || '')) existing = true;
+    else failure = explain(inv.error);
   }
-  // Recovery, or an invite for an address that already has an account. Find the user without
-  // generateLink: that call counts as a recovery request itself and would trip Supabase's
-  // one-email-per-minute limit for the reset sent next.
-  const userId = await findUserId(admin, email);
-  if (!userId) return { error: 'user_not_found' };
-  const anon = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: false, flowType: 'implicit' } });
-  const reset = await anon.auth.resetPasswordForEmail(email, { redirectTo });
-  if (reset.error) return { error: reset.error.message };
-  return { userId };
+  if (existing) {
+    // Find the user without generateLink: that call counts as a recovery request itself and
+    // would trip Supabase's one-email-per-minute limit for the reset sent next.
+    const userId = await findUserId(admin, email);
+    if (!userId) return { error: 'No account exists for this email.' };
+    const anon = createClient<Database>(SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY, { auth: { persistSession: false, flowType: 'implicit' } });
+    const reset = await anon.auth.resetPasswordForEmail(email, { redirectTo });
+    if (!reset.error) return { userId, emailed: true };
+    failure = explain(reset.error);
+  }
+
+  if (!shareable) return { error: failure };
+  const link = await makeLink(admin, email, kind, redirectTo);
+  if ('error' in link) return { error: `${failure} ${link.error}` };
+  return { userId: link.userId, emailed: false, link: link.url, reason: failure };
+}
+
+/** A one-time link straight to /admin/accept (no email is sent, no redirect allow-list needed). */
+async function makeLink(admin: Admin, email: string, kind: Kind, redirectTo: string): Promise<{ userId: string; url: string } | { error: string }> {
+  let link = await admin.auth.admin.generateLink({ type: kind === 'invite' ? 'invite' : 'recovery', email, options: { redirectTo } });
+  // Already registered → an invite cannot be generated; a magic link signs them in instead.
+  if (link.error && kind === 'invite') link = await admin.auth.admin.generateLink({ type: 'magiclink', email, options: { redirectTo } });
+  if (link.error || !link.data.user) return { error: link.error?.message || 'The link could not be created.' };
+  const p = link.data.properties;
+  return { userId: link.data.user.id, url: `${redirectTo}?token_hash=${encodeURIComponent(p.hashed_token)}&type=${encodeURIComponent(p.verification_type)}` };
+}
+
+function explain(err: { code?: string; status?: number; message: string } | null) {
+  if (!err) return 'The email could not be sent.';
+  if (err.code === 'over_email_send_rate_limit' || err.status === 429)
+    return 'Email limit reached: Supabase’s built-in email sends only a few emails per hour.';
+  if (/not authorized/i.test(err.message)) return 'Supabase’s built-in email only delivers to members of your Supabase organisation.';
+  return err.message;
 }
 
 async function findUserId(admin: Admin, email: string) {

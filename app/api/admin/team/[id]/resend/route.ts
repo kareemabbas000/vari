@@ -14,8 +14,8 @@ export async function POST(req: Request, { params }: { params: Promise<{ id: str
   if (!t) return NextResponse.json({ ok: false, error: 'Member not found.' }, { status: 404 });
   if (ok.me.role !== 'owner' && RANK[t.role] >= RANK[ok.me.role]) return NextResponse.json({ ok: false, error: 'You cannot manage this member.' }, { status: 403 });
   const { data: u } = await ok.admin.auth.admin.getUserById(id);
-  const sent = await sendAccessLink(ok.admin, t.email, u?.user?.last_sign_in_at ? 'recovery' : 'invite', originOf(req));
-  if ('error' in sent) return NextResponse.json({ ok: false, error: `Could not send (${sent.error}).` }, { status: 502 });
+  const sent = await sendAccessLink(ok.admin, t.email, u?.user?.last_sign_in_at ? 'recovery' : 'invite', originOf(req), { shareable: true });
+  if ('error' in sent) return NextResponse.json({ ok: false, error: `Could not create a link: ${sent.error}` }, { status: 502 });
   await logTeam(ok, 'resend', 'Resent an access link', id);
-  return NextResponse.json({ ok: true });
+  return NextResponse.json(sent.emailed ? { ok: true, emailed: true } : { ok: true, emailed: false, link: sent.link, reason: sent.reason });
 }
