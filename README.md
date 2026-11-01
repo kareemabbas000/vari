@@ -1,3 +1,10 @@
+## Documentation
+
+- [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): stack, system overview, request lifecycle, resilience, security, env vars, known gaps
+- [docs/DATA-MODEL.md](docs/DATA-MODEL.md): Supabase tables, RLS matrix, functions, triggers and invariants
+- [docs/CONTENT-PIPELINE.md](docs/CONTENT-PIPELINE.md): CMS read path, languages, page builder, blog, media, caching
+- [docs/CONTROL_PANEL.md](docs/CONTROL_PANEL.md): control panel setup, roles and verification checklist
+
 
 ## Languages (EN · DE · ES)
 
