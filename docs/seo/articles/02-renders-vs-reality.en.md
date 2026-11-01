@@ -4,7 +4,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | **Draft v1, needs editorial review + VARI input (marked ⟦VARI⟧)** |
+| Status | **Final v1 (2026-11-01)**: VARI input received (author: VARI Studio; camera positions on plan and daylight versions confirmed) |
 | Language / market | English; worldwide, with Dubai and other off-plan markets in mind |
 | Title tag (57) | `Renders vs Reality: How to Read an Off-Plan Render` |
 | Meta description (154) | `A render is a set of decisions, not a photograph. A visualization studio explains what lens, light, planting and editing change, and what buyers should ask.` |
@@ -17,7 +17,7 @@
 | Funnel | Awareness → trust. Conversion via the developer CTA |
 | Unique angle | Written from *inside* a visualization studio, using VARI's own images as candid examples of the conventions. No competing page does this; existing pages are lawyer or agent warnings |
 | Overlap check | Doesn't overlap the five live articles (cost, choosing a studio, developers/off-plan *selling*, interior process, format comparison). It links to `3d-rendering-for-real-estate-developers` as the seller's counterpart |
-| Schema | `BlogPosting` (author = named reviewer ⟦VARI⟧), `BreadcrumbList`, `FAQPage` (FAQ below) |
+| Schema | `BlogPosting` (author = VARI Studio), `BreadcrumbList`, `FAQPage` (FAQ below) |
 | Internal links | `/en/work/black-home`, `/en/work/hne-laboratory`, `/en/work/penthouse-in-dark-mood`, `/en/work/hearthstone-haven`, `/en/blog/3d-rendering-for-real-estate-developers`, `/en/3d-rendering-services-for-developers` (CTA), `/en/blog/3d-rendering-vs-animation-vs-virtual-tour` |
 | External links | Full Federal Court judgment [2022] FCAFC 191 (judgments.fedcourt.gov.au); Maddocks case note; REIQ case summary (render description) |
 | CTA | Developers: "Commission visuals you can stand behind" → `/en/3d-rendering-services-for-developers`. Buyers: no hard sell |
@@ -33,11 +33,7 @@
 | `hearthstone-haven-vaulted-living-room.jpg` | Symmetrical view of a vaulted timber living room with a stone fireplace in Telemark, Norway | Portfolio: Hearthstone Haven |
 | `render-vs-plan-camera-diagram.svg` (new) | Plan diagram showing the camera position and field of view of a render | New asset: VARI to produce |
 
-**⟦VARI⟧ input needed before publishing:**
-1. Name and credentials of the reviewing author (an architect or lead visualizer at VARI).
-2. Confirm or correct every statement about how VARI works (section "What an honest studio does"). The draft only proposes practices; keep only the ones VARI actually follows.
-3. Whether VARI will produce the camera-on-plan diagram for one real project (strong, original evidence).
-4. Permission to use the four portfolio images in this context (the images are VARI's own, so mainly an editorial call).
+**VARI input (received 2026-11-01):** author = VARI Studio; camera positions can be shown on the plan; a daylight version is delivered with dusk images.
 
 ---
 
@@ -121,11 +117,7 @@ Rules differ by country. In Dubai, for example, property advertising requires a 
 
 Most visualization work is commissioned by developers and architects, so the incentive to flatter is real. The most valuable thing a studio can offer a developer, though, is images that still look right when buyers move in, because those are the images that don't come back as complaints.
 
-⟦VARI — keep only what is true for your process, rewrite in your own words:⟧
-- We build from the architect's drawings, not from approximations of them.
-- We use eye-level cameras for interiors unless the brief calls for something else, and we can document camera positions on the plan.
-- We flag when a client asks to remove something material from a view.
-- We deliver a daylight version alongside any dusk hero image.
+At VARI we build our images from the architect's drawings. Two practices follow from everything above. We can mark the position and field of view of every camera on the plan, so a developer, or a buyer, can check exactly what each image shows. And alongside any dusk hero image we deliver a daylight version of the same view, so the building can also be seen on an ordinary day.
 
 If you are a developer preparing a launch, our guide to [selling off-plan with 3D visuals](/en/blog/3d-rendering-for-real-estate-developers) covers the commercial side. When you are ready to brief a project, see how we work with developers on [3D rendering for real estate](/en/3d-rendering-services-for-developers).
 
@@ -156,7 +148,7 @@ Yes. Any studio working from a 3D model can show where each camera stands on the
 - Bayut agent portal, Trakheesi permit guide (Dubai advertising permits): bayut.com/agentportal/the-real-estate-agents-guide-to-applying-for-a-trakheesi-permit/
 
 ### Editorial QA (before publishing)
-- [ ] Reviewer named, ⟦VARI⟧ section rewritten from real practice
+- [x] Author set (VARI Studio); studio-practice section rewritten from confirmed facts
 - [ ] Legal paragraph checked against the judgment text (not only summaries)
 - [ ] No sentence implies VARI audited other studios' work
 - [ ] Images exported as JPEG/WebP, ≤ 250 KB, filenames as above

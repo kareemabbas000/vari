@@ -211,7 +211,7 @@ export default [
         title: t('Architectural rendering for *Spain*', 'Architekturvisualisierung für *Spanien*', 'Render arquitectónico para *España*'),
         subtitle: t(
           'Photorealistic visuals for off-plan sales, coastal villas, urban apartments and interior design projects — with project communication in Spanish.',
-          'Fotorealistische Bilder für den Vorabverkauf, Küstenvillen, Stadtwohnungen und Innenarchitektur – mit Projektkommunikation auf Spanisch.',
+          'Fotorealistische Bilder für den Vorabverkauf, Küstenvillen, Stadtwohnungen und Innenräume – mit Projektkommunikation auf Spanisch.',
           'Imágenes fotorrealistas para venta sobre plano, villas de costa, viviendas urbanas y proyectos de interiorismo, con comunicación en español.',
         ),
         image: IMG.blackHome,

@@ -22,6 +22,25 @@ update public.blog_post_translations
    set html = replace(replace(html, 'Innenarchitektur-Konzepte', 'Interior-Design-Konzepte'), '<h3>Innenarchitektur-Projekt</h3>', '<h3>Interior-Design-Projekt</h3>')
  where locale = 'de' and (html like '%Innenarchitektur-Konzepte%' or html like '%<h3>Innenarchitektur-Projekt</h3>%');
 
+
+-- ---------------------------------------------------------------------------
+-- 5. German proofread fixes (full review of the 5 German articles and 4 landing pages)
+-- ---------------------------------------------------------------------------
+-- VARI's service is "Interior Design" (protected title), comma before "statt", smoother closing line,
+-- and the US-dollar rows of the German cost table are labelled as US sources.
+update public.blog_post_translations set html =
+  replace(replace(replace(replace(replace(html,
+    'konzeptionelle Innenarchitektur', 'konzeptionelles Interior Design'),
+    'wenn sie sie sehen statt sie sich vorzustellen', 'wenn sie sie sehen, statt sie sich vorzustellen'),
+    'Allen hilft es, Ja zum Entwurf zu sagen.', 'Es hilft allen Beteiligten, Ja zum Entwurf zu sagen.'),
+    '<td>ca. 800–2.000 $</td>', '<td>ca. 800–2.000 $ (US-Quelle)</td>'),
+    '<td>ca. 2.500–20.000 $</td>', '<td>ca. 2.500–20.000 $ (US-Quelle)</td>')
+ where locale = 'de';
+
+update public.pages
+   set blocks = replace(blocks::text, 'Stadtwohnungen und Innenarchitektur', 'Stadtwohnungen und Innenräume')::jsonb
+ where slug = 'architectural-rendering-spain' and blocks::text like '%Stadtwohnungen und Innenarchitektur%';
+
 -- ---------------------------------------------------------------------------
 -- 3. Before the German launch: check that the German articles are ready
 -- ---------------------------------------------------------------------------

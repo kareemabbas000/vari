@@ -4,7 +4,7 @@
 
 | Field | Value |
 | --- | --- |
-| Status | **Draft v1, needs editorial review + VARI input (⟦VARI⟧)** |
+| Status | **Final v1 (2026-11-01)**: VARI input received (uses AI; author VARI Studio) |
 | Language / market | English, worldwide. German adaptation: `01-ai-rendering-vs-studio.de.md` (written separately, not translated) |
 | Title tag (58) | `AI Rendering vs Professional Archviz: What AI Can't Do Yet` |
 | Meta description (155) | `AI image tools changed early design work. Here's where AI architectural rendering is genuinely useful, where it breaks down, and when a studio still matters.` |
@@ -31,10 +31,7 @@
 | `hne-laboratory-germany-timber-facade.jpg` | Daylight visualization of a timber-clad laboratory building in Germany |
 | `ai-consistency-test-three-views.jpg` (new) | Three AI-generated views of the same house showing window counts that change between images |
 
-**⟦VARI⟧ input needed:**
-1. How VARI actually uses AI today, if at all (concept boards? upscaling? none?). The section "How we use it" must be rewritten from fact or deleted.
-2. The named reviewer.
-3. Whether VARI will run and publish the three-view consistency test (strong original evidence; otherwise remove the image row and keep the test as reader advice).
+**VARI input (received 2026-11-01):** VARI uses AI (where it is used was not specified, so the article doesn't say); author = VARI Studio; HNE Laboratory came from a regular client brief.
 
 ---
 
@@ -84,7 +81,7 @@ If the answer is no (an early option, a mood, an internal discussion, a social p
 
 If the answer is yes (a buyer choosing an apartment, a planning committee, a competition jury, an investor reviewing a scheme, a client approving finishes), you need an image that is built from the design and will survive the comparison with reality.
 
-Many projects need both, in sequence: AI to find the idea, a 3D production to commit to it. AI images also make surprisingly good briefs. They show the mood a client is after far better than adjectives like "warm" or "luxurious" ever do. ⟦VARI: if this matches your experience, say so in your own words, with an example; otherwise keep the general version.⟧
+Many projects need both, in sequence: AI to find the idea, a 3D production to commit to it. AI images also make surprisingly good briefs. They show the mood a client is after far better than adjectives like "warm" or "luxurious" ever do.
 
 ## What this means for cost
 
@@ -92,12 +89,9 @@ AI tools are typically paid as low monthly subscriptions, while professional vis
 
 ## How we use it
 
-⟦VARI — replace with the truth. Possible shapes, keep only what applies:⟧
-- *We use AI in early concept stages to explore moods with clients, and we always say when an image is AI-generated.*
-- *Our production images are built as 3D scenes from the project drawings. AI may assist with denoising or upscaling, never with the design itself.*
-- *Or:* we don't use generative AI in client deliverables at all, and here is why.
+We use AI at VARI too. It is part of how a modern studio works, and it would be odd to write this article pretending otherwise. What it doesn't change is how we make images that people decide on: those are built as 3D scenes from the project drawings, so every view shows the same building, with the same proportions, from every angle.
 
-Our [HNE Laboratory](/en/work/hne-laboratory) images for a project in Germany, and night studies such as [Light in the Dark](/en/work/light-in-the-dark), are the kind of work where every reflection and every façade batten has to belong to one consistent building.
+Our [HNE Laboratory](/en/work/hne-laboratory) images for a project in Germany, produced from a regular client brief, and night studies such as [Light in the Dark](/en/work/light-in-the-dark), are the kind of work where every reflection and every façade batten has to belong to one consistent building.
 
 If you have an AI concept you love and need images that match the real design, [tell us about the project](/en/contact).
 
@@ -127,7 +121,7 @@ It depends on the jurisdiction and on how much human authorship is involved. In 
 - The Nation, "No, AI Is Not 'Disrupting' Architecture": thenation.com/article/culture/ai-architecture-midjourney-dall-e
 
 ### Editorial QA
-- [ ] ⟦VARI⟧ "How we use it" rewritten from fact or removed
+- [x] "How we use it" written from confirmed facts only
 - [ ] Copyright Office documents opened and quoted accurately (no paraphrase beyond what they say)
 - [ ] No tool is claimed to do something it doesn't. Tool names are kept generic where unsure
 - [ ] If the consistency test is published, show the real outputs and the date

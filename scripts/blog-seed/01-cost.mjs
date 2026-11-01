@@ -128,8 +128,8 @@ ${fig(IMG.hne, 'Außenvisualisierung des HNE-Laborgebäudes in der Dämmerung', 
 <tr><td>Innenraum (ein Raum)</td><td>ca. 250–1.500 €</td><td>Möblierung, Sonderanfertigungen, Materialien</td></tr>
 <tr><td>Außenansicht (Haus oder Gebäude)</td><td>ca. 700–2.000 €</td><td>Gebäudegröße, Grundstück, Bepflanzung, Personen</td></tr>
 <tr><td>Luxus- und Großprojekte</td><td>ca. 1.500–3.000 €</td><td>Detailtiefe, Umgebung, Stimmung</td></tr>
-<tr><td>360°-Panorama</td><td>ca. 800–2.000 $</td><td>Anzahl der Räume, Interaktivität</td></tr>
-<tr><td>Animation (pro Minute)</td><td>ca. 2.500–20.000 $</td><td>Länge, Kamerafahrten, Effekte, Ton</td></tr>
+<tr><td>360°-Panorama</td><td>ca. 800–2.000 $ (US-Quelle)</td><td>Anzahl der Räume, Interaktivität</td></tr>
+<tr><td>Animation (pro Minute)</td><td>ca. 2.500–20.000 $ (US-Quelle)</td><td>Länge, Kamerafahrten, Effekte, Ton</td></tr>
 </tbody></table>
 <p>Quellen: ${ext(SRC.de, 'Marktübersicht Deutschland (Maverickframe)')} und ${ext(SRC.guide, 'MyArchitectAI, Kostenaufschlüsselung 2026')}. Die meisten Zahlen stammen von Studios selbst – daher die großen Spannen.</p>
 ${tip('<p><strong>Faustregel:</strong> Günstige Anbieter starten oft bei wenigen Hundert Euro pro Bild, erfahrene Studios in Europa liegen häufig bei 1.000 bis 2.500 € pro Standbild. Der Unterschied zeigt sich meist in Licht, Materialien und Bildaufbau – genau dem, was ein Bild überzeugend macht.</p>')}
@@ -164,7 +164,7 @@ ${fig(IMG.hearth1, 'Warme Innenraumvisualisierung eines Wohnzimmers mit Kamin un
 </ol>
 <p>Wenn Sie Studios vergleichen, hilft Ihnen unser Ratgeber <a href="/blog/visualisierungsbuero-auswaehlen">So wählen Sie das richtige Visualisierungsbüro</a> mit den wichtigsten Fragen vor der Beauftragung.</p>
 <h2>So kalkulieren wir bei VARI</h2>
-<p>Jedes Projekt wird individuell kalkuliert, nachdem wir die Pläne gesehen haben – denn zwei „einzelne Ansichten“ können sich um Tage Arbeit unterscheiden. Wir bieten pro Bild und als Paket an, inklusive Korrekturrunden, und sagen Ihnen vorab, was den Preis verändert. Unsere <a href="/services">Leistungen</a> umfassen 3D-Renderings, Animationen und Rundgänge, virtuelle Touren, Innenarchitektur-Konzepte und BIM-Modellierung – so wächst ein Modell für Standbilder mit Ihrem Projekt mit.</p>
+<p>Jedes Projekt wird individuell kalkuliert, nachdem wir die Pläne gesehen haben – denn zwei „einzelne Ansichten“ können sich um Tage Arbeit unterscheiden. Wir bieten pro Bild und als Paket an, inklusive Korrekturrunden, und sagen Ihnen vorab, was den Preis verändert. Unsere <a href="/services">Leistungen</a> umfassen 3D-Renderings, Animationen und Rundgänge, virtuelle Touren, Interior-Design-Konzepte und BIM-Modellierung – so wächst ein Modell für Standbilder mit Ihrem Projekt mit.</p>
 ${cta('Angebot für Ihr Projekt anfragen')}
 <h2>Fazit</h2>
 <p>Die Kosten einer Architekturvisualisierung hängen weniger von der Software ab als von Vorbereitung, Umfang und Qualitätsanspruch. Mit klarem Briefing, geplanten Ansichten und realistischen Terminen werden fotorealistische Bilder zu einer der wirksamsten Investitionen in Vermarktung und Genehmigung.</p>`,

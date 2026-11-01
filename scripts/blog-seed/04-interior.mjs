@@ -117,7 +117,7 @@ ${cta('Start your interior project')}
 ${fig(IMG.elysian, 'Innenraumvisualisierung eines eleganten Wohnzimmers mit weichem Licht', 'Elysian Aura – Innenraumvisualisierung.', 'wide')}
 <h2>Wofür Innenraumvisualisierung wichtig ist</h2>
 <ul>
-<li><strong>Für Innenarchitekten:</strong> Kunden geben Konzepte schneller frei, wenn sie sie sehen statt sie sich vorzustellen.</li>
+<li><strong>Für Innenarchitekten:</strong> Kunden geben Konzepte schneller frei, wenn sie sie sehen, statt sie sich vorzustellen.</li>
 <li><strong>Für Bauträger:</strong> Käufern die fertige Wohnung zeigen, solange sie noch Rohbau ist.</li>
 <li><strong>Für Bauherren:</strong> Materialien, Farben und Grundrisse testen, bevor Geld ausgegeben wird.</li>
 <li><strong>Für Marken und Hersteller:</strong> Produkte in schönen, glaubwürdigen Räumen zeigen – ohne Fotoshooting.</li>
@@ -154,10 +154,10 @@ ${tip('<p><strong>Tipp:</strong> Markieren Sie, was feststeht und was offen ist.
 <li><strong>Bilder markieren</strong> mit Pfeilen und kurzen Notizen statt langer E-Mails.</li>
 </ul>
 <h2>Innenraumvisualisierung bei VARI</h2>
-<p>Innenräume sind das Herz unserer Arbeit – von der vielschichtigen Wärme von <a href="/work/hearthstone-haven">Hearthstone Haven</a> über die Ruhe von <a href="/work/minimal-wood">Minimal Wood</a> bis zur Dramatik von <a href="/work/penthouse-in-dark-mood">Penthouse in Dark Mood</a>. Neben der Visualisierung umfassen unsere <a href="/services">Leistungen</a> auch konzeptionelle Innenarchitektur – wir können den Entwurf also gemeinsam mit Ihnen entwickeln. Zu den Kosten informiert unser Ratgeber <a href="/blog/architekturvisualisierung-kosten">Was kostet eine Architekturvisualisierung?</a></p>
+<p>Innenräume sind das Herz unserer Arbeit – von der vielschichtigen Wärme von <a href="/work/hearthstone-haven">Hearthstone Haven</a> über die Ruhe von <a href="/work/minimal-wood">Minimal Wood</a> bis zur Dramatik von <a href="/work/penthouse-in-dark-mood">Penthouse in Dark Mood</a>. Neben der Visualisierung umfassen unsere <a href="/services">Leistungen</a> auch konzeptionelles Interior Design – wir können den Entwurf also gemeinsam mit Ihnen entwickeln. Zu den Kosten informiert unser Ratgeber <a href="/blog/architekturvisualisierung-kosten">Was kostet eine Architekturvisualisierung?</a></p>
 ${cta('Ihr Innenraumprojekt starten')}
 <h2>Fazit</h2>
-<p>Eine überzeugende Innenraumvisualisierung entsteht aus guten Informationen, klaren Entscheidungen und geduldiger Arbeit an Licht und Material. Bereiten Sie ein vollständiges Briefing vor, geben Sie Kameras früh frei und geben Sie gezieltes Feedback – dann leistet das Bild, was es soll: Allen hilft es, Ja zum Entwurf zu sagen.</p>`,
+<p>Eine überzeugende Innenraumvisualisierung entsteht aus guten Informationen, klaren Entscheidungen und geduldiger Arbeit an Licht und Material. Bereiten Sie ein vollständiges Briefing vor, geben Sie Kameras früh frei und geben Sie gezieltes Feedback – dann leistet das Bild, was es soll: Es hilft allen Beteiligten, Ja zum Entwurf zu sagen.</p>`,
     },
     es: {
       slug: 'render-de-interiores-guia',

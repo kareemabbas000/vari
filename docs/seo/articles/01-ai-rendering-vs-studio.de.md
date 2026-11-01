@@ -4,7 +4,7 @@
 
 | Feld | Wert |
 | --- | --- |
-| Status | **Entwurf v1. Muttersprachliches Lektorat + VARI-Input (⟦VARI⟧) erforderlich.** Voraussetzung: Deutsch ist in Produktion aktiviert (TECHNICAL-AUDIT T1) |
+| Status | **Final v1 (01.11.2026). VARI-Input erhalten; KI-Lektorat erfolgt, muttersprachliche Freigabe vor dem Deutsch-Start empfohlen.** Voraussetzung: Deutsch ist in Produktion aktiviert (TECHNICAL-AUDIT T1) |
 | Markt | Deutschland, Österreich, Schweiz |
 | Title-Tag (58) | `Architekturvisualisierung mit KI: Was sie kann – und was nicht` |
 | Meta Description (153) | `KI-Bilder sind schnell, aber nicht verbindlich. Wo KI in der Architekturvisualisierung hilft, wo sie scheitert und wann Wettbewerb und Vermarktung ein Studio brauchen.` |
@@ -21,7 +21,7 @@
 
 **Bilder:** `hne-laboratory-holzfassade-visualisierung.jpg`, Alt-Text: „Visualisierung des HNE Laboratory: dreigeschossiger Holzfassadenbau mit Herbstbäumen und Personen im Maßstab“.
 
-**⟦VARI⟧ Input:** wie bei der englischen Fassung (KI-Einsatz im Studio, Autor), zusätzlich: Darf DGI Bauwerk als Auftraggeber im Fließtext genannt werden? (Auf der Projektseite steht er bereits.)
+**VARI-Input (01.11.2026):** VARI setzt KI ein; Autor VARI Studio; HNE Laboratory entstand aus einem regulären Briefing. Der Auftraggeber steht bereits öffentlich auf der Projektseite.
 
 ---
 
@@ -75,7 +75,7 @@ Viele Projekte brauchen beides, nacheinander: KI für die Idee, die 3D-Visualisi
 
 Für das [HNE Laboratory](/de/work/hne-laboratory), ein Projekt in Deutschland, entstanden Visualisierungen für DGI Bauwerk Gesellschaft von Architekten mbH. Die Bilder zeigen einen dreigeschossigen Bau mit vertikaler Holzlattung, eingebettet in Kiefern und Laubbäume, mit Menschen im Maßstab auf den Wegen. Genau bei solchen Aufgaben, wo jede Latte und jede Fensterachse zum selben Gebäude gehören muss, endet heute die Zuständigkeit der Bild-KI.
 
-⟦VARI: 2–3 Sätze aus eigener Erfahrung zu diesem Projekt (Grundlagen, Abstimmungsrunden, Lichtentscheidung). Nur echte Angaben.⟧
+Grundlage war ein reguläres Briefing des Auftraggebers – die Bilder entstanden als 3D-Szene aus den Projektunterlagen.
 
 ## Und die Kosten?
 
@@ -83,7 +83,7 @@ KI-Werkzeuge kosten meist ein überschaubares Monatsabo. Professionelle Visualis
 
 ## Wie wir KI einsetzen
 
-⟦VARI: wahrheitsgemäß beschreiben oder Abschnitt streichen (siehe englische Fassung).⟧
+Auch wir bei VARI setzen KI ein – das gehört zu einem zeitgemäßen Studio, und es wäre seltsam, diesen Beitrag so zu schreiben, als täten wir es nicht. Woran KI nichts ändert: Bilder, auf deren Grundlage entschieden wird, entstehen bei uns als 3D-Szenen aus den Projektplänen. So zeigt jede Ansicht dasselbe Gebäude, mit denselben Proportionen, aus jedem Blickwinkel.
 
 Sie planen ein Projekt in Deutschland und brauchen Bilder, die zu den Plänen passen? [Mehr über unsere Architekturvisualisierung für Deutschland](/de/architectural-visualization-germany).
 
@@ -111,5 +111,5 @@ Nach deutschem Recht schützt das UrhG persönliche geistige Schöpfungen. Rein 
 ### Lektorat (vor Veröffentlichung)
 - [ ] Muttersprachliches Lektorat (Ton: sachlich, Sie-Form, keine Anglizismen, wo ein deutsches Wort üblich ist)
 - [ ] Rechtsabsatz durch eine sachkundige Person geprüft
-- [ ] ⟦VARI⟧-Stellen ersetzt oder gestrichen
+- [x] VARI-Stellen aus bestätigten Angaben ersetzt
 - [ ] hreflang-Paar mit der englischen Fassung im Panel verknüpft (gleicher Beitrag, zwei Übersetzungen)
