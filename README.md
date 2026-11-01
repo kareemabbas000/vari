@@ -3,6 +3,8 @@
 - [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md): stack, system overview, request lifecycle, resilience, security, env vars, known gaps
 - [docs/DATA-MODEL.md](docs/DATA-MODEL.md): Supabase tables, RLS matrix, functions, triggers and invariants
 - [docs/CONTENT-PIPELINE.md](docs/CONTENT-PIPELINE.md): CMS read path, languages, page builder, blog, media, caching
+- [docs/KNOWLEDGE-ECOSYSTEM.md](docs/KNOWLEDGE-ECOSYSTEM.md): LLM / answer-engine knowledge ecosystem: architecture, page types, measurement
+- [docs/QUESTION-MAP.md](docs/QUESTION-MAP.md): real questions people ask, clustered by domain, with priorities and the monthly prompt bank
 - [docs/CONTROL_PANEL.md](docs/CONTROL_PANEL.md): control panel setup, roles and verification checklist
 
 
