@@ -16,6 +16,7 @@ let cache: { at: number; value: Registry } | null = null;
 async function registry(): Promise<Registry> {
   if (cache && Date.now() - cache.at < 60_000) return cache.value;
   let rows: { code: string; enabled: boolean; is_default: boolean; sort: number }[] = FALLBACK_LANGUAGES.map((l) => ({ code: l.code, enabled: l.enabled, is_default: l.isDefault, sort: l.sort }));
+  let fresh = false;
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/languages?select=code,enabled,is_default,sort&order=sort.asc`, {
       headers: { apikey: SUPABASE_PUBLISHABLE_KEY },
@@ -23,9 +24,18 @@ async function registry(): Promise<Registry> {
     });
     if (res.ok) {
       const data = await res.json();
-      if (Array.isArray(data) && data.length) rows = data;
+      if (Array.isArray(data) && data.length) {
+        rows = data;
+        fresh = true;
+      }
     }
   } catch {}
+  // Database briefly unreachable: keep the last known registry (retry in 10 s) rather than the
+  // built-in fallback, so crawlers never see a working language redirect or disappear.
+  if (!fresh && cache) {
+    cache = { at: Date.now() - 50_000, value: cache.value };
+    return cache.value;
+  }
   const enabled = rows.filter((r) => r.enabled).map((r) => r.code);
   const value = { known: rows.map((r) => r.code), enabled, fallback: rows.find((r) => r.is_default && r.enabled)?.code ?? enabled[0] ?? 'en' };
   cache = { at: Date.now(), value };

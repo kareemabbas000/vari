@@ -44,12 +44,15 @@ const lang = (code: string, name: string, englishName: string, og: string, welco
   sort,
 });
 
-/** Used only if the database cannot be reached. */
+/**
+ * Used only if the database cannot be reached. Keep it in step with production (Panel →
+ * Languages): a language marked off here would redirect or 404 for crawlers during an outage.
+ */
 export const FALLBACK_LANGUAGES: Language[] = [
   lang('en', 'English', 'English', 'en_US', 'Welcome', true, 10),
   lang('de', 'Deutsch', 'German', 'de_DE', 'Willkommen', true, 20),
   lang('es', 'Español', 'Spanish', 'es_ES', 'Bienvenidos', true, 30),
-  lang('tr', 'Türkçe', 'Turkish', 'tr_TR', 'Hoş geldiniz', false, 40),
+  lang('tr', 'Türkçe', 'Turkish', 'tr_TR', 'Hoş geldiniz', true, 40),
 ];
 
 const PATTERN = /^[a-z]{2,3}(-[a-z]{2,4})?$/;
