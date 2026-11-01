@@ -28,14 +28,16 @@ def inline(text: str) -> str:
 
 def body_html(md: str) -> str:
     out, para, items = [], [], []
+    ordered = False
 
     def flush():
-        nonlocal para, items
+        nonlocal para, items, ordered
         if para:
             text = ' '.join(para)
             out.append(f'<p><mark>{inline(text)}</mark></p>' if '⟦VARI' in text else f'<p>{inline(text)}</p>')
         if items:
-            out.append('<ul>' + ''.join(f'<li>{inline(i)}</li>' for i in items) + '</ul>')
+            tag = 'ol' if ordered else 'ul'
+            out.append(f'<{tag}>' + ''.join(f'<li>{inline(i)}</li>' for i in items) + f'</{tag}>')
         para, items = [], []
 
     for line in md.splitlines():
@@ -47,10 +49,12 @@ def body_html(md: str) -> str:
             flush(); out.append(f'<h3>{inline(s[4:])}</h3>')
         elif s.startswith('## '):
             flush(); out.append(f'<h2>{inline(s[3:])}</h2>')
-        elif s.lstrip().startswith('- '):
-            if para:
+        elif s.lstrip().startswith('- ') or re.match(r'\s*\d+\. ', s):
+            is_ol = bool(re.match(r'\s*\d+\. ', s))
+            if para or (items and is_ol != ordered):
                 flush()
-            items.append(s.lstrip()[2:])
+            ordered = is_ol
+            items.append(re.sub(r'^\s*(?:- |\d+\. )', '', s))
         else:
             if items:
                 flush()
