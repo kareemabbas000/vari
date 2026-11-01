@@ -8,8 +8,8 @@ import { VERIFY_PATTERN } from '@/lib/tracking';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { I18nProvider } from '@/components/I18nProvider';
-import { brandAssets, site } from '@/lib/content';
-import { mediaUrl, ogImageUrl } from '@/lib/image-loader';
+import { site } from '@/lib/content';
+import { ogImageUrl } from '@/lib/image-loader';
 import { isLocale, type Locale } from '@/lib/i18n/config';
 import { getLanguages } from '@/lib/i18n/languages';
 import { alternatesFor } from '@/lib/i18n/languages';
@@ -59,7 +59,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
     },
     twitter: { card: 'summary_large_image', title: t.meta.ogTitle, description: t.meta.description, images: [ogImage] },
     verification: { google: ok(v.google), yandex: ok(v.yandex), other },
-    icons: { icon: mediaUrl(brandAssets.emblem.id, 96), apple: mediaUrl(brandAssets.emblem.id, 180) },
+    // Favicons come from app/icon.svg, app/favicon.ico and app/apple-icon.png (V monogram).
   };
 }
 
