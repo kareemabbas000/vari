@@ -9,7 +9,7 @@ import { alternatesFor } from '@/lib/i18n/languages';
 import { getSiteContent } from '@/lib/cms';
 import { getPage, pageMeta, withSeo } from '@/lib/pages';
 import { PageBlocks } from '@/components/blocks/PageBlocks';
-import { SOLUTION_LINKS } from '@/lib/solutions';
+import { solutionEntries } from '@/lib/solutions';
 
 type Params = { locale: string };
 
@@ -28,7 +28,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
 
 export default async function ServicesPage({ params }: { params: Promise<Params> }) {
   const { locale } = await params;
-  const { t, projects: all, services } = await getSiteContent(locale as Locale);
+  const { t, projects: all, services, settings } = await getSiteContent(locale as Locale);
   const href = (p: string) => localizePath(locale as Locale, p);
   // Featured projects lead; fall back to the first three.
   const proofs = [...all.filter((p) => p.featured), ...all.filter((p) => !p.featured)].slice(0, 3);
@@ -48,10 +48,10 @@ export default async function ServicesPage({ params }: { params: Promise<Params>
       <section className="wrap border-t border-gold/15 py-20 md:py-28" aria-labelledby="solutions-title">
         <h2 id="solutions-title" className="label text-gold">{t.solutions.label}</h2>
         <ul className="mt-10 grid gap-px bg-gold/15 sm:grid-cols-2">
-          {SOLUTION_LINKS.map((s) => (
+          {solutionEntries(settings.navigation.solutions, t, locale as Locale, href).map((s) => (
             <li key={s.key} className="bg-night">
-              <Link href={href(s.path)} className="group flex items-center justify-between gap-6 px-1 py-6 sm:px-6">
-                <span className="display text-xl md:text-2xl">{t.solutions[s.key]}</span>
+              <Link href={s.href} className="group flex items-center justify-between gap-6 px-1 py-6 sm:px-6">
+                <span className="display text-xl md:text-2xl">{s.label}</span>
                 <span aria-hidden className="text-gold transition-transform duration-700 ease-expo group-hover:translate-x-2">→</span>
               </Link>
             </li>

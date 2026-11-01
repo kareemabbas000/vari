@@ -8,10 +8,11 @@ import { fmt } from '@/lib/i18n';
 import { useI18n } from './I18nProvider';
 import { ConsentLink } from './Tracking';
 import { NavLink, useNav } from './nav';
-import { SOLUTION_LINKS } from '@/lib/solutions';
+import { solutionEntries } from '@/lib/solutions';
 
 export default function Footer() {
-  const { t, href, settings } = useI18n();
+  const { t, href, settings, locale } = useI18n();
+  const solutions = solutionEntries(settings.navigation.solutions, t, locale, href);
   const contact = settings.contact;
   const nav = useNav('footer');
   const show = settings.layout.footer;
@@ -92,11 +93,17 @@ export default function Footer() {
 
       <nav aria-label={t.solutions.label} className="wrap mt-8 flex flex-wrap items-baseline gap-x-6 gap-y-2 border-t border-bone/10 pt-5 text-xs text-bone/50">
         <span className="label text-[0.65rem] text-gold/70">{t.solutions.label}</span>
-        {SOLUTION_LINKS.map((s) => (
-          <Link key={s.key} href={href(s.path)} className="link-line hover:text-bone">
-            {t.solutions[s.key]}
-          </Link>
-        ))}
+        {solutions.map((s) =>
+          s.external ? (
+            <a key={s.key} href={s.href} target="_blank" rel="noopener noreferrer" className="link-line hover:text-bone">
+              {s.label}
+            </a>
+          ) : (
+            <Link key={s.key} href={s.href} className="link-line hover:text-bone">
+              {s.label}
+            </Link>
+          ),
+        )}
       </nav>
 
       <div className="wrap flex flex-col items-start justify-between gap-4 border-t border-bone/10 mt-5 py-5 text-xs text-bone/50 sm:flex-row sm:items-center">

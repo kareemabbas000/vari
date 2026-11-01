@@ -3,7 +3,7 @@ import { getPosts } from '@/lib/blog';
 import { isLocale, localizePath } from '@/lib/i18n/config';
 import { getLanguages } from '@/lib/i18n/languages';
 import { site } from '@/lib/content';
-import { mediaUrl } from '@/lib/image-loader';
+import { ogImageUrl } from '@/lib/image-loader';
 
 export const revalidate = 300;
 
@@ -20,8 +20,10 @@ export async function GET(_req: Request, { params }: { params: Promise<{ locale:
     .slice(0, 30)
     .map((p) => {
       const url = `${base}${localizePath(locale, `/blog/${p.slug}`)}`;
-      const img = p.cover ? (/^https?:/.test(p.cover) ? p.cover : mediaUrl(p.cover, 1200)) : '';
-      return `<item><title>${esc(p.title)}</title><link>${url}</link><guid isPermaLink="true">${url}</guid><pubDate>${new Date(p.publishedAt).toUTCString()}</pubDate>${p.category ? `<category>${esc(p.category.name)}</category>` : ''}<description>${esc(p.excerpt)}</description>${img ? `<enclosure url="${esc(img)}" type="image/jpeg" length="0"/>` : ''}</item>`;
+      // Source format (PNG/JPEG), not the AVIF the site uses: feed readers expect the declared type.
+      const img = p.cover ? (/^https?:/.test(p.cover) ? p.cover : ogImageUrl(p.cover)) : '';
+      const type = /\.png(\?|\/|$)/i.test(img) ? 'image/png' : 'image/jpeg';
+      return `<item><title>${esc(p.title)}</title><link>${url}</link><guid isPermaLink="true">${url}</guid><pubDate>${new Date(p.publishedAt).toUTCString()}</pubDate>${p.category ? `<category>${esc(p.category.name)}</category>` : ''}<description>${esc(p.excerpt)}</description>${img ? `<enclosure url="${esc(img)}" type="${type}" length="0"/>` : ''}</item>`;
     })
     .join('');
   const xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>${esc(`VARI Studio — ${t.blog.label}`)}</title><link>${base}${localizePath(locale, '/blog')}</link><atom:link href="${base}${localizePath(locale, '/blog/rss.xml')}" rel="self" type="application/rss+xml"/><description>${esc(t.blog.metaDescription)}</description><language>${langs.byCode[locale].hreflang}</language>${items}</channel></rss>`;

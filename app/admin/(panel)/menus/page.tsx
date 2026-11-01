@@ -10,10 +10,11 @@ import { useLanguages } from '@/components/admin/languages';
 import { getDictionary } from '@/lib/i18n';
 import type { Json } from '@/lib/database.types';
 import { DEFAULT_LAYOUT, type Layout } from '@/lib/layout';
+import { SOLUTION_LINKS } from '@/lib/solutions';
 
 type Item = { label: I18nValue; href: string; newTab?: boolean };
 type Announcement = { enabled: boolean; text: I18nValue; link?: { label?: I18nValue; href?: string }; dismissible: boolean; version: number };
-type Data = { navigation?: { header?: Item[]; footer?: Item[] }; announcement?: Announcement; layout?: Partial<Layout>; [k: string]: unknown };
+type Data = { navigation?: { header?: Item[]; footer?: Item[]; solutions?: Item[] }; announcement?: Announcement; layout?: Partial<Layout>; [k: string]: unknown };
 
 /** The built-in menu, labelled in every language from that language's own texts. */
 const NAV_KEYS = [
@@ -25,8 +26,11 @@ const NAV_KEYS = [
 ] as const;
 const defaultMenu = (codes: string[]): Item[] => NAV_KEYS.map(([k, href]) => ({ label: Object.fromEntries(codes.map((c) => [c, getDictionary(c).nav[k]])), href }));
 const BUILT_IN = ['/', '/work', '/services', '/studio', '/contact', '/blog', '/privacy'];
+/** The built-in specialist-service links, labelled in every language. */
+const defaultSolutions = (codes: string[]): Item[] =>
+  SOLUTION_LINKS.map((s) => ({ label: Object.fromEntries(codes.map((c) => [c, getDictionary(c).solutions[s.key]])), href: s.path }));
 
-function MenuEditor({ title, items, onChange, targets, emptyNote, codes }: { title: string; items: Item[]; onChange: (v: Item[]) => void; targets: string[]; emptyNote: string; codes: string[] }) {
+function MenuEditor({ title, items, onChange, targets, emptyNote, codes, defaults = defaultMenu, maxLength = 30 }: { title: string; items: Item[]; onChange: (v: Item[]) => void; targets: string[]; emptyNote: string; codes: string[]; defaults?: (codes: string[]) => Item[]; maxLength?: number }) {
   const move = (i: number, d: number) => {
     const j = i + d;
     if (j < 0 || j >= items.length) return;
@@ -39,7 +43,7 @@ function MenuEditor({ title, items, onChange, targets, emptyNote, codes }: { tit
       title={title}
       actions={
         <div className="flex gap-2">
-          {!items.length && <Button size="sm" variant="ghost" onClick={() => onChange(defaultMenu(codes))}>Start from current menu</Button>}
+          {!items.length && <Button size="sm" variant="ghost" onClick={() => onChange(defaults(codes))}>Start from current links</Button>}
           {items.length < 10 && <Button size="sm" variant="secondary" onClick={() => onChange([...items, { label: {}, href: '/' }])}>Add link</Button>}
         </div>
       }
@@ -58,7 +62,7 @@ function MenuEditor({ title, items, onChange, targets, emptyNote, codes }: { tit
                   <Button size="sm" variant="ghost" onClick={() => onChange(items.filter((_, k) => k !== i))}>Remove</Button>
                 </span>
               </div>
-              <I18nInput label="Text" value={it.label} onChange={(label) => onChange(items.map((x, k) => (k === i ? { ...x, label } : x)))} maxLength={30} />
+              <I18nInput label="Text" value={it.label} onChange={(label) => onChange(items.map((x, k) => (k === i ? { ...x, label } : x)))} maxLength={maxLength} />
               <div className="grid gap-3 sm:grid-cols-[1fr_auto] sm:items-center">
                 <Input list="menu-targets" aria-label="Link" value={it.href} placeholder="/work or https://…" onChange={(e) => onChange(items.map((x, k) => (k === i ? { ...x, href: e.target.value.trim() } : x)))} />
                 <div className="sm:w-56">
@@ -86,6 +90,7 @@ export default function MenusPage() {
   const { codes } = useLanguages();
   const [header, setHeader] = useState<Item[]>([]);
   const [footer, setFooter] = useState<Item[]>([]);
+  const [solutions, setSolutions] = useState<Item[]>([]);
   const [ann, setAnn] = useState<Announcement>({ enabled: false, text: {}, dismissible: true, version: 1 });
   const [targets, setTargets] = useState<string[]>(BUILT_IN);
   const [layout, setLayout] = useState<Layout>(DEFAULT_LAYOUT);
@@ -97,6 +102,7 @@ export default function MenusPage() {
     if (!data) return;
     setHeader(data.navigation?.header || []);
     setFooter(data.navigation?.footer || []);
+    setSolutions(data.navigation?.solutions || []);
     setAnn({ enabled: false, text: {}, dismissible: true, version: 1, ...(data.announcement || {}) });
     setLayout({ header: { ...DEFAULT_LAYOUT.header, ...(data.layout?.header || {}) }, footer: { ...DEFAULT_LAYOUT.footer, ...(data.layout?.footer || {}) } });
     db.from('pages').select('slug').eq('kind', 'custom').then(({ data: pages }) => setTargets([...BUILT_IN, ...(pages || []).map((p) => `/${p.slug}`)]));
@@ -108,14 +114,14 @@ export default function MenusPage() {
 
   async function save() {
     if (!data) return;
-    const bad = [...header, ...footer].find((i) => !i.label.en?.trim() || !i.href);
+    const bad = [...header, ...footer, ...solutions].find((i) => !i.label.en?.trim() || !i.href);
     if (bad) return toast('error', 'Every menu link needs an English text and an address.');
     if (ann.enabled && !ann.text.en?.trim()) return toast('error', 'Write the announcement text (English at least).');
     setSaving(true);
     // A changed announcement is shown again to visitors who closed the previous one.
     const prev = data.announcement;
     const changed = JSON.stringify(prev?.text) !== JSON.stringify(ann.text) || JSON.stringify(prev?.link) !== JSON.stringify(ann.link);
-    const next = { ...data, layout, navigation: { header, footer }, announcement: { ...ann, version: changed ? (prev?.version || 1) + 1 : ann.version } };
+    const next = { ...data, layout, navigation: { header, footer, solutions }, announcement: { ...ann, version: changed ? (prev?.version || 1) + 1 : ann.version } };
     const res = await db.from('site_settings').update({ data: next as unknown as Json }).eq('id', 1).select('id');
     setSaving(false);
     if (res.error || !res.data?.length) return toast('error', res.error?.message || 'Not saved — sign in again.');
@@ -178,6 +184,16 @@ export default function MenusPage() {
       <div className="grid gap-6 xl:grid-cols-2">
         <MenuEditor title="Main menu" items={header} onChange={setHeader} targets={targets} emptyNote="Using the built-in menu: Work, Services, Studio, Blog, Contact." codes={codes} />
         <MenuEditor title="Footer “Explore” links" items={footer} onChange={setFooter} targets={targets} emptyNote="Using the same links as the main menu." codes={codes} />
+        <MenuEditor
+          title="Specialist services links (footer and Services page)"
+          items={solutions}
+          onChange={setSolutions}
+          targets={targets}
+          emptyNote="Using the built-in links: 3D rendering for developers, interior visualization, Germany, Spain."
+          codes={codes}
+          defaults={defaultSolutions}
+          maxLength={60}
+        />
       </div>
     </>
   );

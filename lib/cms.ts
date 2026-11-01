@@ -27,7 +27,8 @@ export type SiteSettings = {
   seo: { title?: I18nText; description?: I18nText };
   tracking: TrackingSettings;
   verification: Verification;
-  navigation: { header: NavItem[]; footer: NavItem[] };
+  /** solutions: the specialist-service links in the footer and on /services (empty = built-in list). */
+  navigation: { header: NavItem[]; footer: NavItem[]; solutions: NavItem[] };
   announcement: Announcement;
   layout: Layout;
 };
@@ -64,7 +65,7 @@ export const defaultSettings: SiteSettings = {
   seo: {},
   tracking: {},
   verification: { google: '96MaJjmpseUkOLOGNvNTymidm2-lxTLQyuHL_vBQagk' },
-  navigation: { header: [], footer: [] },
+  navigation: { header: [], footer: [], solutions: [] },
   announcement: { enabled: false, text: {}, dismissible: true, version: 1 },
   layout: DEFAULT_LAYOUT,
 };
@@ -192,7 +193,7 @@ export function buildContent(raw: Raw, locale: Locale): Omit<SiteContent, 'langu
     seo: s.seo || {},
     tracking: s.tracking || {},
     verification: { ...defaultSettings.verification, ...(s.verification || {}) },
-    navigation: { header: s.navigation?.header || [], footer: s.navigation?.footer || [] },
+    navigation: { header: s.navigation?.header || [], footer: s.navigation?.footer || [], solutions: s.navigation?.solutions || [] },
     announcement: { ...defaultSettings.announcement, ...(s.announcement || {}) },
     layout: { header: { ...DEFAULT_LAYOUT.header, ...(s.layout?.header || {}) }, footer: { ...DEFAULT_LAYOUT.footer, ...(s.layout?.footer || {}) } },
   };

@@ -10,6 +10,7 @@ import MediaLibrary from '@/components/admin/MediaLibrary';
 import Modal from '@/components/admin/Modal';
 import { must, usePublish, useLoad } from '@/components/admin/hooks';
 import { useMember } from '@/components/admin/AdminShell';
+import IndexNowCard from '@/components/admin/IndexNowCard';
 import type { Json } from '@/lib/database.types';
 
 type Social = { label: string; href: string };
@@ -137,6 +138,7 @@ export default function SettingsPage() {
             <I18nInput label="Site description" value={s.seo.description || {}} onChange={(v) => setS({ ...s, seo: { ...s.seo, description: v } })} multiline rows={3} maxLength={170} />
           </div>
         </Card>
+        <IndexNowCard />
       </div>
 
       <Modal open={!!pick} title="Choose logo" onClose={() => setPick(null)} wide>
