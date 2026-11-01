@@ -29,7 +29,6 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // Only articles in enabled languages.
   const posts = (await getAllPostSlugs()).filter((p) => langs.codes.includes(p.locale));
   if (posts.length) pages.push({ path: '/blog', priority: 0.8 });
-  const lastModified = new Date();
   // Articles: each language has its own address; alternates list only real translations.
   const byPost = new Map<string, typeof posts>();
   posts.forEach((p) => byPost.set(p.id, [...(byPost.get(p.id) || []), p]));
@@ -45,9 +44,10 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
       ...enabled.map((l) => [l.hreflang, `${base}${localizePath(l.code, path)}`]),
       ['x-default', `${base}${localizePath(defaultLocale, path)}`],
     ]);
+    // No lastModified: these pages have no reliable update date, and a build-time stamp on
+    // every URL teaches Google to ignore the field (articles above carry their real dates).
     return enabled.map(({ code: l }) => ({
       url: `${base}${localizePath(l, path)}`,
-      lastModified,
       priority: l === defaultLocale ? priority : priority * 0.9,
       alternates: { languages },
     }));

@@ -27,6 +27,16 @@ export function mediaUrl(src: string, width = 1600, quality = 82) {
   return wixUrl(src, width, quality);
 }
 
+/**
+ * Image for Open Graph / Twitter cards: a 1200×630 crop in the source format (PNG/JPEG).
+ * Social platforms do not render AVIF, which mediaUrl() asks the CDN for.
+ */
+export function ogImageUrl(src: string) {
+  if (!isWixMediaId(src)) return src;
+  if (process.env.NEXT_PUBLIC_MEDIA_SOURCE === 'local') return `/media/${src}`;
+  return `${WIX_MEDIA}${src}/v1/fill/w_1200,h_630,q_85/${src}`;
+}
+
 export default function imageLoader({
   src,
   width,

@@ -186,15 +186,21 @@ function Gallery({ p }: { p: P }) {
   const [open, setOpen] = useState<number | null>(null);
   const cols = str(p.columns) || '3';
   const layout = str(p.layout) || 'masonry';
-  const media: Media[] = useMemo(() => images.map((id) => ({ id, width: 1600, height: 1000, file: id, alt: '' })), [images]);
+  const { projects } = useI18n();
+  // Gallery blocks store image ids only; reuse the alt text the same image has in the portfolio.
+  const altOf = useMemo(() => {
+    const known = new Map(projects.flatMap((pr) => pr.media.map((m) => [m.id, m.alt] as const)));
+    return (id: string) => known.get(id) || '';
+  }, [projects]);
+  const media: Media[] = useMemo(() => images.map((id) => ({ id, width: 1600, height: 1000, file: id, alt: altOf(id) })), [images, altOf]);
   const scroller = useRef<HTMLDivElement>(null);
   if (!images.length) return <p className="label opacity-50">Gallery — add images in the panel.</p>;
   const tile = (src: string, i: number, cls: string, aspect?: string) => (
     <button key={`${src}-${i}`} type="button" onClick={() => p.lightbox !== false && setOpen(i)} className={`frame group block w-full ${cls}`} style={aspect ? { aspectRatio: aspect } : undefined} aria-label={`Open image ${i + 1}`}>
       {aspect ? (
-        <Img src={src} alt="" sizes={`(min-width: 768px) ${Math.round(100 / Number(cols))}vw, 100vw`} className="transition-transform duration-[1.4s] ease-expo group-hover:scale-105" />
+        <Img src={src} alt={altOf(src)} sizes={`(min-width: 768px) ${Math.round(100 / Number(cols))}vw, 100vw`} className="transition-transform duration-[1.4s] ease-expo group-hover:scale-105" />
       ) : (
-        <Image src={src} alt="" width={1200} height={900} sizes={`(min-width: 768px) ${Math.round(100 / Number(cols))}vw, 100vw`} className="h-auto w-full transition-transform duration-[1.4s] ease-expo group-hover:scale-105" />
+        <Image src={src} alt={altOf(src)} width={1200} height={900} sizes={`(min-width: 768px) ${Math.round(100 / Number(cols))}vw, 100vw`} className="h-auto w-full transition-transform duration-[1.4s] ease-expo group-hover:scale-105" />
       )}
     </button>
   );

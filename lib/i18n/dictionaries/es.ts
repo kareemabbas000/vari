@@ -12,9 +12,10 @@ const es: Dictionary = {
     siteTitle: 'VARI Studio — Arquitectura, interiorismo y visualización 3D',
     titleTemplate: '%s — VARI Studio',
     description:
-      'VARI Studio: expertos en diseño arquitectónico e interiorismo que ofrecen servicios de visualización 3D de alta calidad para proyectos residenciales, comerciales y hoteleros. Damos vida a tus ideas con renders fotorrealistas que inspiran y sorprenden. Clientes de todo el mundo confían en nosotros para convertir sus visiones en realidad. Descubre nuestro portafolio y lleva tu próximo proyecto a otro nivel con VARI Studio.',
+      'Arquitectura, interiorismo y visualización 3D fotorrealista desde El Cairo, para promotoras, estudios de arquitectura y particulares de todo el mundo.',
     ogTitle: 'VARI Studio — Espacios elegantes en armonía con los elementos',
     ogAlt: 'The Urban Nest — visualización de VARI Studio',
+    projectDescription: '{title}: {label}{where}, visualizado por VARI Studio: arquitectura, interiorismo y visualización 3D fotorrealista.',
     workTitle: 'Proyectos',
     workDescription: 'Visualización arquitectónica y de interiores de VARI Studio: {n} proyectos de exteriores e interiores.',
     studioTitle: 'Nuestro concepto',
@@ -230,6 +231,13 @@ const es: Dictionary = {
     network: 'Error de conexión. Inténtalo de nuevo.',
     mailSubject: 'Suscripción al boletín',
     mailBody: 'Por favor, añadan {email} al boletín de VARI Studio.',
+  },
+  solutions: {
+    label: 'Servicios especializados',
+    developers: 'Render 3D para promotoras',
+    interiors: 'Visualización de interiores',
+    germany: 'Visualización arquitectónica para Alemania',
+    spain: 'Render arquitectónico para España',
   },
   footer: {
     beginA: 'Empieza tu',

@@ -149,7 +149,7 @@ ${tip('<p><strong>Tipp:</strong> Visualisieren Sie Innenräume in der Ausstattun
 </ul>
 <p>Wichtig ist außerdem eine klare Kennzeichnung: Renderings zeigen Entstehendes, Fotos den Bestand. Weisen Sie Bilder deshalb als Visualisierung aus.</p>
 <h2>So unterstützt VARI Bauträger</h2>
-<p>Wir erstellen Außen- und Innenvisualisierungen, Animationen und virtuelle Rundgänge und entwickeln für dasselbe Projekt auch Innenarchitektur-Konzepte und BIM-Modelle – so folgen die Vermarktungsbilder dem Entwurf und nicht umgekehrt. Sehen Sie Außenprojekte wie <a href="/work/the-urban-nest">The Urban Nest</a> und <a href="/work/light-in-the-dark">Light in the Dark</a> oder entdecken Sie unsere <a href="/services">Leistungen</a>. Zum Budget hilft unser Ratgeber <a href="/blog/architekturvisualisierung-kosten">Kosten einer Architekturvisualisierung</a>.</p>
+<p>Wir erstellen Außen- und Innenvisualisierungen, Animationen und virtuelle Rundgänge und entwickeln für dasselbe Projekt auch Interior-Design-Konzepte und BIM-Modelle – so folgen die Vermarktungsbilder dem Entwurf und nicht umgekehrt. Sehen Sie Außenprojekte wie <a href="/work/the-urban-nest">The Urban Nest</a> und <a href="/work/light-in-the-dark">Light in the Dark</a> oder entdecken Sie unsere <a href="/services">Leistungen</a>. Zum Budget hilft unser Ratgeber <a href="/blog/architekturvisualisierung-kosten">Kosten einer Architekturvisualisierung</a>.</p>
 ${cta('Visualisierungen für Ihr Projekt planen')}
 <h2>Fazit</h2>
 <p>Für Bauträger ist Visualisierung keine Dekoration, sondern das Vertriebswerkzeug, das existiert, bevor das Gebäude steht. Planen Sie die Bildserie früh, bleiben Sie nah an den Plänen und lassen Sie ein Modell Ihr Projekt durch alle Kanäle tragen.</p>`,

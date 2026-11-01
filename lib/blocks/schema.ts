@@ -440,4 +440,6 @@ export function resolveHref(href: string | undefined, localize: (p: string) => s
 }
 
 /** Route names that custom pages may not take. */
-export const RESERVED_SLUGS = ['home', 'work', 'services', 'studio', 'contact', 'privacy', 'newsletter', 'blog', 'project-template', 'admin', 'api', 'builder-preview', 'en', 'de', 'es', 'sitemap', 'robots', 'feed'];
+export const RESERVED_SLUGS = ['home', 'work', 'services', 'studio', 'contact', 'privacy', 'newsletter', 'blog', 'project-template', 'admin', 'api', 'builder-preview', 'sitemap', 'robots', 'feed', 'answers', 'glossary',
+  // Language codes (built-in + the panel's presets) can never be page addresses.
+  'en', 'de', 'es', 'tr', 'fr', 'it', 'pt', 'nl', 'pl', 'ar', 'ru', 'zh', 'ja'];

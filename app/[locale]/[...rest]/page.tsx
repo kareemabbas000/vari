@@ -1,7 +1,7 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Interleave } from '@/components/blocks/PageBlocks';
-import { getPage, pageMeta } from '@/lib/pages';
+import { getPage, pageMeta, seoTitle } from '@/lib/pages';
 import { pick } from '@/lib/cms';
 import { alternatesFor } from '@/lib/i18n/languages';
 import { isLocale, type Locale } from '@/lib/i18n/config';
@@ -25,7 +25,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
   const seo = pageMeta(page, locale);
   const title = seo.title || pick(page.title, locale);
   return {
-    title,
+    title: seoTitle(title),
     description: seo.description || undefined,
     alternates: await alternatesFor(locale, `/${page.slug}`),
     openGraph: { title, description: seo.description || undefined, ...(seo.image ? { images: [{ url: seo.image }] } : {}) },

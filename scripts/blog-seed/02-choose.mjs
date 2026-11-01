@@ -131,7 +131,7 @@ ${tip('<p><strong>Fragen Sie:</strong> „Bis zu welcher Phase kann ich Kameras 
 <h3>9. Kommunikation</h3>
 <p>Gemeinsame Arbeitszeiten, Reaktionszeiten und ein fester Ansprechpartner zählen mehr als jede Software. Die Zusammenarbeit mit einem Studio im Ausland kann sehr wirtschaftlich sein, wenn die Kommunikation strukturiert ist – so beschreibt es auch ${ext(OUTSOURCE, 'der Outsourcing-Leitfaden von 3DSource')}.</p>
 <h3>10. Leistungsspektrum</h3>
-<p>Projekte wachsen. Ein Büro, das auch Animationen, virtuelle Rundgänge, Innenarchitektur-Konzepte oder BIM-Modellierung anbietet, kann dasselbe Modell weiterverwenden, statt neu anzufangen.</p>
+<p>Projekte wachsen. Ein Büro, das auch Animationen, virtuelle Rundgänge, Interior-Design-Konzepte oder BIM-Modellierung anbietet, kann dasselbe Modell weiterverwenden, statt neu anzufangen.</p>
 ${fig(IMG.penthouse, 'Dunkle, stimmungsvolle Penthouse-Innenvisualisierung', 'Konsistenz über die Serie: Jede Ansicht eines Projekts sollte wie dasselbe Gebäude wirken.')}
 <h2>Warnsignale</h2>
 <ul>

@@ -11,9 +11,10 @@ const en = {
     siteTitle: 'VARI Studio — Architecture, Interiors & 3D Visualization',
     titleTemplate: '%s — VARI Studio',
     description:
-      'Vari Studio – Experts in architectural and interior design, delivering high-quality 3D visualization services for residential, commercial, and hospitality projects. We bring your concepts to life with photorealistic renders that inspire and impress. Trusted by clients worldwide, we turn visions into reality. Discover our portfolio and elevate your next project with Vari Studio!',
+      'Architecture, interior design and photorealistic 3D visualization from Cairo, for developers, architects and homeowners worldwide.',
     ogTitle: 'VARI Studio — Where Elegant Spaces Meet Elemental Harmony',
     ogAlt: 'The Urban Nest — visualization by VARI Studio',
+    projectDescription: '{title} — {label}{where}, visualized by VARI Studio: architecture, interior design and photorealistic 3D visualization.',
     workTitle: 'Work',
     workDescription: 'Architectural and interior visualization by VARI Studio — {n} projects across exteriors and interiors.',
     studioTitle: 'Our Concept',
@@ -223,6 +224,13 @@ const en = {
     network: 'Network error — please try again.',
     mailSubject: 'Newsletter sign-up',
     mailBody: 'Please add {email} to the VARI Studio newsletter.',
+  },
+  solutions: {
+    label: 'Specialist services',
+    developers: '3D rendering for real estate developers',
+    interiors: 'Interior visualization services',
+    germany: 'Architectural visualization for Germany',
+    spain: 'Architectural rendering for Spain',
   },
   footer: {
     beginA: 'Begin your',

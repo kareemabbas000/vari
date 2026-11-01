@@ -92,7 +92,7 @@ export default function Hero() {
               <Image
                 data-hero-still
                 src={featureMedia.id}
-                alt=""
+                alt={featureMedia.alt}
                 fill
                 priority
                 sizes="100vw"
@@ -102,7 +102,7 @@ export default function Hero() {
           ) : (
             <>
               <div data-hero-resolve className="absolute inset-0 opacity-0">
-                <Image src={featureMedia.id} alt="" fill sizes="100vw" className="object-cover" />
+                <Image src={featureMedia.id} alt={featureMedia.alt} fill sizes="100vw" className="object-cover" />
               </div>
               <div data-hero-canvas className="absolute inset-0">
                 <HeroTiles

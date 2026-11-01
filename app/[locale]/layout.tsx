@@ -9,7 +9,7 @@ import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { I18nProvider } from '@/components/I18nProvider';
 import { brandAssets, site } from '@/lib/content';
-import { mediaUrl } from '@/lib/image-loader';
+import { mediaUrl, ogImageUrl } from '@/lib/image-loader';
 import { isLocale, type Locale } from '@/lib/i18n/config';
 import { getLanguages } from '@/lib/i18n/languages';
 import { alternatesFor } from '@/lib/i18n/languages';
@@ -18,7 +18,7 @@ import { getSiteContent } from '@/lib/cms';
 const AUTH_LINK_FORWARD = `document.documentElement.classList.add('js');(function(){var h=location.hash,q=location.search;if(/[#&](access_token|error_code)=/.test(h)||/[?&]token_hash=/.test(q)){location.replace('/admin/accept'+q+h);}})();`;
 
 
-const ogImage = mediaUrl('b80319_425c2f36f32b420da9c91cbd856c607d~mv2.jpg', 1200);
+const ogImage = ogImageUrl('b80319_425c2f36f32b420da9c91cbd856c607d~mv2.jpg');
 
 type Params = { locale: string };
 
@@ -55,7 +55,7 @@ export async function generateMetadata({ params }: { params: Promise<Params> }):
       title: t.meta.ogTitle,
       description: t.meta.description,
       url: `/${locale}`,
-      images: [{ url: ogImage, width: 1200, alt: t.meta.ogAlt }],
+      images: [{ url: ogImage, width: 1200, height: 630, alt: t.meta.ogAlt }],
     },
     twitter: { card: 'summary_large_image', title: t.meta.ogTitle, description: t.meta.description, images: [ogImage] },
     verification: { google: ok(v.google), yandex: ok(v.yandex), other },
@@ -78,9 +78,11 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   const content = await getSiteContent(locale as Locale);
   const { t, settings } = content;
 
-  const jsonLd = {
-    '@context': 'https://schema.org',
+  const base = site.url.replace(/\/$/, '');
+  // One graph: the studio has a stable @id that project pages and articles point to.
+  const org = {
     '@type': 'ProfessionalService',
+    '@id': `${base}/#org`,
     name: site.name,
     url: `${site.url.replace(/\/$/, '')}/${locale}`,
     description: t.meta.description,
@@ -91,6 +93,10 @@ export default async function LocaleLayout({ children, params }: { children: Rea
     image: ogImage,
     address: { '@type': 'PostalAddress', streetAddress: '742 Golf District', addressLocality: 'Al Shorouk City, Cairo', addressCountry: 'EG' },
     sameAs: settings.contact.social.map((s) => s.href),
+  };
+  const jsonLd = {
+    '@context': 'https://schema.org',
+    '@graph': [org, { '@type': 'WebSite', '@id': `${base}/#website`, url: base, name: site.name, inLanguage: meta.hreflang, publisher: { '@id': `${base}/#org` } }],
   };
 
   return (

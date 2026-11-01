@@ -2,7 +2,7 @@
 
 import Image from 'next/image';
 import Link from 'next/link';
-import { useSearchParams, useRouter } from 'next/navigation';
+import { useRouter } from 'next/navigation';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import { gsap } from '@/lib/gsap';
 import { useI18n } from '../I18nProvider';
@@ -34,10 +34,16 @@ export default function WorkIndex() {
   const { t, href, projects, categories } = useI18n();
   const FILTERS: Filter[] = ['all', ...categories.filter((c) => projects.some((p) => p.category === c.slug)).map((c) => c.slug)];
   const filterName = (key: Filter) => (key === 'all' ? t.work.filters.all : categories.find((c) => c.slug === key)?.name ?? key);
-  const params = useSearchParams();
   const router = useRouter();
-  const initial = (params.get('filter') as Filter) || 'all';
-  const [filter, setFilter] = useState<Filter>(FILTERS.includes(initial) ? initial : 'all');
+  // The server renders every project (crawlable links, no layout jump). A shared
+  // ?filter= link is applied after mount: useSearchParams() here would make Next.js skip
+  // server rendering of the whole grid (docs/seo/TECHNICAL-AUDIT.md T2).
+  const [filter, setFilter] = useState<Filter>('all');
+  useEffect(() => {
+    const f = new URLSearchParams(window.location.search).get('filter');
+    if (f && FILTERS.includes(f)) setFilter(f);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
   const [view, setView] = useState<View>('gallery');
   const [hover, setHover] = useState<number | null>(null);
   const grid = useRef<HTMLUListElement>(null);

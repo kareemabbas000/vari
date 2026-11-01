@@ -12,9 +12,10 @@ const tr: Dictionary = {
     siteTitle: 'VARI Studio — Mimari, İç Mimari ve 3D Görselleştirme',
     titleTemplate: '%s — VARI Studio',
     description:
-      'VARI Studio – konut, ticari ve otelcilik projeleri için mimari ve iç mimari tasarım ile yüksek kaliteli 3D görselleştirme hizmetleri sunar. Fikirlerinizi ilham veren, fotogerçekçi renderlarla hayata geçiriyoruz. Dünyanın dört bir yanındaki müşterilerimizin güvendiği ekibimizle vizyonunuzu gerçeğe dönüştürüyoruz. Portfolyomuzu keşfedin ve bir sonraki projenizi VARI Studio ile bir üst seviyeye taşıyın!',
+      'Kahire\'den mimari, iç mimari ve fotogerçekçi 3D görselleştirme — dünya genelinde geliştiriciler, mimarlar ve ev sahipleri için.',
     ogTitle: 'VARI Studio — Zarif Mekânların Doğayla Buluştuğu Yer',
     ogAlt: 'The Urban Nest — VARI Studio görselleştirmesi',
+    projectDescription: '{title} — {label}{where}. Görselleştirme: VARI Studio — mimari, iç mimari ve fotogerçekçi 3D görselleştirme.',
     workTitle: 'Projeler',
     workDescription: 'VARI Studio imzalı mimari ve iç mekân görselleştirmeleri — dış cephe ve iç mekânlarda {n} proje.',
     studioTitle: 'Konseptimiz',
@@ -224,6 +225,13 @@ const tr: Dictionary = {
     network: 'Bağlantı hatası — lütfen tekrar deneyin.',
     mailSubject: 'Bülten kaydı',
     mailBody: 'Lütfen {email} adresini VARI Studio bültenine ekleyin.',
+  },
+  solutions: {
+    label: 'Uzman hizmetler',
+    developers: 'Gayrimenkul geliştiricileri için 3D render',
+    interiors: 'İç mekân görselleştirme hizmetleri',
+    germany: 'Almanya için mimari görselleştirme',
+    spain: 'İspanya için mimari render',
   },
   footer: {
     beginA: 'Tasarım',

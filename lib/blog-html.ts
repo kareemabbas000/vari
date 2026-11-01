@@ -26,7 +26,11 @@ export function slugifyHeading(text: string) {
 
 const decode = (s: string) => s.replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&quot;/g, '"').replace(/&#39;/g, "'").replace(/&nbsp;/g, ' ');
 
-export function renderArticle(html: string, localize: (path: string) => string): { html: string; toc: TocItem[] } {
+/** Built-in languages; callers pass the live registry so panel-added languages are covered too. */
+const DEFAULT_LOCALES = ['en', 'de', 'es', 'tr'];
+
+export function renderArticle(html: string, localize: (path: string) => string, locales: string[] = DEFAULT_LOCALES): { html: string; toc: TocItem[] } {
+  const hasLocale = (href: string) => locales.includes(href.split('/')[1]?.toLowerCase() ?? '');
   const clean = sanitizeHtml(html || '', {
     allowedTags: ['p', 'h2', 'h3', 'h4', 'strong', 'b', 'em', 'i', 'u', 's', 'mark', 'a', 'ul', 'ol', 'li', 'blockquote', 'figure', 'figcaption', 'img', 'hr', 'br', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'div', 'iframe', 'code', 'span'],
     allowedAttributes: {
@@ -52,7 +56,7 @@ export function renderArticle(html: string, localize: (path: string) => string):
         if (/^https?:\/\//i.test(href) && !/^https?:\/\/(www\.)?vari-studio\.com/i.test(href)) {
           return { tagName: 'a', attribs: { href, target: '_blank', rel: 'noopener noreferrer' } };
         }
-        if (href.startsWith('/') && !/^\/(en|de|es)(\/|$)/.test(href)) return { tagName: 'a', attribs: { href: localize(href) } };
+        if (href.startsWith('/') && !hasLocale(href)) return { tagName: 'a', attribs: { href: localize(href) } };
         return { tagName: 'a', attribs: { href } };
       },
       img: (tag, attribs) => ({ tagName: 'img', attribs: { ...attribs, loading: 'lazy', decoding: 'async' } as Record<string, string> }),

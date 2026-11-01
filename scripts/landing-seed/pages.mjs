@@ -27,9 +27,9 @@ export default [
     seo: {
       title: t('3D Rendering Services for Real Estate Developers | VARI', 'Visualisierung für Bauträger und Projektentwickler', 'Render 3D para promotoras inmobiliarias | VARI'),
       description: t(
-        'Photorealistic 3D rendering services for real estate developers: exteriors, interiors, animations and virtual tours to sell off-plan, convince investors and win approvals.',
-        'Fotorealistische 3D-Visualisierung für Bauträger: Außen- und Innenansichten, Animationen und virtuelle Rundgänge für Vertriebsstart, Investoren und Bauantrag.',
-        'Render 3D fotorrealista para promotoras: exteriores, interiores, animaciones y tours virtuales para vender sobre plano, convencer a inversores y obtener licencias.',
+        'Photorealistic 3D rendering for real estate developers: exteriors, interiors, animations and virtual tours to sell off-plan and win investors.',
+        'Fotorealistische 3D-Visualisierung für Bauträger: Außen- und Innenansichten, Animationen und Rundgänge für Vertriebsstart, Investoren und Bauantrag.',
+        'Render 3D fotorrealista para promotoras: exteriores, interiores, animaciones y tours virtuales para vender sobre plano y convencer a inversores.',
       ),
       image: IMG.urbanNest,
     },
@@ -152,9 +152,9 @@ export default [
     seo: {
       title: t('Architectural Visualization for Projects in Germany | VARI', 'Architekturvisualisierung für Projekte in Deutschland', 'Visualización arquitectónica para Alemania | VARI'),
       description: t(
-        'Photorealistic architectural visualization for architects and developers in Germany — exteriors, interiors and animation, with remote collaboration and clear milestones.',
-        'Fotorealistische Architekturvisualisierung für Architekten und Bauträger in Deutschland – Außen- und Innenansichten, Animationen, remote und mit klaren Meilensteinen.',
-        'Visualización arquitectónica fotorrealista para arquitectos y promotoras en Alemania: exteriores, interiores y animación, con trabajo remoto e hitos claros.',
+        'Photorealistic architectural visualization for architects and developers in Germany: exteriors, interiors and animation, with clear milestones.',
+        'Fotorealistische Architekturvisualisierung für Architekten und Bauträger in Deutschland: Außen- und Innenansichten, Animationen, klare Meilensteine.',
+        'Visualización arquitectónica fotorrealista para arquitectos y promotoras en Alemania: exteriores, interiores y animación, con hitos claros.',
       ),
       image: IMG.hne,
     },
@@ -200,7 +200,7 @@ export default [
       title: t('Architectural Rendering for Projects in Spain | VARI Studio', 'Architekturvisualisierung für Projekte in Spanien', 'Render arquitectónico para proyectos en España | VARI'),
       description: t(
         'Photorealistic architectural rendering for developers, architects and interior designers in Spain: exteriors, interiors, animation and virtual tours.',
-        'Fotorealistische Architekturvisualisierung für Bauträger, Architekten und Innenarchitekten in Spanien: Außen- und Innenansichten, Animationen und Rundgänge.',
+        'Fotorealistische Architekturvisualisierung für Bauträger, Architekten und Innenarchitekten in Spanien: Außen- und Innenansichten und Animationen.',
         'Render arquitectónico fotorrealista para promotoras, arquitectos e interioristas en España: exteriores, interiores, animación y tours virtuales.',
       ),
       image: IMG.blackHome,

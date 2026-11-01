@@ -1,5 +1,4 @@
 import type { Metadata } from 'next';
-import { Suspense } from 'react';
 import WorkIndex from '@/components/work/WorkIndex';
 import { isLocale, type Locale } from '@/lib/i18n/config';
 import { fmt } from '@/lib/i18n';
@@ -35,9 +34,7 @@ export default async function WorkPage({ params }: { params: Promise<Params> }) 
       </h1>
       <p className="mt-8 max-w-xl text-bone/70">{t.work.intro}</p>
       <div className="mt-16">
-        <Suspense>
-          <WorkIndex />
-        </Suspense>
+        <WorkIndex />
       </div>
     </div>
     </PageBlocks>

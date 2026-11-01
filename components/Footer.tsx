@@ -8,6 +8,7 @@ import { fmt } from '@/lib/i18n';
 import { useI18n } from './I18nProvider';
 import { ConsentLink } from './Tracking';
 import { NavLink, useNav } from './nav';
+import { SOLUTION_LINKS } from '@/lib/solutions';
 
 export default function Footer() {
   const { t, href, settings } = useI18n();
@@ -89,7 +90,16 @@ export default function Footer() {
         </div>
       )}
 
-      <div className="wrap flex flex-col items-start justify-between gap-4 border-t border-bone/10 mt-8 py-5 text-xs text-bone/50 sm:flex-row sm:items-center">
+      <nav aria-label={t.solutions.label} className="wrap mt-8 flex flex-wrap items-baseline gap-x-6 gap-y-2 border-t border-bone/10 pt-5 text-xs text-bone/50">
+        <span className="label text-[0.65rem] text-gold/70">{t.solutions.label}</span>
+        {SOLUTION_LINKS.map((s) => (
+          <Link key={s.key} href={href(s.path)} className="link-line hover:text-bone">
+            {t.solutions[s.key]}
+          </Link>
+        ))}
+      </nav>
+
+      <div className="wrap flex flex-col items-start justify-between gap-4 border-t border-bone/10 mt-5 py-5 text-xs text-bone/50 sm:flex-row sm:items-center">
         <div className="flex flex-wrap items-center gap-x-6 gap-y-2">
           {/* Year is computed, so it never goes stale. */}
           <p suppressHydrationWarning>{fmt(t.common.copyright, { year: new Date().getFullYear() })}</p>

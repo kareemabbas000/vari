@@ -35,7 +35,7 @@ Nothing below changes a URL or an indexing directive without a stated reason and
 | T4 | The 19 project pages are thin (34–127 words, no H2). Titles are project names with no topic. 12 of 19 meta descriptions are 16–43 characters | S2 | Template + VARI input | Dev + VARI |
 | T5 | Home page: 380-character Wix-era meta description, and an H1 with no topical signal | S2 | Copy | Editor |
 | T6 | Double brand in titles ("… \| VARI — VARI Studio"). 69–75 characters, so truncated in search results | S2 | Template fix | Dev |
-| T7 | Slow lab LCP (6.5–9.8 s on throttled mobile). The hero image has no `fetchpriority`/preload | S2 | Small code fix + verify in GSC | Dev |
+| T7 | Slow lab LCP (6.5–9.8 s on throttled mobile). **Correction:** the LCP image *is* preloaded; the cause is image weight on the Wix CDN and the intro sequence | S2 | Verify in GSC first | Dev |
 | T8 | Social-share (OG) image served as **AVIF**, which Facebook, LinkedIn and WhatsApp previews don't support | S2 | One-line loader change | Dev |
 | T9 | Missing alt text: 1 per project page, 5 on home, 4 on the interior landing page | S3 | Small | Dev + editor |
 | T10 | Structured data is incomplete: no linked `Organization`/`WebSite` graph, no `Service`, no `BreadcrumbList` on projects | S3 | Small | Dev |
@@ -173,12 +173,12 @@ Nothing below changes a URL or an indexing directive without a stated reason and
 | `/en/blog/architectural-rendering-cost` | 6.5 s | 1.1 s | 0.013 |
 
 - FCP is fast and HTML comes from the Vercel cache, so the server isn't the problem.
-- LCP is the large hero render loading late: no `fetchpriority="high"` or image preload anywhere, the images come from a third-party CDN, and the home hero sits behind the intro sequence.
+- **Correction (2026-11-01, after implementation review):** the first draft of this audit said there was no image preload. That was wrong. The hero, project-cover and article-cover images already use `priority`, and the HTML carries `<link rel="preload" as="image">` for them.
+- LCP is therefore the weight of large renders from the Wix CDN on a slow connection, plus the home hero sitting behind the intro sequence.
 
 **Fix:**
-- Add `priority` on the first visible `next/image` per page (hero, project cover, article cover). That adds the preload + `fetchpriority`.
-- Make sure the intro overlay doesn't delay the LCP element for returning visitors.
-- **Verify in GSC → Core Web Vitals (field data) before investing more:** lab throttling exaggerates.
+- **Verify in GSC → Core Web Vitals (field data) first:** lab throttling exaggerates.
+- If field LCP is poor: serve smaller hero widths on mobile (a `sizes` review), move hero renders to Supabase Storage or another image CDN, and let returning visitors skip the intro overlay.
 
 ### T8 · OG image is AVIF
 **Evidence:** `og:image = …/v1/fit/w_1200,h_2400,q_82,enc_avif,…`.
@@ -226,6 +226,23 @@ Fix all three before Turkish or Arabic is enabled.
 - Bing Webmaster: import from GSC, submit the sitemap
 
 ---
+
+## Implementation status (2026-11-01, branch `claude/focused-brown-1gbjpf`)
+
+| # | Status | What changed | Verified |
+| --- | --- | --- | --- |
+| T2 | **Fixed** | `WorkIndex` reads `?filter=` after mount; no `useSearchParams` / Suspense bailout | Local production build: 19 project links in `/en/work` HTML, no bailout marker; CLS 0.439 → 0.001 (same throttled profile) |
+| T3 | **Fixed** | "Specialist services" section on `/services` + footer links on every page (`lib/solutions.ts`, `solutions` dictionary section in 4 languages) | 4/4 landing pages linked from `/services` and every page's footer |
+| T4 | **Partly fixed** | Project titles and descriptions built from the project's own label and location (e.g. "Black Home — Exterior residential project"). Case-study content still needs VARI input | Titles ≤ 61 characters incl. brand |
+| T5 | **Fixed in code** | New home meta description in EN/DE/ES/TR dictionaries (130–150 characters). If a description was saved in Panel → Settings → SEO, that one still wins | `/en` description 130 characters |
+| T6 | **Fixed** | `seoTitle()`: custom SEO titles that already name VARI are absolute; article titles get "\| VARI Studio" only if ≤ 60 characters. Landing-page descriptions shortened via `scripts/db/seo-launch-fixes.sql` | "3D Rendering Services for Real Estate Developers \| VARI" (55) |
+| T7 | Corrected, no change needed now | See T7 above | — |
+| T8 | **Fixed** | `ogImageUrl()`: 1200×630 crop in the source format for home, projects and articles | Card URL returns 200 `image/png` |
+| T9 | **Fixed** | Hero and interior images use their media alt text; gallery blocks reuse the portfolio's localized alt text | Interior landing: 4 → 0 empty alts; home: 5 → 3 (the 3 left are decorative, inside `aria-hidden`) |
+| T10 | **Fixed** | One graph: `ProfessionalService` `#org` + `WebSite`; projects as `CreativeWork` (creator → `#org`, `contentLocation`) + `BreadcrumbList` | JSON-LD parsed from local build |
+| T13 | **Partly fixed** | Build-time `lastModified` removed from pages without a real date; image sitemap still open | — |
+| T14 | **Fixed** | Article links accept any registered language; DeepL accepts all its target languages; reserved slugs include `tr` + panel presets + `answers`/`glossary` | `tsc`, lint, build pass |
+| T1 | **Ready, owner action** | German dictionary reviewed (one terminology fix: VARI's service is "Interior Design", not the protected "Innenarchitektur"); stored articles fixed by SQL; switch commented in `scripts/db/seo-launch-fixes.sql` | Needs a native proofreader's sign-off |
 
 ## Implementation order
 

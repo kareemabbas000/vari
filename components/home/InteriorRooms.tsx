@@ -78,7 +78,7 @@ export default function InteriorRooms() {
       <div data-threshold className="relative h-[180vh]">
         <div className="sticky top-0 h-[100svh] overflow-hidden">
           <div data-door className="absolute inset-0" style={{ clipPath: 'inset(0% 0% 0% 0%)' }}>
-            <Image src={first.id} alt="" fill sizes="100vw" className="object-cover" />
+            <Image src={first.id} alt={first.alt} fill sizes="100vw" className="object-cover" />
             <div className="absolute inset-0 bg-night/45" />
           </div>
           <div data-door-title className="pointer-events-none absolute inset-0 flex flex-col items-center justify-center px-[var(--gutter)] text-center">

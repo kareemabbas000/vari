@@ -9,13 +9,17 @@ import { fmt } from '@/lib/i18n';
 import { isLocale, localizePath, type Locale } from '@/lib/i18n/config';
 import { getLanguages } from '@/lib/i18n/languages';
 import { site } from '@/lib/content';
-import { mediaUrl } from '@/lib/image-loader';
+import { mediaUrl, ogImageUrl } from '@/lib/image-loader';
 import PostCard, { BlogCta } from '@/components/blog/PostCard';
 import { ReadingProgress, ShareBar, Toc } from '@/components/blog/ArticleUi';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 const BASE = site.url.replace(/\/$/, '');
 const abs = (src: string) => (/^https?:/.test(src) ? src : mediaUrl(src, 1600));
+/** Social cards: 1200×630 in the source format (social platforms cannot show AVIF). */
+const og = (src: string) => (/^https?:/.test(src) ? src : ogImageUrl(src));
+/** Brand suffix only when the whole title still fits in a search result (~60 characters). */
+const withBrand = (title: string) => (/\bVARI\b/.test(title) || title.length + 15 > 60 ? title : `${title} | VARI Studio`);
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
@@ -24,9 +28,9 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!post) return {};
   const title = post.seoTitle || post.title;
   const description = post.seoDescription || post.excerpt;
-  const image = post.cover ? abs(post.cover) : undefined;
+  const image = post.cover ? og(post.cover) : undefined;
   return {
-    title: { absolute: `${title} | VARI Studio` },
+    title: { absolute: withBrand(title) },
     description,
     alternates: await postAlternates(locale, post.translations),
     authors: post.author ? [{ name: post.author.name, url: localizePath(locale, `/blog/author/${post.author.slug}`) }] : undefined,
@@ -40,7 +44,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
       section: post.category?.name,
       tags: post.tags.map((t) => t.name),
       locale: langs.byCode[locale]?.og,
-      images: image ? [{ url: image, width: 1600, alt: post.coverAlt }] : undefined,
+      images: image ? [{ url: image, width: 1200, height: 630, alt: post.coverAlt }] : undefined,
     },
     twitter: { card: 'summary_large_image', title, description, images: image ? [image] : undefined },
   };
@@ -52,7 +56,7 @@ export default async function ArticlePage({ params }: Props) {
   const [post, { t }, all, langs] = await Promise.all([getPost(l, slug), getSiteContent(l), getPosts(l), getLanguages()]);
   if (!post) notFound();
   const href = (p: string) => localizePath(l, p);
-  const { html, toc } = renderArticle(post.html, href);
+  const { html, toc } = renderArticle(post.html, href, langs.all.map((l) => l.code));
   const url = `${BASE}${href(`/blog/${post.slug}`)}`;
   const related = [...all.filter((p) => p.id !== post.id && p.category?.slug === post.category?.slug), ...all.filter((p) => p.id !== post.id && p.category?.slug !== post.category?.slug)].slice(0, 3);
   const minutes = readingMinutes(post.words);

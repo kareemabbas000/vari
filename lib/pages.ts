@@ -47,11 +47,16 @@ export function pageMeta(page: PublicPage | null, locale: Locale) {
   };
 }
 
+/** A custom SEO title that already names the brand is used as-is; otherwise the site template adds it. */
+export function seoTitle(title: string) {
+  return /\bVARI\b/.test(title) ? { absolute: title } : title;
+}
+
 /** Apply a page's SEO overrides to the metadata a page computes by default. */
 export function withSeo<M extends { title?: unknown; description?: unknown; openGraph?: unknown; robots?: unknown }>(seo: ReturnType<typeof pageMeta>, meta: M): M {
   return {
     ...meta,
-    ...(seo.title ? { title: seo.title } : {}),
+    ...(seo.title ? { title: seoTitle(seo.title) } : {}),
     ...(seo.description ? { description: seo.description } : {}),
     ...(seo.image ? { openGraph: { ...((meta.openGraph as object) || {}), images: [{ url: seo.image }] } } : {}),
     ...(seo.noindex ? { robots: { index: false, follow: true } } : {}),

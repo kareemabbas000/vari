@@ -31,7 +31,7 @@ ${tip('<p><strong>Ask about variants:</strong> day and night versions, alternati
 <p>Meist zwei bis vier Außenansichten (Straße, Garten, Dämmerung) und zwei bis drei Innenräume. Das Modell ist kompakt, deshalb sind weitere Ansichten nach der ersten effizient.</p>
 <h3>Mehrfamilienhaus oder Wohnquartier</h3>
 <p>Eine Hauptansicht, ein bis zwei Umgebungsansichten, eine typische Wohnung innen, Gemeinschaftsflächen und oft ein Luftbild. Weil viele Bilder dasselbe Modell teilen, sinkt der Preis pro Bild mit der Größe des Pakets – die erste Modellierungsphase ist aber umfangreicher.</p>
-<h3>Innenarchitektur-Projekt</h3>
+<h3>Interior-Design-Projekt</h3>
 <p>Zwei bis drei Ansichten pro wichtigem Raum. Einbauten, Licht und Möblierung sind der Hauptaufwand; Visualisierungen dienen oft dazu, Materialvarianten vor der Bestellung zu vergleichen.</p>
 <h3>Gewerbe und Hotellerie</h3>
 <p>Foyers, Restaurants, Büros und Läden brauchen markenspezifische Details, Beschilderung und Personen. Rechnen Sie mit höheren Bildpreisen und planen Sie Zeit für Freigaben auf mehreren Ebenen ein.</p>

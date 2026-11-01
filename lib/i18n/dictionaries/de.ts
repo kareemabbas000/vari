@@ -11,9 +11,10 @@ const de: Dictionary = {
     siteTitle: 'VARI Studio — Architektur, Interior Design & 3D-Visualisierung',
     titleTemplate: '%s — VARI Studio',
     description:
-      'VARI Studio – Experten für Architektur und Interior Design mit hochwertigen 3D-Visualisierungen für Wohn-, Gewerbe- und Hotelprojekte. Mit fotorealistischen Renderings erwecken wir Ihre Konzepte zum Leben – inspirierend und überzeugend. Kunden weltweit vertrauen uns, wenn aus Visionen Wirklichkeit werden soll. Entdecken Sie unser Portfolio und heben Sie Ihr nächstes Projekt mit VARI Studio auf ein neues Niveau.',
+      'Architektur, Interior Design und fotorealistische 3D-Visualisierung aus Kairo – für Bauträger, Architekturbüros und Bauherren weltweit.',
     ogTitle: 'VARI Studio — Elegante Räume im Einklang mit den Elementen',
     ogAlt: 'The Urban Nest — Visualisierung von VARI Studio',
+    projectDescription: '{title} — {label}{where}, visualisiert von VARI Studio: Architektur, Interior Design und fotorealistische 3D-Visualisierung.',
     workTitle: 'Projekte',
     workDescription: 'Architektur- und Innenraumvisualisierungen von VARI Studio – {n} Projekte, außen wie innen.',
     studioTitle: 'Unser Konzept',
@@ -230,6 +231,13 @@ const de: Dictionary = {
     mailSubject: 'Newsletter-Anmeldung',
     mailBody: 'Bitte nehmen Sie {email} in den Newsletter von VARI Studio auf.',
   },
+  solutions: {
+    label: 'Spezialisierte Leistungen',
+    developers: '3D-Visualisierung für Bauträger',
+    interiors: 'Innenraumvisualisierung',
+    germany: 'Architekturvisualisierung für Deutschland',
+    spain: 'Architekturvisualisierung für Spanien',
+  },
   footer: {
     beginA: 'Beginnen Sie Ihre',
     beginItalic: 'Designreise',
@@ -318,9 +326,9 @@ const de: Dictionary = {
   blog: {
     label: 'Blog',
     title: 'Gedanken zu *Design* und Visualisierung',
-    intro: 'Ratgeber, Einblicke und Hintergründe von VARI Studio — zu 3D-Rendering, Innenarchitektur und der Präsentation von Architektur, bevor sie gebaut ist.',
-    metaTitle: 'Blog — Wissen zu 3D-Visualisierung & Innenarchitektur',
-    metaDescription: 'Praxisnahe Ratgeber und Ideen zu 3D-Architekturvisualisierung, Innenarchitektur und Renderings für Bauträger, Architekten und Bauherren — von VARI Studio.',
+    intro: 'Ratgeber, Einblicke und Hintergründe von VARI Studio — zu 3D-Rendering, Interior Design und der Präsentation von Architektur, bevor sie gebaut ist.',
+    metaTitle: 'Blog — Wissen zu 3D-Visualisierung & Interior Design',
+    metaDescription: 'Praxisnahe Ratgeber und Ideen zu 3D-Architekturvisualisierung, Interior Design und Renderings für Bauträger, Architekten und Bauherren — von VARI Studio.',
     all: 'Alle Artikel',
     featured: 'Empfohlen',
     latest: 'Neueste Artikel',
