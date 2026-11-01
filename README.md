@@ -5,6 +5,8 @@
 - [docs/CONTENT-PIPELINE.md](docs/CONTENT-PIPELINE.md): CMS read path, languages, page builder, blog, media, caching
 - [docs/KNOWLEDGE-ECOSYSTEM.md](docs/KNOWLEDGE-ECOSYSTEM.md): LLM / answer-engine knowledge ecosystem: architecture, page types, measurement
 - [docs/QUESTION-MAP.md](docs/QUESTION-MAP.md): real questions people ask, clustered by domain, with priorities and the monthly prompt bank
+- [docs/seo/STRATEGY.md](docs/seo/STRATEGY.md): organic growth master strategy (research, 10 articles, multilingual, off-page, measurement, roadmap)
+- [docs/seo/TECHNICAL-AUDIT.md](docs/seo/TECHNICAL-AUDIT.md): live-site technical SEO audit with evidence and fixes
 - [docs/CONTROL_PANEL.md](docs/CONTROL_PANEL.md): control panel setup, roles and verification checklist
 
 
