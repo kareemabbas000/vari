@@ -6,7 +6,7 @@
 | --- | --- |
 | Status | **Final v1 (2026-11-01)**, author VARI Studio |
 | Title tag (51) | `Architect vs Interior Architect vs Interior Designer` |
-| Meta description (151) | `Who does what, where the legal lines are, how fees usually work, and which professional your project needs: a clear guide for homeowners and businesses.` |
+| Meta description | `Architect vs interior designer vs interior architect: who does what, where the legal lines are, how fees work and which one your project needs.` |
 | URL slug | `/en/blog/architect-vs-interior-architect-vs-interior-designer` |
 | H1 | Architect, Interior Architect or Interior Designer: Who Do You Need? |
 | Primary keyword | architect vs interior designer |
@@ -37,7 +37,7 @@ Which one you need depends on one question: **what is your project going to chan
 
 Many projects need more than one of these. A villa needs an architect for the building and an interior designer for the rooms, and the result is better when they talk early.
 
-## What each one actually does
+## Architect vs interior designer: what each one actually does
 
 **Architects** take a project from brief and site through concept, design development and technical drawings to permits and, often, supervision on site. They coordinate engineers and are accountable for compliance with building regulations.
 

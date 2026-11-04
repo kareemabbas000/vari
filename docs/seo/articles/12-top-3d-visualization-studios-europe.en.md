@@ -62,7 +62,7 @@ To keep this guide useful, we included a studio only if it has an independent si
 
 **MIR** (Norway), founded in 2000, and **Luxigon** (Paris) were both featured by ArchDaily among distinguished visualization studios. MIR is known for atmospheric, landscape-led imagery, and Luxigon for bold competition imagery. We profile both in our evergreen guide to [the best architectural visualization studios](/en/blog/best-architectural-visualization-studios).
 
-## What the European map tells a buyer
+## Choosing among the top visualization studios in Europe
 
 **Award-level quality is available across the continent.** You no longer need to hire in a capital city to get recognised work. Several of the most decorated recent studios are in Central and Eastern Europe.
 

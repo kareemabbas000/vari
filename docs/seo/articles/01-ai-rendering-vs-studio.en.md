@@ -6,7 +6,7 @@
 | --- | --- |
 | Status | **Final v1 (2026-11-01)**: VARI input received (uses AI; author VARI Studio) |
 | Language / market | English, worldwide. German adaptation: `01-ai-rendering-vs-studio.de.md` (written separately, not translated) |
-| Title tag (58) | `AI Rendering vs Professional Archviz: What AI Can't Do Yet` |
+| Title tag | `AI Architectural Rendering vs a Pro Studio: What AI Can't Do` |
 | Meta description (155) | `AI image tools changed early design work. Here's where AI architectural rendering is genuinely useful, where it breaks down, and when a studio still matters.` |
 | URL slug | `/en/blog/ai-architectural-rendering-vs-studio` |
 | H1 | AI Architectural Rendering vs a Professional Studio: What AI Can and Can't Do |
@@ -39,11 +39,11 @@
 
 # AI Architectural Rendering vs a Professional Studio: What AI Can and Can't Do
 
-Type a sentence into an image model and, a few seconds later, you have a glass villa on a cliff at sunset. A few years ago that picture would have taken a visualization artist days. It is no surprise that architects, developers and students now ask the same question in every forum: why pay for rendering at all?
+Type a sentence into an image model and, a few seconds later, you have a glass villa on a cliff at sunset. A few years ago that picture would have taken a visualization artist days. It is no surprise that architects, developers and students now ask the same question in every forum: why pay for architectural rendering at all?
 
 The honest answer is that AI image tools are extraordinary at one half of the job and unreliable at the other. Knowing which half your project is in decides whether AI saves you a week or costs you a launch.
 
-## Two different jobs that both get called "rendering"
+## AI architectural rendering and 3D production are two different jobs
 
 Design moves through two kinds of thinking. Early on it diverges: you want many options, quickly, to discover what a building could be. Later it converges: one design is chosen, and every image must show *that* design, with that window rhythm, that cladding, that stair, from every angle, without drifting.
 

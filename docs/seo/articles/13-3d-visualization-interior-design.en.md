@@ -61,7 +61,7 @@ Clients, partners, landlords and investors approve what they understand. A consi
 
 A render placed next to the drawings helps joiners, upholsterers and installers understand the intent behind a detail. It does not replace technical drawings, but it answers the questions drawings leave open: how a reveal should read, where a light washes, how materials meet.
 
-## Making sure the image tells the truth
+## Making 3D visualization in interior design trustworthy
 
 An interior render is only useful if it can be trusted. Ask for eye-level cameras, furniture at its real size, the real products where available, and a daylight view alongside any evening mood. We explain why in [Renders vs Reality](/en/blog/renders-vs-reality).
 
@@ -84,6 +84,9 @@ Yes. Many manufacturers provide 3D models of their products, and other items can
 Designers who render daily often use real-time tools in-house. For client presentations, marketing images and complex lighting, many outsource to a specialist studio.
 
 ---
+
+### Sources
+- BIMobject, a platform where manufacturers publish 3D and BIM models of their products: bimobject.com
 
 ### Editorial QA
 - [x] Distinct intent from the interior rendering guide (decisions vs process)

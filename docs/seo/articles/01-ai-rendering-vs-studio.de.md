@@ -7,7 +7,7 @@
 | Status | **Final v1 (01.11.2026). VARI-Input erhalten; KI-Lektorat erfolgt, muttersprachliche Freigabe vor dem Deutsch-Start empfohlen.** Voraussetzung: Deutsch ist in Produktion aktiviert (TECHNICAL-AUDIT T1) |
 | Markt | Deutschland, Österreich, Schweiz |
 | Title-Tag (58) | `Architekturvisualisierung mit KI: Was sie kann – und was nicht` |
-| Meta Description (153) | `KI-Bilder sind schnell, aber nicht verbindlich. Wo KI in der Architekturvisualisierung hilft, wo sie scheitert und wann Wettbewerb und Vermarktung ein Studio brauchen.` |
+| Meta Description (131) | `Architekturvisualisierung mit KI: wo sie hilft, wo sie scheitert und wann Wettbewerb, Bauantrag und Vermarktung ein Studio brauchen.` |
 | URL | `/de/blog/architekturvisualisierung-ki` |
 | H1 | Architekturvisualisierung mit KI: Was sie heute leistet – und wo sie scheitert |
 | Haupt-Keyword | architekturvisualisierung ki |
@@ -29,7 +29,7 @@
 
 # Architekturvisualisierung mit KI: Was sie heute leistet – und wo sie scheitert
 
-Ein Satz in ChatGPT oder Midjourney, und Sekunden später steht da ein Holzbau im Abendlicht, mit Kiefern im Hintergrund und Menschen auf dem Vorplatz. Vor wenigen Jahren hätte so ein Bild ein Visualisierungsbüro mehrere Tage gekostet. Kein Wunder also, dass in Architekturbüros und bei Bauträgern dieselbe Frage auftaucht: Brauchen wir für Visualisierungen überhaupt noch ein Studio?
+Ein Satz in ChatGPT oder Midjourney, und Sekunden später steht da ein Holzbau im Abendlicht, mit Kiefern im Hintergrund und Menschen auf dem Vorplatz. Vor wenigen Jahren hätte so ein Bild ein Visualisierungsbüro mehrere Tage gekostet. Kein Wunder also, dass in Architekturbüros und bei Bauträgern dieselbe Frage auftaucht: Brauchen wir für die Architekturvisualisierung überhaupt noch ein Studio?
 
 Die kurze Antwort: für manche Bilder nicht mehr, für andere mehr denn je. Entscheidend ist, wofür das Bild gebraucht wird.
 
@@ -41,7 +41,7 @@ Generative KI ist ein Werkzeug für die Suche. Ein Bildmodell erzeugt aus einer 
 
 Die klassische Architekturvisualisierung ist ein Werkzeug für das Festlegen. Grundlage ist ein 3D-Modell aus den Plänen, also aus Grundrissen, Ansichten und Schnitten, mit physikalisch korrekten Materialien und echtem Licht. Ändert man das Sofa, ändert sich nur das Sofa. Bewegt man die Kamera, bleibt das Gebäude dasselbe.
 
-## Wo KI wirklich hilft
+## Wo KI in der Architekturvisualisierung wirklich hilft
 
 **Vorentwurf und Atmosphäre.** Im ersten Gespräch mit Bauherrinnen und Bauherren klären KI-Bilder schnell, wohin die Reise geht: helles Holz oder dunkler Klinker, nordisch-reduziert oder warm und wohnlich.
 

@@ -89,7 +89,7 @@ def parse(path: Path):
     title = re.search(r'^# (.+)$', article, re.M).group(1).strip()
     article = re.sub(r'^# .+$', '', article, count=1, flags=re.M)
     # FAQ → structured field; everything after it (references) stays as a "Sources" section.
-    faq_head = re.search(r'^## (FAQ|Häufige Fragen)\s*$', article, re.M)
+    faq_head = re.search(r'^## (FAQ|Häufige Fragen|Preguntas frecuentes|Sıkça sorulan sorular)\s*$', article, re.M)
     faq, refs = [], ''
     if faq_head:
         before, after = article[: faq_head.start()], article[faq_head.end():]
@@ -101,11 +101,21 @@ def parse(path: Path):
     meta = dict(re.findall(r'^\| (Title tag|Title-Tag)[^|]*\| `([^`]+)` \|', text, re.M))
     seo_title = next(iter(meta.values()), title)
     seo_desc = re.search(r'^\| Meta [Dd]escription[^|]*\| `([^`]+)` \|', text, re.M).group(1)
-    slug = re.search(r'^\| (URL slug|URL) \| `/(?:en|de)/blog/([^`]+)` \|', text, re.M).group(2)
+    slug = re.search(r'^\| (URL slug|URL) \| `/[a-z]{2}/blog/([^`]+)` \|', text, re.M).group(2)
     focus = re.search(r'^\| (Primary keyword|Haupt-Keyword) \| ([^|]+) \|', text, re.M).group(2).strip()
-    html_body = body_html(article) + ('\n' + body_html(refs) if refs else '')
+    refs_html = body_html(refs) if refs else ''
+    # Sources are written as bare addresses (archdaily.com/941488); make each a real, clickable link.
+    refs_html = re.sub(r'(?<![\w/">])((?:www\.)?[a-z0-9-]+(?:\.[a-z0-9-]+)*\.(?:com|org|de|at|net|io|co|ai|archi)(?:/[^\s<,;·)…]*)?)',
+                       lambda m: f'<a href="https://{m.group(1).rstrip(".")}">{m.group(1).rstrip(".")}</a>', refs_html)
+    html_body = body_html(article) + ('\n' + refs_html if refs_html else '')
     words = len(re.sub(r'<[^>]+>', ' ', html_body).split())
-    return dict(title=title, slug=slug, seo_title=seo_title, seo_desc=seo_desc, focus=focus.split(' (')[0], html=html_body, faq=faq, words=words)
+    # Optional, used by translated files: excerpt, cover alt text and takeaways live in the file itself.
+    excerpt = (re.search(r'^\| Excerpt \| `([^`]+)` \|', text, re.M) or [None, None])[1]
+    cover_alt = (re.search(r'^\| Cover alt \| `([^`]+)` \|', text, re.M) or [None, None])[1]
+    tk = re.search(r'^### Takeaways\n((?:- .+\n)+)', text, re.M)
+    takeaways = [l[2:].strip() for l in tk.group(1).splitlines()] if tk else None
+    return dict(title=title, slug=slug, seo_title=seo_title, seo_desc=seo_desc, focus=focus.split(' (')[0].split(' · ')[0].strip(), html=html_body, faq=faq, words=words,
+                excerpt=excerpt, cover_alt=cover_alt, takeaways=takeaways)
 
 
 POSTS = [
@@ -244,6 +254,43 @@ COVERS = {
 }
 
 
+# Portfolio images placed inside each article: (media id, project name). Alt text is built per language.
+WIX = lambda id, w=1800: f"https://static.wixstatic.com/media/{id}/v1/fit/w_{w},h_{w * 2},q_82,enc_avif,quality_auto/{id}"
+IMG = {
+    'hne': '8b4d4f_52780c64f74a4a3dac703141b59358c2~mv2.png', 'hearth': 'b80319_962a6cc04617409f94ea031705d4ee66~mv2.png',
+    'penthouse': '8b4d4f_2762a08d2c794d689b134249fc6cabac~mv2.png', 'lightDark': '8b4d4f_df3765a13fea45d5ba0da2dc00f8b694~mv2.png',
+    'blackHome': '8b4d4f_525775bc11554914a009fed0206e2afc~mv2.png', 'urbanNest': 'b80319_425c2f36f32b420da9c91cbd856c607d~mv2.jpg',
+    'englishRoof': 'b80319_eaf114bae9ad46aebe7b9c11a9e978c2~mv2.png', 'roofGarden': '8b4d4f_d8c978fb79044dd5b22cf9f8edca55b7~mv2.png',
+    'usa': '8b4d4f_149006f8cd784a8998f7e2e140d9f1aa~mv2.jpg', 'constance': '8b4d4f_62ef08a1c1ce4732900dd4921a28094e~mv2.jpg',
+    'minimalWood': '8b4d4f_1bfd140a3aec4e58898b8812dfebcdec~mv2.png', 'elysian': '8b4d4f_ecc4d5d2e2734e05be4233cb2cb30abe~mv2.png',
+}
+NAMES = {'hne': 'HNE Laboratory', 'hearth': 'Hearthstone Haven', 'penthouse': 'Penthouse in Dark Mood', 'lightDark': 'Light in the Dark',
+         'blackHome': 'Black Home', 'urbanNest': 'The Urban Nest', 'englishRoof': 'Timeless English Roof Architecture', 'roofGarden': 'Roof & Garden',
+         'usa': 'Exterior Project USA', 'constance': 'Constance Ave', 'minimalWood': 'Minimal Wood', 'elysian': 'Elysian Aura'}
+ALT = {'en': '{n}: architectural visualization by VARI Studio', 'de': '{n}: Architekturvisualisierung von VARI Studio',
+       'es': '{n}: visualización arquitectónica de VARI Studio', 'tr': '{n}: VARI Studio mimari görselleştirmesi'}
+FIGURES = {
+    'renders-vs-reality': ['hearth', 'penthouse'], 'ai-architectural-rendering-vs-studio': ['hne'],
+    'best-architectural-visualization-studios': ['lightDark'], 'what-is-architectural-visualization': ['hearth'],
+    'best-rendering-software-for-architecture': ['lightDark'], 'outsourcing-architectural-rendering': ['blackHome'],
+    'architect-vs-interior-architect-vs-interior-designer': ['englishRoof'], 'best-3d-rendering-companies-2026': ['urbanNest'],
+    'top-3d-visualization-companies': ['penthouse'], 'top-3d-visualization-companies-germany': ['roofGarden'],
+    'top-3d-visualization-companies-united-states': ['blackHome'], 'top-3d-visualization-studios-europe': ['urbanNest', 'hearth'],
+    '3d-visualization-interior-design': ['hearth', 'penthouse'], '3d-visualization-interior-design-united-states': ['constance'],
+}
+
+
+def with_figures(html, keys, lang):
+    """Place each image before the 2nd, 4th… H2, so it breaks up the text where a reader expects a pause."""
+    parts = re.split(r'(?=<h2>)', html)
+    for i, k in enumerate(keys):
+        alt = ALT.get(lang, ALT['en']).format(n=NAMES[k]).replace('&', '&amp;').replace('"', '&quot;')
+        fig = f'<figure data-figure="" data-size="normal"><img src="{WIX(IMG[k])}" alt="{alt}" loading="lazy"></figure>\n'
+        pos = min(2 + 2 * i, len(parts) - 1)
+        parts[pos] = fig + parts[pos]
+    return ''.join(parts)
+
+
 def main():
     publish = '--publish' in sys.argv
     # --only <english-slug>[,<slug>…]: emit just that post, so republishing one article never touches
@@ -252,12 +299,24 @@ def main():
     if publish:
         print('-- Publishes the finished articles (author: VARI Studio). Generated by scripts/blog-seed/drafts-to-sql.py --publish.')
         print('-- Updates the drafts inserted earlier (matched by English slug) or creates them. Safe to re-run.')
-        print('-- German translations are stored as ready but stay invisible until German is switched on.\n')
+        print('-- Every language version in the files is published (ready) and appears on the site for each language that is switched on.\n')
     else:
         print('-- Article drafts generated by scripts/blog-seed/drafts-to-sql.py: UNPUBLISHED (status draft, ready = false).')
         print('-- Safe to re-run: a post found by its English slug is updated in place.\n')
     for category, langs in POSTS:
-        parsed = {l: (parse(ARTICLES / f), ex, tk) for l, (f, ex, tk) in langs.items()}
+        langs = dict(langs)
+        # Sibling language files (same name, .de.md / .es.md / .tr.md) are this post's translations.
+        base = langs['en'][0].removesuffix('.en.md')
+        for f in sorted(ARTICLES.glob(base + '.*.md')):
+            code = f.name[len(base) + 1:-3]
+            if code not in langs and re.fullmatch(r'[a-z]{2}', code):
+                langs[code] = (f.name, None, None)
+        parsed = {}
+        for l, (f, ex, tk) in langs.items():
+            p = parse(ARTICLES / f)
+            parsed[l] = (p, ex or p['excerpt'], tk or p['takeaways'])
+            if not parsed[l][1] or not parsed[l][2]:
+                sys.exit(f'{f}: excerpt and takeaways are required')
         en = parsed['en'][0]
         if only and en['slug'] not in only:
             continue
@@ -275,9 +334,11 @@ def main():
             faq.append(entry)
         cover, cover_alt = COVERS.get(en['slug'], (None, {}))
         alt = {l: a for l, a in cover_alt.items() if l in parsed}
+        alt.update({l: p['cover_alt'] for l, (p, _, _) in parsed.items() if p.get('cover_alt')})
         ready = 'true' if publish else 'false'
         rows = []
         for l, (p, excerpt, takeaways) in parsed.items():
+            p['html'] = with_figures(p['html'], FIGURES.get(en['slug'], []), l)
             rows.append('(pid, ' + ', '.join([q(l), q(p['slug']), q(p['title']), q(excerpt), q(p['html']), q(json.dumps(takeaways, ensure_ascii=False)) + '::jsonb',
                                              q(p['seo_title']), q(p['seo_desc']), q(p['focus']), ready, str(p['words'])]) + ')')
         status = "'published', publish_at = coalesce(publish_at, now())" if publish else "'draft'"

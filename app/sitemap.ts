@@ -2,7 +2,7 @@ import type { MetadataRoute } from 'next';
 import { site } from '@/lib/content';
 import { getProjectSlugs } from '@/lib/cms';
 import { getCustomPages } from '@/lib/pages';
-import { getAllPostSlugs } from '@/lib/blog';
+import { getAllPostSlugs, getPosts } from '@/lib/blog';
 import { localizePath } from '@/lib/i18n/config';
 import { getLanguages } from '@/lib/i18n/languages';
 
@@ -39,7 +39,20 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     languages['x-default'] = `${base}${localizePath(def.locale, `/blog/${def.slug}`)}`;
     return { url: `${base}${localizePath(p.locale, `/blog/${p.slug}`)}`, lastModified: new Date(p.updatedAt), priority: 0.7, alternates: { languages } };
   });
-  return [...articles, ...pages.flatMap(({ path, priority }) => {
+  // Category hubs, in each language where they hold at least two articles (the page is noindex below that).
+  const hubs = new Map<string, (typeof defaultLocale)[]>();
+  for (const { code } of enabled) {
+    const counts = new Map<string, number>();
+    (await getPosts(code)).forEach((p) => p.category && counts.set(p.category.slug, (counts.get(p.category.slug) || 0) + 1));
+    counts.forEach((n, slug) => n >= 2 && hubs.set(slug, [...(hubs.get(slug) || []), code]));
+  }
+  const categories: MetadataRoute.Sitemap = [...hubs].flatMap(([slug, codes]) => {
+    const url = (code: typeof defaultLocale) => `${base}${localizePath(code, `/blog/category/${slug}`)}`;
+    const languages = Object.fromEntries(codes.map((c) => [hreflang(c), url(c)]));
+    languages['x-default'] = url(codes.includes(defaultLocale) ? defaultLocale : codes[0]);
+    return codes.map((c) => ({ url: url(c), priority: 0.6, alternates: { languages } }));
+  });
+  return [...articles, ...categories, ...pages.flatMap(({ path, priority }) => {
     const languages = Object.fromEntries([
       ...enabled.map((l) => [l.hreflang, `${base}${localizePath(l.code, path)}`]),
       ['x-default', `${base}${localizePath(defaultLocale, path)}`],

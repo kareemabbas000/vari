@@ -7,7 +7,7 @@
 | Status | **Final v1 (2026-11-01)**: VARI input received (author: VARI Studio; camera positions on plan and daylight versions confirmed) |
 | Language / market | English; worldwide, with Dubai and other off-plan markets in mind |
 | Title tag (57) | `Renders vs Reality: How to Read an Off-Plan Render` |
-| Meta description (154) | `A render is a set of decisions, not a photograph. A visualization studio explains what lens, light, planting and editing change, and what buyers should ask.` |
+| Meta description | `Renders vs reality: a visualization studio explains what lens, light, planting and editing change in an off-plan render, and what buyers should ask.` |
 | URL slug | `/en/blog/renders-vs-reality` |
 | H1 | Renders vs Reality: How to Read an Architectural Render Before You Buy |
 | Primary keyword | renders vs reality (seen in autocomplete as "architecture rendering vs reality") |
@@ -41,11 +41,11 @@
 
 # Renders vs Reality: How to Read an Architectural Render Before You Buy
 
-A render is not a photograph of a building that doesn't exist yet. It is an argument for one. Every image a visualization studio delivers is the result of dozens of decisions: where the camera stands, how wide it sees, what hour the sun sits at, which trees have grown, what has been left out. Most of those decisions are legitimate. Some quietly change what you think you are buying.
+When people compare renders vs reality, the gap often surprises them, because a render is not a photograph of a building that doesn't exist yet. It is an argument for one. Every image a visualization studio delivers is the result of dozens of decisions: where the camera stands, how wide it sees, what hour the sun sits at, which trees have grown, what has been left out. Most of those decisions are legitimate. Some quietly change what you think you are buying.
 
 We make these images for a living, so this is a guide written from the other side of the screen. It is meant for buyers who are being shown a building through pictures, and for developers who want their pictures to hold up when the keys are handed over.
 
-## Every render is an edited view
+## Renders vs reality: every render is an edited view
 
 A photograph starts from reality and subtracts: it crops, it chooses a moment. A render starts from nothing and adds. Nothing appears in it unless someone put it there: a cloud, a car, a pot plant, the glow behind a window. That is why the useful question is never "is this render accurate?" but "which choices were made here, and do they change the facts I care about?"
 
