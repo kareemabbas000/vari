@@ -40,8 +40,25 @@ def body_html(md: str) -> str:
             out.append(f'<{tag}>' + ''.join(f'<li>{inline(i)}</li>' for i in items) + f'</{tag}>')
         para, items = [], []
 
+    table = []
+
+    def flush_table():
+        nonlocal table
+        rows = [[c.strip() for c in r.strip().strip('|').split('|')] for r in table if not re.match(r'^\|\s*:?-{3,}', r.strip())]
+        if rows:
+            head, body = rows[0], rows[1:]
+            out.append('<table><thead><tr>' + ''.join(f'<th>{inline(c)}</th>' for c in head) + '</tr></thead><tbody>'
+                       + ''.join('<tr>' + ''.join(f'<td>{inline(c)}</td>' for c in r) + '</tr>' for r in body) + '</tbody></table>')
+        table = []
+
     for line in md.splitlines():
         s = line.rstrip()
+        if s.lstrip().startswith('|'):
+            flush()
+            table.append(s)
+            continue
+        if table:
+            flush_table()
         if not s.strip():
             flush()
             continue
@@ -60,6 +77,8 @@ def body_html(md: str) -> str:
                 flush()
             para.append(s.strip())
     flush()
+    if table:
+        flush_table()
     return '\n'.join(out)
 
 
