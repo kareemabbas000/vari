@@ -19,7 +19,15 @@ export default function IndexNowCard() {
       setLast(json.note);
       return toast('info', json.note);
     }
-    if (!json.ok) return toast('error', `Search engines did not accept the list (status ${json.status ?? '—'}).`);
+    if (!json.ok) {
+      const why =
+        json.status === 403 ? ' The search engines could not verify the site key just now. This is usually temporary: try again in a few minutes.'
+        : json.status === 429 ? ' Too many submissions today. Try again tomorrow.'
+        : json.status === 422 ? ' Some addresses do not belong to this website.'
+        : '';
+      setLast(`Not accepted (status ${json.status ?? '—'}).${why}`);
+      return toast('error', `Search engines did not accept the list (status ${json.status ?? '—'}).${why}`);
+    }
     const msg = `${json.submitted} address${json.submitted === 1 ? '' : 'es'} sent, accepted (status ${json.status}).`;
     setLast(`${msg} ${new Date().toLocaleTimeString('en-GB', { hour: '2-digit', minute: '2-digit' })}`);
     toast('success', msg);
