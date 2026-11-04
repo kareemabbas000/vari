@@ -9,7 +9,7 @@ type Pillar = Dictionary['story']['pillars'][number];
 
 const tr: Dictionary = {
   meta: {
-    siteTitle: 'VARI Studio — Mimari, İç Mimari ve 3D Görselleştirme',
+    siteTitle: 'VARI — Mimari ve İç Mekân için 3D Görselleştirme Stüdyosu',
     titleTemplate: '%s — VARI Studio',
     description:
       'Kahire\'den mimari, iç mimari ve fotogerçekçi 3D görselleştirme — dünya genelinde geliştiriciler, mimarlar ve ev sahipleri için.',
@@ -50,7 +50,7 @@ const tr: Dictionary = {
   },
   disciplines: { Exterior: 'Dış Cephe', Interior: 'İç Mekân' },
   hero: {
-    label: 'Mimari · İç Mimari · 3D Görselleştirme',
+    label: '3D Görselleştirme Stüdyosu · Mimari · İç Mimari',
     line1: 'Zarif Mekânların',
     line2: 'Doğayla Buluştuğu Yer',
     italic: ['Mekânların'],

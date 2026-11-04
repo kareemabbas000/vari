@@ -8,7 +8,7 @@ import type { Dictionary } from './en';
  */
 const de: Dictionary = {
   meta: {
-    siteTitle: 'VARI Studio — Architektur, Interior Design & 3D-Visualisierung',
+    siteTitle: 'VARI — Studio für 3D-Visualisierung, Architektur & Interior',
     titleTemplate: '%s — VARI Studio',
     description:
       'Architektur, Interior Design und fotorealistische 3D-Visualisierung aus Kairo – für Bauträger, Architekturbüros und Bauherren weltweit.',
@@ -49,7 +49,7 @@ const de: Dictionary = {
   },
   disciplines: { Exterior: 'Außenraum', Interior: 'Innenraum' },
   hero: {
-    label: 'Architektur · Interior Design · 3D-Visualisierung',
+    label: 'Studio für 3D-Visualisierung · Architektur · Interior Design',
     line1: 'Elegante Räume',
     line2: 'im Einklang mit den Elementen',
     italic: ['Räume'],

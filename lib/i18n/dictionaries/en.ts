@@ -8,7 +8,7 @@ type ProjectText = { title?: string; label: string; location?: string; descripti
 
 const en = {
   meta: {
-    siteTitle: 'VARI Studio — Architecture, Interiors & 3D Visualization',
+    siteTitle: 'VARI — 3D Visualization Studio for Architecture & Interiors',
     titleTemplate: '%s — VARI Studio',
     description:
       'Architecture, interior design and photorealistic 3D visualization from Cairo, for developers, architects and homeowners worldwide.',
@@ -49,7 +49,7 @@ const en = {
   },
   disciplines: { Exterior: 'Exterior', Interior: 'Interior' },
   hero: {
-    label: 'Architecture · Interior Design · 3D Visualization',
+    label: '3D Visualization Studio · Architecture · Interiors',
     line1: 'Where Elegant Spaces',
     line2: 'Meet Elemental Harmony',
     italic: ['Spaces'],
