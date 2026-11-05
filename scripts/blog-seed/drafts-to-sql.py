@@ -216,6 +216,18 @@ POSTS = [
                 'Für Wettbewerb, Bauantrag und Vermarktung braucht es Bilder, die aus den Plänen entstehen.',
                 'Rein KI-generierte Bilder sind nach herrschender Meinung urheberrechtlich nicht geschützt.']),
     }),
+    ('interior-design', {'en': ('15-best-interior-design-firms-world.en.md',
+        'The best interior design firms in the world by the numbers: the biggest firms by fees in 2026, the studios their peers award, and how to choose the right one.',
+        ["Gensler is the world's biggest interior design firm by fees: US$969.7 million in 2025, more than 2.6 times the next firm.", 'The Top 100 Giants ranking measures size, not taste, and only counts firms with a North American presence.', "Award juries point to design-led studios such as Dimorestudio, Dezeen's interior designer of the year 2025.", 'Choose by sector and project size: a global giant for a 40-floor office, a boutique studio for a home.'])}),
+    ('interior-design', {'en': ('16-best-interior-design-firms-europe.en.md',
+        'The best interior design firms in Europe, country by country: studios recognised by Dezeen, Iconic, FRAME and other juries, with a full section on Germany.',
+        ["Europe's interior design scene is led by mid-sized, design-led studios rather than the giant firms that dominate the US.", "In 2025, Dimorestudio (Milan) was Dezeen's interior designer of the year and Lucas Muñoz Muñoz (Madrid) won the Iconic Awards title.", "Germany's most decorated studios include Ippolito Fleitz Group, JOI-Design, Studio Aisslinger and Landau + Kindelbacher.", 'In Germany, "Innenarchitekt" is a protected title: check the chamber registration before you hire.'])}),
+    ('3d-visualization', {'en': ('17-virtual-staging.en.md',
+        "Virtual staging explained: what it costs per photo, what NAR's 2025 data says about staging, and the 2026 disclosure rules in the US, UK and EU.",
+        ["83% of buyers' agents say staging helps buyers picture a home as their own (NAR, 2025).", 'Physical staging has a median cost of US$1,500; human-designed virtual staging typically costs US$16 to US$50 per photo.', 'Since 1 January 2026, California requires altered listing photos to be labelled and the original to be shown.', 'Virtual staging may add furniture, never hide flaws: changing walls, floors, views or defects is misleading.'])}),
+    ('interior-design', {'en': ('18-interior-designer-cost.en.md',
+        'How much does an interior designer cost in 2026? US and UK prices by hour, per square foot and per project, the fee models explained, and how to compare quotes.',
+        ["In the US, most clients pay about US$614 to US$2,791 for an interior designer, according to Thumbtack's October 2026 data; full-home projects cost far more.", 'US hourly rates typically run from US$60 to US$200; in the UK, from £25 to £150, and up to £450 for senior London designers.', 'Designers charge by the hour, a flat fee, a percentage of the project, per square foot or a markup on furniture.', 'Compare quotes by scope: stages included, revisions, site visits, purchasing and who owns the drawings.'])}),
 ]
 
 
@@ -232,6 +244,10 @@ def q(s: str) -> str:
 
 # Cover image per post (portfolio media ids) and its alt text per language.
 COVERS = {
+    'best-interior-design-firms-in-the-world': ('8b4d4f_ecc4d5d2e2734e05be4233cb2cb30abe~mv2.png', {}),
+    'best-interior-design-firms-in-europe': ('8b4d4f_70a8688e9ac2463cb47876221adedfff~mv2.png', {}),
+    'virtual-staging-cost-and-rules': ('b80319_3ac40368e6ed49ca87fcc96f461d1b4a~mv2.png', {}),
+    'how-much-does-an-interior-designer-cost': ('8b4d4f_f7242312985d4b2abfbe8e482b9f1bfc~mv2.png', {}),
     'best-3d-rendering-companies-2026': ('8b4d4f_ecc4d5d2e2734e05be4233cb2cb30abe~mv2.png', {'en': 'Elysian Aura, an interior combining minimalism and opulence, visualized by VARI Studio'}),
     'top-3d-visualization-companies': ('b80319_eaf114bae9ad46aebe7b9c11a9e978c2~mv2.png', {'en': 'Timeless English Roof Architecture, a European-style roofing concept visualized by VARI Studio'}),
     'top-3d-visualization-companies-germany': ('8b4d4f_52780c64f74a4a3dac703141b59358c2~mv2.png', {'en': 'HNE Laboratory, a timber-clad building in Germany visualized by VARI Studio for DGI Bauwerk'}),
@@ -277,6 +293,8 @@ FIGURES = {
     'top-3d-visualization-companies': ['penthouse'], 'top-3d-visualization-companies-germany': ['roofGarden'],
     'top-3d-visualization-companies-united-states': ['blackHome'], 'top-3d-visualization-studios-europe': ['urbanNest', 'hearth'],
     '3d-visualization-interior-design': ['hearth', 'penthouse'], '3d-visualization-interior-design-united-states': ['constance'],
+    'best-interior-design-firms-in-the-world': ['penthouse', 'hearth'], 'best-interior-design-firms-in-europe': ['hearth', 'urbanNest'],
+    'virtual-staging-cost-and-rules': ['minimalWood'], 'how-much-does-an-interior-designer-cost': ['elysian', 'penthouse'],
 }
 
 
