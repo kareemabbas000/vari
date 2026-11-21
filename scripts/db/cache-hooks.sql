@@ -14,7 +14,7 @@
 --
 -- After running this script:
 --   1. Copy the secret shown at the end.
---   2. Vercel → Project → Settings → Environment Variables → add REVALIDATE_SECRET = <secret>
+--   2. In Vercel: Project, Settings, Environment Variables: add REVALIDATE_SECRET with that value
 --      (Production), then redeploy.
 -- Safe to re-run: it keeps the existing secret.
 
@@ -105,4 +105,4 @@ select cron.unschedule('vari-cache-refresh') where exists (select 1 from cron.jo
 select cron.schedule('vari-cache-refresh', '*/2 * * * *', 'select private.flush_cache()');
 
 -- Copy this value into Vercel as REVALIDATE_SECRET:
-select secret as "REVALIDATE_SECRET (copy into Vercel)" from private.cache_hook where id = 1;
+select secret as revalidate_secret from private.cache_hook where id = 1;
