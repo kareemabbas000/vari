@@ -184,5 +184,5 @@ export async function middleware(req: NextRequest) {
 export const config = {
   // Skip API routes, Next internals and the real files (public/, metadata routes, the IndexNow
   // key). Every other address passes through, so unknown ones are answered with a cheap 404.
-  matcher: ['/((?!api/|_next/|_vercel/|brand/|icons/|media/|favicon\\.ico$|robots\\.txt$|sitemap\\.xml$|manifest\\.webmanifest$|icon\\.svg$|apple-icon\\.png$|[0-9a-f]{32}\\.txt$).*)'],
+  matcher: ['/((?!api/|_next/|_vercel/|brand/|icons/|media/|img/|favicon\\.ico$|robots\\.txt$|sitemap\\.xml$|manifest\\.webmanifest$|icon\\.svg$|apple-icon\\.png$|[0-9a-f]{32}\\.txt$).*)'],
 };

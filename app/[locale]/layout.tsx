@@ -102,7 +102,8 @@ export default async function LocaleLayout({ children, params }: { children: Rea
   return (
     <html lang={meta.hreflang} dir={meta.dir} className={`${display.variable} ${sans.variable}`} suppressHydrationWarning>
       <head>
-        <link rel="preconnect" href="https://static.wixstatic.com" crossOrigin="anonymous" />
+        {/* Images are self-hosted (lib/image-loader.ts); Wix only when switched back. */}
+        {process.env.NEXT_PUBLIC_MEDIA_SOURCE === 'wix' && <link rel="preconnect" href="https://static.wixstatic.com" crossOrigin="anonymous" />}
         <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
         {/* Sign-in links from Supabase land on the Site URL when /admin/accept is not an allowed
             redirect; forward them to the control panel before anything renders. */}

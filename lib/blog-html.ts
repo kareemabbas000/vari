@@ -1,4 +1,5 @@
 import sanitizeHtml from 'sanitize-html';
+import { mediaSrcSet, selfHostHtmlImages } from '@/lib/image-loader';
 
 /**
  * Article HTML for the website. The panel stores the editor's HTML; here it is sanitized
@@ -31,11 +32,12 @@ const DEFAULT_LOCALES = ['en', 'de', 'es', 'tr'];
 
 export function renderArticle(html: string, localize: (path: string) => string, locales: string[] = DEFAULT_LOCALES): { html: string; toc: TocItem[] } {
   const hasLocale = (href: string) => locales.includes(href.split('/')[1]?.toLowerCase() ?? '');
-  const clean = sanitizeHtml(html || '', {
+  // Article images stored with Wix URLs are served from the self-hosted copies.
+  const clean = sanitizeHtml(selfHostHtmlImages(html || ''), {
     allowedTags: ['p', 'h2', 'h3', 'h4', 'strong', 'b', 'em', 'i', 'u', 's', 'mark', 'a', 'ul', 'ol', 'li', 'blockquote', 'figure', 'figcaption', 'img', 'hr', 'br', 'table', 'thead', 'tbody', 'tr', 'th', 'td', 'div', 'iframe', 'code', 'span'],
     allowedAttributes: {
       a: ['href', 'target', 'rel'],
-      img: ['src', 'alt', 'width', 'height', 'loading'],
+      img: ['src', 'alt', 'width', 'height', 'loading', 'decoding', 'srcset', 'sizes'],
       figure: ['data-figure', 'data-size'],
       div: ['data-callout', 'data-video', 'data-id'],
       p: ['data-cta', 'style'],
@@ -59,7 +61,12 @@ export function renderArticle(html: string, localize: (path: string) => string, 
         if (href.startsWith('/') && !hasLocale(href)) return { tagName: 'a', attribs: { href: localize(href) } };
         return { tagName: 'a', attribs: { href } };
       },
-      img: (tag, attribs) => ({ tagName: 'img', attribs: { ...attribs, loading: 'lazy', decoding: 'async' } as Record<string, string> }),
+      img: (tag, attribs) => {
+        // Self-hosted images get every width, so phones download the small file.
+        const srcset = mediaSrcSet(attribs.src || '');
+        const responsive = srcset ? { srcset, sizes: '(min-width: 1024px) 760px, 100vw' } : {};
+        return { tagName: 'img', attribs: { ...attribs, ...responsive, loading: 'lazy', decoding: 'async' } as Record<string, string> };
+      },
       iframe: (tag, attribs) => ({ tagName: 'iframe', attribs: { ...attribs, loading: 'lazy', allow: 'autoplay; fullscreen; picture-in-picture', allowfullscreen: 'true' } }),
     },
   });

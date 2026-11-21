@@ -298,9 +298,13 @@ These were found while writing this document and have not been fixed.
 2. **Two language caches.** Middleware caches the registry in memory for 5 minutes per instance,
    while pages use the `cms` tag. Right after a language is switched, middleware and pages
    can briefly disagree.
-3. **Media depends on the Wix CDN.** The portfolio images still load from
-   `static.wixstatic.com`. If that account closes, set `NEXT_PUBLIC_MEDIA_SOURCE=local` after
-   copying the originals into `/public/media`.
+3. **Media is self-hosted.** `scripts/media/mirror-wix.mjs` copied every Wix original into
+   `public/media/<id>/` as AVIF + WebP (256–2560 px) plus `og.jpg`, listed in
+   `lib/media-manifest.json`. Pages request `/img/<id>/<width>`; `next.config.mjs` rewrites it to
+   the AVIF or WebP file by the browser's `Accept` header (no function runs) and caches it for a
+   year. Each image is one Vercel CDN request: set `NEXT_PUBLIC_MEDIA_BASE` to serve the same
+   files from another host (e.g. Cloudflare R2) and they cost Vercel nothing. Images missing
+   from the manifest still load from Wix; run the script again after adding a Wix image.
 4. **No automated tests.** The invariants above are protected only by comments and DB
    constraints.
 5. **Large binaries in git.** A numpy wheel (16 MB) and `potracer` wheel at the repo root

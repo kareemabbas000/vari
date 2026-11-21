@@ -13,8 +13,31 @@ const nextConfig = {
   // Legacy Wix URLs (/home, /about, /contacts, /portfolio) are mapped in middleware.ts,
   // together with locale detection.
   poweredByHeader: false,
+  // Self-hosted images (lib/image-loader.ts): /img/<id>/<width> is answered with the AVIF file
+  // when the browser accepts AVIF, otherwise WebP. Decided by Vercel's router: no function runs.
+  async rewrites() {
+    return {
+      beforeFiles: [
+        { source: '/img/:id/:w(\\d+)', has: [{ type: 'header', key: 'accept', value: '(?<accept>.*image/avif.*)' }], destination: '/media/:id/:w.avif' },
+        { source: '/img/:id/:w(\\d+)', destination: '/media/:id/:w.webp' },
+      ],
+    };
+  },
   async headers() {
     return [
+      {
+        // Files are named by their Wix media id and width and never change: browsers keep them
+        // for a year and never ask again. Vary keeps the AVIF and WebP answers apart.
+        source: '/img/:path*',
+        headers: [
+          { key: 'Cache-Control', value: 'public, max-age=31536000, immutable' },
+          { key: 'Vary', value: 'Accept' },
+        ],
+      },
+      {
+        source: '/media/:path*',
+        headers: [{ key: 'Cache-Control', value: 'public, max-age=31536000, immutable' }],
+      },
       {
         source: '/:path*',
         headers: [

@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import ProjectExhibition from '@/components/work/ProjectExhibition';
 import { PageBlocks } from '@/components/blocks/PageBlocks';
-import { mediaUrl, ogImageUrl } from '@/lib/image-loader';
+import { absoluteMediaUrl, ogImageUrl } from '@/lib/image-loader';
 import { isLocale, type Locale } from '@/lib/i18n/config';
 import { alternatesFor, getLanguages } from '@/lib/i18n/languages';
 import { getProjectSlugs, getSiteContent } from '@/lib/cms';
@@ -92,7 +92,7 @@ export default async function ProjectPage({ params }: { params: Promise<Params> 
     name: project.title,
     inLanguage: (await getLanguages()).byCode[locale]?.hreflang ?? locale,
     description: project.description.join(' '),
-    image: project.media.map((m) => mediaUrl(m.id, 1600)),
+    image: project.media.map((m) => absoluteMediaUrl(m.id, 1600)),
     creator: { '@id': `${base}/#org` },
     // The place the project depicts (locationCreated would mean where the image was made).
     ...(project.location ? { contentLocation: { '@type': 'Place', name: project.location } } : {}),

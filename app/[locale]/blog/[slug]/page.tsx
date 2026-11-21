@@ -9,13 +9,13 @@ import { fmt } from '@/lib/i18n';
 import { isLocale, localizePath, type Locale } from '@/lib/i18n/config';
 import { getLanguages } from '@/lib/i18n/languages';
 import { site } from '@/lib/content';
-import { mediaUrl, ogImageUrl } from '@/lib/image-loader';
+import { absoluteMediaUrl, ogImageUrl } from '@/lib/image-loader';
 import PostCard, { BlogCta } from '@/components/blog/PostCard';
 import { ReadingProgress, ShareBar, Toc } from '@/components/blog/ArticleUi';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
 const BASE = site.url.replace(/\/$/, '');
-const abs = (src: string) => (/^https?:/.test(src) ? src : mediaUrl(src, 1600));
+const abs = (src: string) => (/^https?:/.test(src) ? src : absoluteMediaUrl(src, 1600));
 /** Social cards: 1200×630 in the source format (social platforms cannot show AVIF). */
 const og = (src: string) => (/^https?:/.test(src) ? src : ogImageUrl(src));
 /** Brand suffix only when the whole title still fits in a search result (~60 characters). */
