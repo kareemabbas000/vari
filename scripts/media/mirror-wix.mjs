@@ -62,7 +62,8 @@ async function main() {
   const manifest = existsSync(MANIFEST) ? JSON.parse(readFileSync(MANIFEST, 'utf8')) : {};
   console.log(`${ids.length} images referenced`);
   let done = 0;
-  for (const id of ids) {
+  // Several images at once: AVIF encoding is the slow part and uses one core per image.
+  const convert = async (id) => {
     const stem = stemOf(id);
     const dir = join(OUT, stem);
     if (!force && existsSync(join(dir, 'og.jpg'))) {
@@ -73,12 +74,12 @@ async function main() {
         manifest[stem] = { w: meta.width, h: meta.height, widths };
         save(manifest);
       }
-      continue;
+      return;
     }
     const res = await fetch(`https://static.wixstatic.com/media/${id}`);
     if (!res.ok) {
       console.warn(`  ! ${id}: download failed (${res.status}), keeps loading from Wix`);
-      continue;
+      return;
     }
     const original = Buffer.from(await res.arrayBuffer());
     const img = sharp(original, { failOn: 'none' }).rotate();
@@ -96,7 +97,12 @@ async function main() {
     save(manifest);
     done++;
     console.log(`  ✓ ${stem} ${width}×${height} → ${sizes.join(', ')}`);
-  }
+  };
+  const queue = [...ids];
+  const workers = Array.from({ length: Math.max(1, Math.min(6, (await import('node:os')).cpus().length)) }, async () => {
+    while (queue.length) await convert(queue.shift());
+  });
+  await Promise.all(workers);
   save(manifest);
   console.log(`${done} converted, ${Object.keys(manifest).length} in the manifest`);
 }
