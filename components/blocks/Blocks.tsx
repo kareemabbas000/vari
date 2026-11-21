@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
+import Link from '@/components/HoverLink';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import { gsap } from '@/lib/gsap';
 import { useI18n } from '@/components/I18nProvider';

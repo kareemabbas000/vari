@@ -47,5 +47,8 @@ export default function imageLoader({
   quality?: number;
 }) {
   if (isWixMediaId(src)) return mediaUrl(src, width, quality ?? 82);
+  // Panel uploads saved with smaller copies ("-rv.webp", see components/admin/media.ts): phones
+  // get the 640 px file, tablets and laptops the 1280 px one, large screens the full 2560 px.
+  if (/-rv\.webp$/.test(src)) return width <= 640 ? src.replace(/-rv\.webp$/, '-rv.w640.webp') : width <= 1280 ? src.replace(/-rv\.webp$/, '-rv.w1280.webp') : src;
   return src.includes('?') ? `${src}&w=${width}` : `${src}?w=${width}`;
 }

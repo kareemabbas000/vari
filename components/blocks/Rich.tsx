@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/HoverLink';
 import { Fragment, type ReactNode } from 'react';
 
 /**

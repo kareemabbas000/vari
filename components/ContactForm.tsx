@@ -2,7 +2,7 @@
 
 import { newEventId, readConsent, track } from '@/lib/analytics';
 import { useEffect, useRef, useState, type FormEvent } from 'react';
-import Link from 'next/link';
+import Link from '@/components/HoverLink';
 import { useI18n } from './I18nProvider';
 
 type Status = 'idle' | 'sending' | 'sent' | 'handoff' | 'error';

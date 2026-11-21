@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/HoverLink';
 import RevealText from '@/components/RevealText';
 import Story from '@/components/home/Story';
 import Logo from '@/components/Logo';

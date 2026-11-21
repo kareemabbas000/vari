@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/HoverLink';
 import FooterSignature from './FooterSignature';
 import Newsletter from './Newsletter';
 import BackToTop from './BackToTop';

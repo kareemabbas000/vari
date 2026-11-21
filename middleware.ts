@@ -9,29 +9,39 @@ const LEGACY: Record<string, string> = { '/home': '/', '/about': '/studio', '/co
 /** Control-panel pages reachable without a session. */
 const ADMIN_PUBLIC = ['/admin/login', '/admin/forgot', '/admin/accept'];
 
-type Registry = { known: Locale[]; enabled: Locale[]; fallback: Locale; custom: string[] };
+type Registry = { known: Locale[]; enabled: Locale[]; fallback: Locale; custom: string[]; posts: Set<string>; projects: Set<string> };
 let cache: { at: number; value: Registry } | null = null;
 
 /**
- * Languages and builder-page addresses from the panel, cached for 5 minutes (two small
- * database reads per server instance, not per visitor). An unknown address refreshes the
- * list at most every 30 seconds, so a page published a moment ago is found right away.
+ * Languages and the site's addresses (builder pages, live articles, published projects),
+ * cached for 5 minutes: four small database reads per server instance, not per visitor. An
+ * unknown address refreshes the lists at most every 30 seconds, so something published a
+ * moment ago is found right away.
  */
 const TTL = 5 * 60_000;
 async function registry(maxAge = TTL): Promise<Registry> {
   if (cache && Date.now() - cache.at < maxAge) return cache.value;
   let rows: { code: string; enabled: boolean; is_default: boolean; sort: number }[] = FALLBACK_LANGUAGES.map((l) => ({ code: l.code, enabled: l.enabled, is_default: l.isDefault, sort: l.sort }));
   let custom: string[] = cache?.value.custom ?? [];
+  let posts: Set<string> = cache?.value.posts ?? new Set();
+  let projects: Set<string> = cache?.value.projects ?? new Set();
   let fresh = false;
   const get = (path: string) =>
     fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, signal: AbortSignal.timeout(2500) }).then((r) => (r.ok ? r.json() : null));
   try {
-    const [langs, pages] = await Promise.all([get('languages?select=code,enabled,is_default,sort&order=sort.asc'), get('pages?select=slug&kind=eq.custom&published=eq.true')]);
+    const [langs, pages, articles, works] = await Promise.all([
+      get('languages?select=code,enabled,is_default,sort&order=sort.asc'),
+      get('pages?select=slug&kind=eq.custom&published=eq.true'),
+      get('blog_post_translations?select=locale,slug,post:blog_posts!inner(id)&ready=eq.true'),
+      get('projects?select=slug&published=eq.true'),
+    ]);
     if (Array.isArray(langs) && langs.length) {
       rows = langs;
       fresh = true;
     }
     if (Array.isArray(pages)) custom = pages.map((p: { slug: string }) => p.slug.split('/')[0]);
+    if (Array.isArray(articles)) posts = new Set(articles.map((a: { locale: string; slug: string }) => `${a.locale}/${a.slug}`));
+    if (Array.isArray(works)) projects = new Set(works.map((w: { slug: string }) => w.slug));
   } catch {}
   // Database briefly unreachable: keep the last known registry (retry in 10 s) rather than the
   // built-in fallback, so crawlers never see a working language redirect or disappear.
@@ -40,7 +50,7 @@ async function registry(maxAge = TTL): Promise<Registry> {
     return cache.value;
   }
   const enabled = rows.filter((r) => r.enabled).map((r) => r.code);
-  const value = { known: rows.map((r) => r.code), enabled, fallback: rows.find((r) => r.is_default && r.enabled)?.code ?? enabled[0] ?? 'en', custom };
+  const value = { known: rows.map((r) => r.code), enabled, fallback: rows.find((r) => r.is_default && r.enabled)?.code ?? enabled[0] ?? 'en', custom, posts, projects };
   cache = { at: Date.now(), value };
   return value;
 }
@@ -50,6 +60,27 @@ const SECTIONS = new Set(['', 'work', 'services', 'studio', 'contact', 'privacy'
 async function exists(segment: string) {
   if (SECTIONS.has(segment) || (await registry()).custom.includes(segment)) return true;
   return (await registry(30_000)).custom.includes(segment);
+}
+
+/** /{lang}/blog/{slug} and /{lang}/work/{slug}: only live articles and published projects. */
+const BLOG_SUB = new Set(['page', 'category', 'author', 'rss.xml']);
+async function itemExists(locale: string, section: string | undefined, slug: string | undefined) {
+  if (!slug) return true;
+  const has = (r: Registry) => (section === 'blog' ? BLOG_SUB.has(slug) || r.posts.has(`${locale}/${slug}`) : section === 'work' ? r.projects.has(slug) : true);
+  // An empty list means the database could not be read: let the page decide.
+  const ready = (r: Registry) => (section === 'blog' ? r.posts.size > 0 : r.projects.size > 0);
+  const reg = await registry();
+  if (!ready(reg) || has(reg)) return true;
+  return has(await registry(30_000));
+}
+
+/**
+ * Unknown addresses under a language show the site's own 404 page. Every one of them is
+ * rewritten to the same address, so that page is rendered and stored once per language,
+ * not once per mistyped or invented URL.
+ */
+function missing(req: NextRequest, locale: string) {
+  return NextResponse.rewrite(new URL(`/${locale}/blog/__missing`, req.url));
 }
 
 /**
@@ -125,7 +156,7 @@ export async function middleware(req: NextRequest) {
   const parts = pathname.split('/');
   const first = parts[1];
   if (reg.enabled.includes(first)) {
-    if (!(await exists(parts[2] ?? ''))) return gone();
+    if (!(await exists(parts[2] ?? '')) || !(await itemExists(first, parts[2], parts[3]))) return missing(req, first);
     // Old list pages (?page=2) moved to real addresses (/page/2), which are cached.
     const page = req.nextUrl.searchParams.get('page');
     if (page && parts[2] === 'blog' && /^\d{1,2}$/.test(page)) {
@@ -141,7 +172,7 @@ export async function middleware(req: NextRequest) {
   const known = reg.known.includes(first) || (isLocale(first) && first.length === 2 && parts.length > 2);
   const rest = known ? '/' + parts.slice(2).join('/') : pathname;
   const path = LEGACY[rest] ?? rest;
-  if (!(await exists(path.split('/')[1] ?? ''))) return gone();
+  if (!(await exists(path.split('/')[1] ?? ''))) return missing(req, preferred(req, reg));
   const url = req.nextUrl.clone();
   url.pathname = `/${preferred(req, reg)}${path === '/' ? '' : path}`;
   url.search = search;

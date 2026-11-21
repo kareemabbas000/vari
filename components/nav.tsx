@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/HoverLink';
 import type { AnchorHTMLAttributes, ReactNode } from 'react';
 import { useI18n } from './I18nProvider';
 import { pick } from '@/lib/cms';

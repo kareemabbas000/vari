@@ -1,7 +1,7 @@
 'use client';
 
 import Image from 'next/image';
-import Link from 'next/link';
+import Link from '@/components/HoverLink';
 import { useEffect, useRef, useState } from 'react';
 import { gsap } from '@/lib/gsap';
 import type { Project } from '@/lib/content';

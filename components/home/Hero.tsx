@@ -2,7 +2,7 @@
 
 import dynamic from 'next/dynamic';
 import Image from 'next/image';
-import Link from 'next/link';
+import Link from '@/components/HoverLink';
 import { useEffect, useRef, useState } from 'react';
 import { gsap, ScrollTrigger } from '@/lib/gsap';
 import { useDeviceTier } from '@/lib/device';

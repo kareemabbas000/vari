@@ -160,7 +160,13 @@ address rendering on each request, and from pages rebuilt every 5 minutes for cr
 2. No time-based `revalidate`. Refresh by tag on publish.
 3. Unknown addresses are answered by the middleware, never by a page.
 4. Supabase is read only when a page is rebuilt (after a publish) and by the middleware
-   registry (two small reads per instance every 5 minutes). Visitors never call Supabase.
+   registry (four small reads per instance every 5 minutes). Visitors never call Supabase.
+5. Public links use `components/HoverLink.tsx`: pages preload on hover, touch or focus, not
+   when a link scrolls into view (that cost 20–40 CDN requests per list page).
+6. Unknown addresses under a language are rewritten to one address (`/{lang}/blog/__missing`),
+   so the styled 404 page is rendered once per language, not once per invented URL.
+7. Panel uploads are converted to WebP in the browser, capped at 2560 px and saved with 640 and
+   1280 px copies (`-rv.webp`); `lib/image-loader.ts` serves phones the small copy.
 
 ### 4.3 Forms
 

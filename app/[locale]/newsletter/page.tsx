@@ -1,5 +1,5 @@
 import type { Metadata } from 'next';
-import Link from 'next/link';
+import Link from '@/components/HoverLink';
 import { contact } from '@/lib/content';
 import { isLocale, localizePath, type Locale } from '@/lib/i18n/config';
 import { fmt } from '@/lib/i18n';

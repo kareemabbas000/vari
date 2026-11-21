@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/HoverLink';
 import { useEffect, useRef } from 'react';
 import { gsap } from '@/lib/gsap';
 import Logo from './Logo';

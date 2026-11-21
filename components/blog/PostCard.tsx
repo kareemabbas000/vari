@@ -1,5 +1,5 @@
 import Image from 'next/image';
-import Link from 'next/link';
+import Link from '@/components/HoverLink';
 import { fmt, type Dictionary } from '@/lib/i18n';
 import { localizePath, type Locale } from '@/lib/i18n/config';
 import { formatDate, type PostCard as Card } from '@/lib/blog';

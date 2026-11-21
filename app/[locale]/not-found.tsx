@@ -1,6 +1,6 @@
 'use client';
 
-import Link from 'next/link';
+import Link from '@/components/HoverLink';
 import { useI18n } from '@/components/I18nProvider';
 
 export default function NotFound() {

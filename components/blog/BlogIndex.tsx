@@ -1,4 +1,4 @@
-import Link from 'next/link';
+import Link from '@/components/HoverLink';
 import type { Dictionary } from '@/lib/i18n';
 import { fmt } from '@/lib/i18n';
 import { localizePath, type Locale } from '@/lib/i18n/config';

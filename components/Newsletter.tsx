@@ -1,7 +1,7 @@
 'use client';
 
 import { track } from '@/lib/analytics';
-import Link from 'next/link';
+import Link from '@/components/HoverLink';
 import { useState, type FormEvent } from 'react';
 import { fmt } from '@/lib/i18n';
 import { useI18n } from './I18nProvider';

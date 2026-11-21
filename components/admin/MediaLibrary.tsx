@@ -7,7 +7,7 @@ import { mediaSrc } from '@/lib/media';
 import { Badge, Button, ConfirmDialog, EmptyState, Input, Spinner, useToast } from './ui';
 import I18nInput from './I18nInput';
 import { must, useLoad } from './hooks';
-import { MEDIA_COLUMNS, uploadImage, type MediaRow } from './media';
+import { MEDIA_COLUMNS, uploadImage, type MediaRow, variantPaths } from './media';
 import { useMember } from './AdminShell';
 
 /**
@@ -97,7 +97,7 @@ export default function MediaLibrary({
 
   async function remove() {
     if (!editing || !data) return;
-    if (editing.source === 'storage') await db.storage.from('media').remove([editing.path]);
+    if (editing.source === 'storage') await db.storage.from('media').remove([editing.path, ...variantPaths(editing.path)]);
     const { error: err } = await db.from('media').delete().eq('id', editing.id);
     if (err) return toast('error', err.message);
     setData({ ...data, media: data.media.filter((m) => m.id !== editing.id) });
