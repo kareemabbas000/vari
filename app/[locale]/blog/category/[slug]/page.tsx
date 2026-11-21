@@ -1,52 +1,25 @@
 import type { Metadata } from 'next';
-import { notFound } from 'next/navigation';
-import BlogIndex from '@/components/blog/BlogIndex';
-import { getSiteContent } from '@/lib/cms';
-import { getCategories, getPosts } from '@/lib/blog';
-import { fmt } from '@/lib/i18n';
-import { alternatesFor } from '@/lib/i18n/languages';
-import { isLocale, type Locale } from '@/lib/i18n/config';
+import { CategoryList, categoryMetadata, enabledLocales } from '@/components/blog/lists';
+import { getPosts } from '@/lib/blog';
+import type { Locale } from '@/lib/i18n/config';
 
-type Props = { params: Promise<{ locale: string; slug: string }>; searchParams: Promise<{ page?: string }> };
+type Props = { params: Promise<{ locale: string; slug: string }> };
 
-async function load(locale: Locale, slug: string) {
-  const [categories, posts] = await Promise.all([getCategories(locale), getPosts(locale)]);
-  const category = categories.find((c) => c.slug === slug);
-  return category ? { category, categories, posts: posts.filter((p) => p.category?.slug === slug) } : null;
+export const dynamicParams = true;
+
+/** Categories that hold posts in this language are built at deploy time. */
+export async function generateStaticParams({ params }: { params: { locale: string } }) {
+  if (!(await enabledLocales()).includes(params.locale as Locale)) return [];
+  const posts = await getPosts(params.locale as Locale);
+  return [...new Set(posts.map((p) => p.category?.slug).filter(Boolean))].map((slug) => ({ slug: slug as string }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;
-  if (!isLocale(locale)) return {};
-  const [data, { t }] = await Promise.all([load(locale, slug), getSiteContent(locale)]);
-  if (!data) return {};
-  const title = fmt(t.blog.categoryTitle, { name: data.category.name });
-  return {
-    title,
-    description: data.category.description || t.blog.metaDescription,
-    alternates: await alternatesFor(locale, `/blog/category/${slug}`),
-    // Thin category pages stay out of the index until they hold a few articles.
-    robots: data.posts.length < 2 ? { index: false, follow: true } : undefined,
-  };
+  return categoryMetadata(locale, slug, 1);
 }
 
-export default async function CategoryPage({ params, searchParams }: Props) {
+export default async function CategoryPage({ params }: Props) {
   const { locale, slug } = await params;
-  const l = locale as Locale;
-  const [data, { t }] = await Promise.all([load(l, slug), getSiteContent(l)]);
-  if (!data) notFound();
-  const page = Math.max(1, Number((await searchParams).page) || 1);
-  return (
-    <BlogIndex
-      t={t}
-      locale={l}
-      posts={data.posts}
-      categories={data.categories}
-      active={slug}
-      page={page}
-      basePath={`/blog/category/${slug}`}
-      heading={data.category.name}
-      intro={data.category.description || t.blog.intro}
-    />
-  );
+  return <CategoryList locale={locale} slug={slug} page={1} />;
 }

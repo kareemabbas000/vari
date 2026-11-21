@@ -13,7 +13,7 @@ layout call it, and the result is shared with client components through
 `components/I18nProvider.tsx` (`useI18n()`).
 
 ```
-loadRaw()  ── 5 parallel REST reads (tag "cms", revalidate 300 s, 5 s timeout) ──┐
+loadRaw()  ── 5 parallel REST reads (tags cms + cms-site, cached until published) ──┐
    site_settings · categories · projects(+category, gallery→media) · services · content_blocks
                                                                                   │
    ok + ≥1 project ──► buildContent(raw, locale)                                  │
@@ -148,14 +148,14 @@ Device widths (desktop, tablet, phone) are just iframe sizes.
   (`/api/admin/translate`) is always reviewed by a person before it's marked ready.
 - **What's public** is decided by RLS alone. A post is visible when
   `status = 'published' and publish_at <= now()`, and a translation when it's `ready`.
-  **Scheduling needs no job**: a future post appears on its own once the 5-minute cache
-  refreshes.
+  **Scheduling**: a future post appears when the blog cache is refreshed: by the database hook
+  (`scripts/db/cache-hooks.sql`, within 2 minutes of its publish time) or by the next publish.
 - **Rendering**: `renderArticle()` in `lib/blog-html.ts` sanitizes the HTML again, adds
   heading ids and builds the table of contents. It opens external links safely and adds the
   language prefix to internal links.
 - **SEO**: `lib/seo-check.ts` scores each translation (also used by the seed scripts).
   Articles output BlogPosting, Breadcrumb and FAQ JSON-LD, and have an RSS feed per language
-  (`/{lang}/blog/rss.xml`, revalidated every 300 s).
+  (`/{lang}/blog/rss.xml`, static, refreshed with the blog).
 - **Seeding**: `scripts/blog-seed/generate.mts` prints SQL for the launch articles
   (`scripts/blog-seed/tr/` for Turkish). `scripts/landing-seed/generate.mjs` prints SQL for
   the published custom landing pages.

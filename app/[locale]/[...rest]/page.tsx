@@ -1,13 +1,21 @@
 import type { Metadata } from 'next';
 import { notFound } from 'next/navigation';
 import { Interleave } from '@/components/blocks/PageBlocks';
-import { getPage, pageMeta, seoTitle } from '@/lib/pages';
+import { getCustomPages, getPage, pageMeta, seoTitle } from '@/lib/pages';
 import { pick } from '@/lib/cms';
 import { alternatesFor } from '@/lib/i18n/languages';
 import { isLocale, type Locale } from '@/lib/i18n/config';
 import { RESERVED_SLUGS } from '@/lib/blocks/schema';
 
 type Params = { locale: string; rest: string[] };
+
+// Builder pages are built at deploy time; a page published later renders on first visit.
+// Unknown addresses never reach this route: the middleware answers them with a 404 first.
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  return (await getCustomPages()).map((p) => ({ rest: p.slug.split('/') }));
+}
 
 /** Pages made in the page builder; any other unknown path renders the 404 page. */
 async function load(rest: string[]) {

@@ -7,6 +7,9 @@ import PostCard, { BlogCta, GoldTitle } from './PostCard';
 
 export const PER_PAGE = 12;
 
+/** Number of list pages for these posts (the same rule BlogIndex uses). */
+export const pageCount = (posts: number) => Math.max(1, Math.ceil(posts / PER_PAGE));
+
 /** Blog listing: header, category filter, featured story, grid, pagination. */
 export default function BlogIndex({
   t,
@@ -36,7 +39,8 @@ export default function BlogIndex({
   const featured = showFeature ? posts.find((p) => p.featured) ?? posts[0] : null;
   const rest = posts.filter((p) => p !== featured);
   const slice = rest.slice((page - 1) * PER_PAGE, page * PER_PAGE);
-  const pageHref = (n: number) => localizePath(locale, n === 1 ? basePath : `${basePath}?page=${n}`);
+  // Pages are real addresses (/blog/page/2), so every list page can be cached like any other page.
+  const pageHref = (n: number) => localizePath(locale, n === 1 ? basePath : `${basePath}/page/${n}`);
   const used = new Set(posts.map((p) => p.category?.slug).filter(Boolean));
 
   return (

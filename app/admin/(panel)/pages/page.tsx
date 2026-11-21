@@ -22,7 +22,7 @@ export default function PagesList() {
   const db = supabaseBrowser();
   const router = useRouter();
   const toast = useToast();
-  const publish = usePublish();
+  const publish = usePublish('pages');
   const { can } = useMember();
   const { data, loading, error, reload } = useLoad(async () => must(await db.from('pages').select('id,slug,kind,title,blocks,draft,published,updated_at,sort').order('sort').order('created_at')) as unknown as Row[]);
   const [creating, setCreating] = useState(false);

@@ -6,8 +6,9 @@ import { getAllPostSlugs, getPosts } from '@/lib/blog';
 import { localizePath } from '@/lib/i18n/config';
 import { getLanguages } from '@/lib/i18n/languages';
 
-// Rebuilt every 5 minutes so new pages and articles appear without a redeploy.
-export const revalidate = 300;
+// Cached until something is published (the publish refreshes the CMS tags it reads), so new
+// pages and articles appear without a redeploy and without rebuilding on a timer.
+export const revalidate = false;
 
 /** One entry per page per language, each listing its hreflang alternates. */
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {

@@ -109,8 +109,13 @@ scripts/                 Seed generators (blog, landing pages, Turkish), DB main
 
 ### 4.1 Public page
 
-1. **`middleware.ts`** loads the language registry (`languages` table over REST, cached in
-   memory for 60 s per instance, with `FALLBACK_LANGUAGES` used if the table can't be reached).
+1. **`middleware.ts`** loads the language registry and the builder pages' addresses (`languages`
+   and `pages` over REST, cached in memory for 5 minutes per instance; an unknown address
+   re-checks at most every 30 s; `FALLBACK_LANGUAGES` if the table can't be reached).
+   - Addresses the site never has (scanners: `/wp-login.php`, `/.env`, any file with a dot except
+     `/{lang}/blog/rss.xml`, unknown sections) get a **143-byte 404 from the middleware**. No page
+     is rendered or cached for them. Real files skip the middleware (see its `matcher`).
+   - `?page=N` on blog lists is redirected (308) to `/page/N`.
    - If the first path segment is an enabled locale, the request passes through.
    - Otherwise it strips a known or disabled locale, maps legacy Wix paths
      (`/home`, `/about`, `/contacts`, `/portfolio`), and returns a **307** to
@@ -120,17 +125,42 @@ scripts/                 Seed generators (blog, landing pages, Turkish), DB main
    `getSiteContent(locale)` and puts the result in `I18nProvider`, so client components read
    texts, settings and projects from context.
 3. The page reads `getSiteContent`, `getPage(slug)` and `getPost(...)`. Every one of these is
-   a `fetch` tagged **`cms`** with `revalidate: 300`.
-4. Pages are statically generated for every enabled locale (`generateStaticParams`).
-   `dynamicParams = true` lets a project or language added later render on its first request
-   and then stay cached.
+   a `fetch` with `cmsCache(area)` from `lib/cms-tag.ts`: tags `cms` + `cms-site`, `cms-blog`,
+   `cms-pages` or `cms-languages`, and **`revalidate: false`** (cached until published).
+4. **Every public route is static** (`●` in the build table): articles, blog lists and their
+   `/page/N` pages, categories, authors, RSS, builder pages, sitemap and robots, all built with
+   `generateStaticParams`. `dynamicParams = true` lets a project, article or language added
+   later render on its first request and then stay cached. Nothing on the public site reads
+   `searchParams`, `cookies()` or `headers()`, because any of them makes a route render on
+   every request.
+5. On Vercel a failed database read **throws** (`FAIL_HARD`): a background refresh then keeps
+   the last good page, instead of caching an empty or fallback page until the next publish.
 
 ### 4.2 Publish (panel → live site)
 
 The panel writes directly to Supabase through the browser client. After saving, it calls
-`usePublish()`, which runs `POST /api/admin/revalidate` (editor or higher) and then
-`revalidateTag('cms')`. That refreshes every CMS-backed page at once. If that call fails, the
-5-minute `revalidate` catches up on its own.
+`usePublish(scope)`, which runs `POST /api/admin/revalidate` (editor or higher) with the area
+that changed: the blog editor and blog settings refresh `cms-blog`, the page builder
+`cms-pages`, everything else `cms` (all pages, because every layout reads site settings).
+Pages are rebuilt lazily on their next visit. There is **no timer**: without a publish, nothing
+is rebuilt.
+
+Changes made outside the panel, and scheduled articles reaching their publish time, are covered
+by the database hook `scripts/db/cache-hooks.sql`: triggers flag the changed area (draft edits
+are ignored), and a pg_cron job every 2 minutes calls `POST /api/revalidate-hook` once per
+flagged area with the shared `REVALIDATE_SECRET` (Vercel env). Settings → "Refresh the
+website" does the same by hand.
+
+### 4.2a Cost rules (Vercel Hobby and Supabase Free)
+
+The 2026-11 pause (Fluid CPU 4 h used up) came from articles, blog lists and every unknown
+address rendering on each request, and from pages rebuilt every 5 minutes for crawlers. Keep:
+
+1. No public route renders per request. Check the build table: public routes must be `●`/`○`.
+2. No time-based `revalidate`. Refresh by tag on publish.
+3. Unknown addresses are answered by the middleware, never by a page.
+4. Supabase is read only when a page is rebuilt (after a publish) and by the middleware
+   registry (two small reads per instance every 5 minutes). Visitors never call Supabase.
 
 ### 4.3 Forms
 
@@ -259,7 +289,7 @@ These were found while writing this document and have not been fixed.
      languages added later.
    - `lib/blog.ts` `formatDate` has a fixed locale map (it falls back to the code, which is
      fine).
-2. **Two language caches.** Middleware caches the registry in memory for 60 s per instance,
+2. **Two language caches.** Middleware caches the registry in memory for 5 minutes per instance,
    while pages use the `cms` tag. Right after a language is switched, middleware and pages
    can briefly disagree.
 3. **Media depends on the Wix CDN.** The portfolio images still load from

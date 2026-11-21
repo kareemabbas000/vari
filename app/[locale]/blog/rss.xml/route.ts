@@ -5,7 +5,13 @@ import { getLanguages } from '@/lib/i18n/languages';
 import { site } from '@/lib/content';
 import { ogImageUrl } from '@/lib/image-loader';
 
-export const revalidate = 300;
+// Built at deploy time per language and cached until the blog is published.
+export const dynamic = 'force-static';
+export const dynamicParams = true;
+
+export async function generateStaticParams() {
+  return (await getLanguages()).codes.map((locale) => ({ locale }));
+}
 
 const esc = (s: string) => s.replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;').replace(/"/g, '&quot;');
 
@@ -27,5 +33,5 @@ export async function GET(_req: Request, { params }: { params: Promise<{ locale:
     })
     .join('');
   const xml = `<?xml version="1.0" encoding="UTF-8"?><rss version="2.0" xmlns:atom="http://www.w3.org/2005/Atom"><channel><title>${esc(`VARI Studio — ${t.blog.label}`)}</title><link>${base}${localizePath(locale, '/blog')}</link><atom:link href="${base}${localizePath(locale, '/blog/rss.xml')}" rel="self" type="application/rss+xml"/><description>${esc(t.blog.metaDescription)}</description><language>${langs.byCode[locale].hreflang}</language>${items}</channel></rss>`;
-  return new Response(xml, { headers: { 'Content-Type': 'application/rss+xml; charset=utf-8', 'Cache-Control': 'public, max-age=300' } });
+  return new Response(xml, { headers: { 'Content-Type': 'application/rss+xml; charset=utf-8', 'Cache-Control': 'public, max-age=3600' } });
 }

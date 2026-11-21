@@ -59,7 +59,7 @@ export default function Builder({ initial, onReload }: { initial: PageRow; onRel
   const localeMeta = Object.fromEntries(previewLangs.map((l) => [l.code, l]));
   const db = supabaseBrowser();
   const toast = useToast();
-  const publishSite = usePublish();
+  const publishSite = usePublish('pages');
   const { can } = useMember();
   const editable = can('editor');
   const isSystem = initial.kind === 'system';

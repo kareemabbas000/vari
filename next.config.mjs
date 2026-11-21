@@ -4,6 +4,11 @@ const nextConfig = {
   images: {
     loader: 'custom',
     loaderFile: './lib/image-loader.ts',
+    // Fewer widths per image: every page lists each width in each image's srcset, so the default
+    // 16 widths made a third of the HTML. These still cover phones to 2.5K screens (the CDN
+    // serves the nearest larger width), and every cached page is smaller to store and send.
+    deviceSizes: [640, 960, 1280, 1920, 2560],
+    imageSizes: [128, 256, 384],
   },
   // Legacy Wix URLs (/home, /about, /contacts, /portfolio) are mapped in middleware.ts,
   // together with locale detection.

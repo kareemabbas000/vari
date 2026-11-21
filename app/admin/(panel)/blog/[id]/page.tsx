@@ -53,7 +53,7 @@ export default function PostEditor() {
   const db = supabaseBrowser();
   const router = useRouter();
   const toast = useToast();
-  const publishSite = usePublish();
+  const publishSite = usePublish('blog');
   const { can } = useMember();
   const editable = can('editor');
 
@@ -413,7 +413,7 @@ export default function PostEditor() {
         <fieldset disabled={!editable} className="space-y-6">
           <Card title="Publishing">
             <div className="space-y-4">
-              <Field label="Publish date & time" htmlFor="when" hint="A future date schedules the article — it appears automatically (within about 5 minutes).">
+              <Field label="Publish date & time" htmlFor="when" hint="A future date schedules the article. It appears automatically within about 2 minutes of that time (needs the website cache hook; otherwise on the next publish).">
                 <Input id="when" type="datetime-local" value={toLocalInput(post.publish_at)} onChange={(e) => setP({ publish_at: e.target.value ? new Date(e.target.value).toISOString() : null })} />
               </Field>
               <Switch checked={post.featured} onChange={(featured) => setP({ featured })} label="Feature on the blog page" />

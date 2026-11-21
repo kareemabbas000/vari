@@ -13,7 +13,7 @@ import type { TrackingSettings, Verification } from '@/lib/tracking';
  */
 
 export { CMS_TAG } from '@/lib/cms-tag';
-import { CMS_TAG } from '@/lib/cms-tag';
+import { FAIL_HARD, cmsCache } from '@/lib/cms-tag';
 export { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '@/lib/supabase/config';
 import { SUPABASE_URL, SUPABASE_PUBLISHABLE_KEY } from '@/lib/supabase/config';
 
@@ -86,7 +86,7 @@ import { deepMerge, isObj } from '@/lib/merge';
 async function rest<T>(path: string): Promise<T> {
   const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
     headers: { apikey: SUPABASE_PUBLISHABLE_KEY, Accept: 'application/json' },
-    next: { tags: [CMS_TAG], revalidate: 300 },
+    next: cmsCache('site'),
     signal: AbortSignal.timeout(5000),
   });
   if (!res.ok) throw new Error(`CMS ${path.split('?')[0]} → ${res.status}`);
@@ -115,6 +115,7 @@ async function loadRaw(): Promise<Raw | null> {
     if (!projects.length) return null; // an empty CMS never blanks the site
     return { settings: settings[0]?.data ?? null, categories, projects, services, blocks };
   } catch (err) {
+    if (FAIL_HARD) throw err;
     unavailableUntil = Date.now() + 60_000;
     console.warn('[cms] falling back to built-in content:', (err as Error).message);
     return null;

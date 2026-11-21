@@ -17,7 +17,7 @@ type Tag = { id: string; slug: string; name: I18nValue };
 export default function BlogSettings() {
   const db = supabaseBrowser();
   const toast = useToast();
-  const publish = usePublish();
+  const publish = usePublish('blog');
   const { can } = useMember();
   const [busy, setBusy] = useState('');
   const { data, loading, error, setData } = useLoad(async () => {

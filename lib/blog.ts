@@ -1,11 +1,13 @@
-import { CMS_TAG, SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, pick } from '@/lib/cms';
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, pick } from '@/lib/cms';
+import { FAIL_HARD, cmsCache } from '@/lib/cms-tag';
 import { localizePath, type Locale } from '@/lib/i18n/config';
 import { getLanguages } from '@/lib/i18n/languages';
 
 /**
  * Public blog data. Row Level Security only returns posts that are published with a
  * publish date in the past, and only translations marked ready — so scheduled posts appear
- * on their own (within the 5-minute cache) without any job running.
+ * once the blog cache is refreshed: on publish, or by the database hook at their publish time
+ * (scripts/db/cache-hooks.sql).
  */
 
 type Row = Record<string, any>; // eslint-disable-line @typescript-eslint/no-explicit-any
@@ -14,12 +16,13 @@ async function rest<T>(path: string): Promise<T | null> {
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
       headers: { apikey: SUPABASE_PUBLISHABLE_KEY, Accept: 'application/json' },
-      next: { tags: [CMS_TAG], revalidate: 300 },
+      next: cmsCache('blog'),
       signal: AbortSignal.timeout(6000),
     });
-    if (!res.ok) return null;
+    if (!res.ok) throw new Error(`blog ${path.split('?')[0]} → ${res.status}`);
     return (await res.json()) as T;
-  } catch {
+  } catch (err) {
+    if (FAIL_HARD) throw err;
     return null;
   }
 }

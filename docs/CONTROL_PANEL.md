@@ -62,7 +62,7 @@ Run it once in Supabase → SQL Editor (or `supabase db push`).
   boxes, quotes, tables, YouTube/Vimeo, call-to-action buttons), per-language title, address, excerpt,
   key takeaways, SEO title/description and focus keyword with a live SEO score, FAQ (Google rich
   results), categories, tags and author profiles, featured posts and scheduling (a future publish date
-  goes live on its own within about five minutes). Translation workflow: English is the source;
+  goes live on its own within about two minutes once the database hook in `scripts/db/cache-hooks.sql` is installed). Translation workflow: English is the source;
   every other language starts from the English structure, can be compared side by side, and are flagged
   when the English text changes later. Only languages marked “ready” are published, each with its own
   address and hreflang. Public pages: `/{lang}/blog`, articles, category and author pages, RSS feed

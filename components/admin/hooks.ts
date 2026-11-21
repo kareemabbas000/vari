@@ -2,17 +2,22 @@
 
 import { useCallback, useEffect, useState } from 'react';
 import { useToast } from './ui';
+import type { CacheScope } from '@/lib/cms-tag';
 
-/** Refresh the live website after a change (all CMS-backed pages). */
-export function usePublish() {
+/**
+ * Refresh the live website after a change. The website is cached until something is
+ * published, so this is what makes a change visible. `scope` limits the refresh to the area
+ * that changed ('blog', 'pages'); anything else refreshes every page.
+ */
+export function usePublish(scope: CacheScope = 'all') {
   const toast = useToast();
   return useCallback(
     async (what = 'Changes') => {
-      const res = await fetch('/api/admin/revalidate', { method: 'POST' }).catch(() => null);
+      const res = await fetch('/api/admin/revalidate', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ scope }) }).catch(() => null);
       if (res?.ok) toast('success', `${what} saved and published to the website.`);
-      else toast('info', `${what} saved. The website updates within 5 minutes.`);
+      else toast('error', `${what} saved, but the website could not be refreshed. Use "Refresh the website" in Settings.`);
     },
-    [toast],
+    [toast, scope],
   );
 }
 

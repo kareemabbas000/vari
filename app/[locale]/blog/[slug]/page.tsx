@@ -3,7 +3,7 @@ import Image from 'next/image';
 import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { getSiteContent } from '@/lib/cms';
-import { formatDate, getPost, getPosts, postAlternates } from '@/lib/blog';
+import { formatDate, getAllPostSlugs, getPost, getPosts, postAlternates } from '@/lib/blog';
 import { readingMinutes, renderArticle } from '@/lib/blog-html';
 import { fmt } from '@/lib/i18n';
 import { isLocale, localizePath, type Locale } from '@/lib/i18n/config';
@@ -20,6 +20,14 @@ const abs = (src: string) => (/^https?:/.test(src) ? src : mediaUrl(src, 1600));
 const og = (src: string) => (/^https?:/.test(src) ? src : ogImageUrl(src));
 /** Brand suffix only when the whole title still fits in a search result (~60 characters). */
 const withBrand = (title: string) => (/\bVARI\b/.test(title) || title.length + 15 > 60 ? title : `${title} | VARI Studio`);
+
+// Every live article is built at deploy time and cached until the blog is published; a new
+// article renders on its first visit and is cached from then on.
+export const dynamicParams = true;
+
+export async function generateStaticParams({ params }: { params: { locale: string } }) {
+  return (await getAllPostSlugs()).filter((p) => p.locale === params.locale).map((p) => ({ slug: p.slug }));
+}
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { locale, slug } = await params;

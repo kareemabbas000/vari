@@ -9,37 +9,60 @@ const LEGACY: Record<string, string> = { '/home': '/', '/about': '/studio', '/co
 /** Control-panel pages reachable without a session. */
 const ADMIN_PUBLIC = ['/admin/login', '/admin/forgot', '/admin/accept'];
 
-type Registry = { known: Locale[]; enabled: Locale[]; fallback: Locale };
+type Registry = { known: Locale[]; enabled: Locale[]; fallback: Locale; custom: string[] };
 let cache: { at: number; value: Registry } | null = null;
 
-/** Languages from the panel, cached for a minute (the fallback list if unreachable). */
-async function registry(): Promise<Registry> {
-  if (cache && Date.now() - cache.at < 60_000) return cache.value;
+/**
+ * Languages and builder-page addresses from the panel, cached for 5 minutes (two small
+ * database reads per server instance, not per visitor). An unknown address refreshes the
+ * list at most every 30 seconds, so a page published a moment ago is found right away.
+ */
+const TTL = 5 * 60_000;
+async function registry(maxAge = TTL): Promise<Registry> {
+  if (cache && Date.now() - cache.at < maxAge) return cache.value;
   let rows: { code: string; enabled: boolean; is_default: boolean; sort: number }[] = FALLBACK_LANGUAGES.map((l) => ({ code: l.code, enabled: l.enabled, is_default: l.isDefault, sort: l.sort }));
+  let custom: string[] = cache?.value.custom ?? [];
   let fresh = false;
+  const get = (path: string) =>
+    fetch(`${SUPABASE_URL}/rest/v1/${path}`, { headers: { apikey: SUPABASE_PUBLISHABLE_KEY }, signal: AbortSignal.timeout(2500) }).then((r) => (r.ok ? r.json() : null));
   try {
-    const res = await fetch(`${SUPABASE_URL}/rest/v1/languages?select=code,enabled,is_default,sort&order=sort.asc`, {
-      headers: { apikey: SUPABASE_PUBLISHABLE_KEY },
-      signal: AbortSignal.timeout(2500),
-    });
-    if (res.ok) {
-      const data = await res.json();
-      if (Array.isArray(data) && data.length) {
-        rows = data;
-        fresh = true;
-      }
+    const [langs, pages] = await Promise.all([get('languages?select=code,enabled,is_default,sort&order=sort.asc'), get('pages?select=slug&kind=eq.custom&published=eq.true')]);
+    if (Array.isArray(langs) && langs.length) {
+      rows = langs;
+      fresh = true;
     }
+    if (Array.isArray(pages)) custom = pages.map((p: { slug: string }) => p.slug.split('/')[0]);
   } catch {}
   // Database briefly unreachable: keep the last known registry (retry in 10 s) rather than the
   // built-in fallback, so crawlers never see a working language redirect or disappear.
   if (!fresh && cache) {
-    cache = { at: Date.now() - 50_000, value: cache.value };
+    cache = { at: Date.now() - TTL + 10_000, value: cache.value };
     return cache.value;
   }
   const enabled = rows.filter((r) => r.enabled).map((r) => r.code);
-  const value = { known: rows.map((r) => r.code), enabled, fallback: rows.find((r) => r.is_default && r.enabled)?.code ?? enabled[0] ?? 'en' };
+  const value = { known: rows.map((r) => r.code), enabled, fallback: rows.find((r) => r.is_default && r.enabled)?.code ?? enabled[0] ?? 'en', custom };
   cache = { at: Date.now(), value };
   return value;
+}
+
+/** First path segments the site has (after the language): sections plus builder pages. */
+const SECTIONS = new Set(['', 'work', 'services', 'studio', 'contact', 'privacy', 'newsletter', 'blog', 'builder-preview']);
+async function exists(segment: string) {
+  if (SECTIONS.has(segment) || (await registry()).custom.includes(segment)) return true;
+  return (await registry(30_000)).custom.includes(segment);
+}
+
+/**
+ * Addresses the site never has (vulnerability scanners: /wp-login.php, /.env, /xmlrpc.php …)
+ * get a tiny 404 straight from here: no page is rendered, cached or stored for them.
+ * Real files (/robots.txt, /_next/…, /brand/…) never reach the middleware (see matcher).
+ */
+const SCANNER = /^\/(?:wp-|wordpress|phpmyadmin|cgi-bin|vendor\/|\.)/i;
+function gone() {
+  return new NextResponse('<!doctype html><meta charset="utf-8"><meta name="robots" content="noindex"><title>404</title><p>Page not found. <a href="/">VARI Studio</a></p>', {
+    status: 404,
+    headers: { 'Content-Type': 'text/html; charset=utf-8', 'Cache-Control': 'public, max-age=3600' },
+  });
 }
 
 function preferred(req: NextRequest, reg: Registry): Locale {
@@ -95,15 +118,30 @@ async function admin(req: NextRequest) {
 export async function middleware(req: NextRequest) {
   const { pathname, search } = req.nextUrl;
   if (pathname === '/admin' || pathname.startsWith('/admin/')) return admin(req);
+  // Files that do not exist: the only public file under a language is the blog feed.
+  if (SCANNER.test(pathname) || (pathname.includes('.') && !/^\/[a-z]{2}\/blog\/rss\.xml$/.test(pathname))) return gone();
 
   const reg = await registry();
-  const first = pathname.split('/')[1];
-  if (reg.enabled.includes(first)) return NextResponse.next();
+  const parts = pathname.split('/');
+  const first = parts[1];
+  if (reg.enabled.includes(first)) {
+    if (!(await exists(parts[2] ?? ''))) return gone();
+    // Old list pages (?page=2) moved to real addresses (/page/2), which are cached.
+    const page = req.nextUrl.searchParams.get('page');
+    if (page && parts[2] === 'blog' && /^\d{1,2}$/.test(page)) {
+      const url = req.nextUrl.clone();
+      url.pathname = Number(page) > 1 ? `${pathname.replace(/\/$/, '')}/page/${Number(page)}` : pathname;
+      url.searchParams.delete('page');
+      return NextResponse.redirect(url, 308);
+    }
+    return NextResponse.next();
+  }
 
   // A language that is switched off (or no longer exists): same page, visitor's language.
-  const known = reg.known.includes(first) || (isLocale(first) && first.length === 2 && pathname.split('/').length > 2);
-  const rest = known ? '/' + pathname.split('/').slice(2).join('/') : pathname;
+  const known = reg.known.includes(first) || (isLocale(first) && first.length === 2 && parts.length > 2);
+  const rest = known ? '/' + parts.slice(2).join('/') : pathname;
   const path = LEGACY[rest] ?? rest;
+  if (!(await exists(path.split('/')[1] ?? ''))) return gone();
   const url = req.nextUrl.clone();
   url.pathname = `/${preferred(req, reg)}${path === '/' ? '' : path}`;
   url.search = search;
@@ -113,6 +151,7 @@ export async function middleware(req: NextRequest) {
 }
 
 export const config = {
-  // Skip API routes, Next internals, metadata routes and static files.
-  matcher: ['/((?!api|_next|brand|media|favicon.ico|robots.txt|sitemap.xml|.*\\..*).*)'],
+  // Skip API routes, Next internals and the real files (public/, metadata routes, the IndexNow
+  // key). Every other address passes through, so unknown ones are answered with a cheap 404.
+  matcher: ['/((?!api/|_next/|_vercel/|brand/|icons/|media/|favicon\\.ico$|robots\\.txt$|sitemap\\.xml$|manifest\\.webmanifest$|icon\\.svg$|apple-icon\\.png$|[0-9a-f]{32}\\.txt$).*)'],
 };

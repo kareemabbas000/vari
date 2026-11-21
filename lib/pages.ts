@@ -1,4 +1,5 @@
-import { CMS_TAG, SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, pick } from '@/lib/cms';
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, pick } from '@/lib/cms';
+import { FAIL_HARD, cmsCache } from '@/lib/cms-tag';
 import type { Block } from '@/lib/blocks/schema';
 import type { Locale } from '@/lib/i18n/config';
 
@@ -17,12 +18,13 @@ async function rest<T>(path: string): Promise<T | null> {
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/${path}`, {
       headers: { apikey: SUPABASE_PUBLISHABLE_KEY, Accept: 'application/json' },
-      next: { tags: [CMS_TAG], revalidate: 300 },
+      next: cmsCache('pages'),
       signal: AbortSignal.timeout(5000),
     });
-    if (!res.ok) return null;
+    if (!res.ok) throw new Error(`pages ${path.split('?')[0]} → ${res.status}`);
     return (await res.json()) as T;
-  } catch {
+  } catch (err) {
+    if (FAIL_HARD) throw err;
     return null;
   }
 }

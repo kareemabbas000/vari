@@ -3,8 +3,8 @@ import { site } from '@/lib/content';
 import { getLanguages } from '@/lib/i18n/languages';
 import { getAllPostSlugs } from '@/lib/blog';
 
-// Refreshed with the CMS content (the feeds follow the enabled languages).
-export const revalidate = 300;
+// Refreshed with the CMS content (the feeds follow the enabled languages), never on a timer.
+export const revalidate = false;
 
 /**
  * robots.txt
@@ -31,7 +31,13 @@ export default async function robots(): Promise<MetadataRoute.Robots> {
   const [langs, posts] = await Promise.all([getLanguages(), getAllPostSlugs()]);
   const feeds = langs.enabled.filter((l) => posts.some((p) => p.locale === l.code)).map((l) => `${base}/${l.code}/blog/rss.xml`);
   return {
-    rules: { userAgent: '*', allow: '/', disallow: ['/admin', '/api/', '/*/builder-preview'] },
+    rules: [
+      { userAgent: '*', allow: '/', disallow: ['/admin', '/api/', '/*/builder-preview'] },
+      // Data scrapers that send no visitors and crawl every page and language again and again.
+      // Search engines, AI assistants (GPTBot, OAI-SearchBot, ClaudeBot, PerplexityBot,
+      // Google-Extended) and the common SEO tools (Ahrefs, Semrush) stay allowed.
+      { userAgent: ['MJ12bot', 'DotBot', 'PetalBot', 'Bytespider', 'BLEXBot', 'DataForSeoBot', 'serpstatbot', 'Barkrowler', 'AwarioBot'], disallow: '/' },
+    ],
     sitemap: [`${base}/sitemap.xml`, ...feeds],
   };
 }

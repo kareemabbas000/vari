@@ -1,4 +1,4 @@
-import { CMS_TAG } from '@/lib/cms-tag';
+import { FAIL_HARD, cmsCache } from '@/lib/cms-tag';
 import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL } from '@/lib/supabase/config';
 import { FALLBACK_LANGUAGES, toLanguage, type Language, type Locale } from './config';
 
@@ -19,14 +19,15 @@ export async function getLanguages(): Promise<Languages> {
   try {
     const res = await fetch(`${SUPABASE_URL}/rest/v1/languages?select=*&order=sort.asc`, {
       headers: { apikey: SUPABASE_PUBLISHABLE_KEY, Accept: 'application/json' },
-      next: { tags: [CMS_TAG], revalidate: 300 },
+      next: cmsCache('languages'),
       signal: AbortSignal.timeout(5000),
     });
     if (!res.ok) throw new Error(String(res.status));
     const rows = (await res.json()) as Parameters<typeof toLanguage>[0][];
     if (!rows.length) throw new Error('empty');
     return pack(rows.map(toLanguage));
-  } catch {
+  } catch (err) {
+    if (FAIL_HARD) throw err;
     return pack(FALLBACK_LANGUAGES);
   }
 }
