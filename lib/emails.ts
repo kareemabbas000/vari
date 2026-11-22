@@ -66,6 +66,53 @@ export function studioNotification(fields: { firstName: string; lastName: string
   return { subject, text };
 }
 
+export type ConsultationFields = { name: string; email: string; phone: string; preferredTime: string; timezone: string; projectType: string; message: string; locale: Locale; sourceTitle: string; sourcePath: string; trigger: string; id?: string };
+
+const PROJECT_LABEL = { interior: 'typeInterior', visualization: 'typeVisualization', architecture: 'typeArchitecture', unsure: 'typeUnsure' } as const;
+
+/** Confirmation to the visitor who asked for a free consultation call, in their language. */
+export function consultationAcknowledgement(f: ConsultationFields) {
+  const d = getDictionary(f.locale);
+  const c = d.consult;
+  const greeting = fmt(d.emails.ackGreeting, { name: f.name });
+  const project = c[PROJECT_LABEL[f.projectType as keyof typeof PROJECT_LABEL] ?? 'typeUnsure'];
+  const rows: [string, string][] = [[c.ackProject, project], ...(f.preferredTime ? ([[c.ackTime, `${f.preferredTime}${f.timezone ? ` (${f.timezone})` : ''}`]] as [string, string][]) : [])];
+  const text = `${greeting}\n\n${c.ackBody}\n\n${c.ackSummary}:\n${rows.map(([k, v]) => `${k}: ${v}`).join('\n')}\n\n${d.emails.signoff}`;
+  const html = shell(
+    f.locale,
+    para(greeting) +
+      para(c.ackBody) +
+      `<p style="margin:24px 0 8px;color:#d4af37;font-size:12px;letter-spacing:2px;text-transform:uppercase">${esc(c.ackSummary)}</p>` +
+      `<table role="presentation" cellpadding="0" cellspacing="0" style="margin:0 0 24px;border-left:2px solid #d4af37">${rows
+        .map(([k, v]) => `<tr><td style="padding:4px 16px;color:#8c8578;font-size:13px">${esc(k)}</td><td style="padding:4px 16px;color:#f3eee4">${esc(v)}</td></tr>`)
+        .join('')}</table>` +
+      para(d.emails.signoff),
+  );
+  return { subject: c.ackSubject, text, html };
+}
+
+/** Studio notification for a new consultation request (English, like the panel). */
+export function consultationNotification(f: ConsultationFields) {
+  const subject = `Free consultation call request from ${f.name}`;
+  const text = [
+    `Name: ${f.name}`,
+    `Email: ${f.email}`,
+    `Phone / WhatsApp: ${f.phone || '—'}`,
+    `Project: ${f.projectType}`,
+    `Preferred time: ${f.preferredTime || '—'}${f.timezone ? ` (${f.timezone})` : ''}`,
+    `Language: ${f.locale.toUpperCase()}`,
+    `From: ${f.sourceTitle || f.sourcePath || '—'}${f.trigger ? ` [${f.trigger}]` : ''}`,
+    f.id ? `Reference: ${f.id}` : '',
+    '',
+    f.message || '(no note)',
+    '',
+    'Open it in the panel: Inbox → Free consultation calls',
+  ]
+    .filter((l, i, a) => l !== '' || a[i - 1] !== '')
+    .join('\n');
+  return { subject, text };
+}
+
 /** Branded email for control-panel access links (invitations, password resets). English: the panel's language. */
 export function panelLinkEmail({ heading, body, button, url, footnote }: { heading: string; body: string; button: string; url: string; footnote: string }) {
   const text = `${heading}\n\n${body}\n\n${url}\n\n${footnote}`;

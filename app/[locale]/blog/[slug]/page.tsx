@@ -11,6 +11,8 @@ import { getLanguages } from '@/lib/i18n/languages';
 import { site } from '@/lib/content';
 import { absoluteMediaUrl, ogImageUrl } from '@/lib/image-loader';
 import PostCard, { BlogCta } from '@/components/blog/PostCard';
+import { ConsultInline, ConsultSideCard, projectTypeFor } from '@/components/consult/ConsultInline';
+import ConsultNudge from '@/components/consult/ConsultNudge';
 import { ReadingProgress, ShareBar, Toc } from '@/components/blog/ArticleUi';
 
 type Props = { params: Promise<{ locale: string; slug: string }> };
@@ -68,6 +70,12 @@ export default async function ArticlePage({ params }: Props) {
   const url = `${BASE}${href(`/blog/${post.slug}`)}`;
   const related = [...all.filter((p) => p.id !== post.id && p.category?.slug === post.category?.slug), ...all.filter((p) => p.id !== post.id && p.category?.slug !== post.category?.slug)].slice(0, 3);
   const minutes = readingMinutes(post.words);
+  const projectType = projectTypeFor(post.category?.slug);
+  // Split before the middle section heading (or keep the offer after the text when it is short).
+  const cuts = [...html.matchAll(/<h2[\s>]/g)].map((m) => m.index ?? 0);
+  const cut = cuts.length >= 3 ? cuts[Math.floor(cuts.length / 2)] : html.length;
+  const bodyStart = html.slice(0, cut);
+  const bodyEnd = html.slice(cut);
 
   const ld = [
     {
@@ -186,7 +194,10 @@ export default async function ArticlePage({ params }: Props) {
               </aside>
             )}
 
-            <div className="post-body" dangerouslySetInnerHTML={{ __html: html }} />
+            {/* The free-call offer sits between two sections in the middle of the article. */}
+            <div className="post-body" dangerouslySetInnerHTML={{ __html: bodyStart }} />
+            <ConsultInline t={t} title={post.title} projectType={projectType} />
+            {bodyEnd && <div className="post-body" dangerouslySetInnerHTML={{ __html: bodyEnd }} />}
 
             {post.faq.length > 0 && (
               <section className="mt-20 border-t border-gold/20 pt-10" aria-labelledby="faq-title">
@@ -233,10 +244,12 @@ export default async function ArticlePage({ params }: Props) {
           <aside className="hidden lg:block">
             <div className="sticky top-[calc(var(--header-h)+2rem)]">
               <ShareBar url={url} title={post.title} labels={{ share: t.blog.share, copy: t.blog.copyLink, copied: t.blog.copied }} />
+              <ConsultSideCard t={t} title={post.title} projectType={projectType} />
             </div>
           </aside>
         </div>
       </article>
+      <ConsultNudge title={post.title} projectType={projectType} />
 
       {related.length > 0 && (
         <section className="wrap mt-28 pb-24 md:mt-36" aria-labelledby="related-title">

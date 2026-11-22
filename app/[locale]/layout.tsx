@@ -8,6 +8,7 @@ import { VERIFY_PATTERN } from '@/lib/tracking';
 import Header from '@/components/Header';
 import Footer from '@/components/Footer';
 import { I18nProvider } from '@/components/I18nProvider';
+import ConsultProvider from '@/components/consult/ConsultProvider';
 import { site } from '@/lib/content';
 import { ogImageUrl } from '@/lib/image-loader';
 import { isLocale, type Locale } from '@/lib/i18n/config';
@@ -111,15 +112,17 @@ export default async function LocaleLayout({ children, params }: { children: Rea
       </head>
       <body>
         <I18nProvider content={content}>
-          <a href="#main" className="label fixed left-4 top-4 z-[100] -translate-y-24 bg-gold px-4 py-3 text-night focus:translate-y-0">
-            {t.common.skip}
-          </a>
-          <SmoothScroll>
-            <Header />
-            <main id="main">{children}</main>
-            <Footer />
-          </SmoothScroll>
-          <Tracking />
+          <ConsultProvider>
+            <a href="#main" className="label fixed left-4 top-4 z-[100] -translate-y-24 bg-gold px-4 py-3 text-night focus:translate-y-0">
+              {t.common.skip}
+            </a>
+            <SmoothScroll>
+              <Header />
+              <main id="main">{children}</main>
+              <Footer />
+            </SmoothScroll>
+            <Tracking />
+          </ConsultProvider>
         </I18nProvider>
       </body>
     </html>

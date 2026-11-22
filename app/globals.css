@@ -593,3 +593,22 @@ html.js [data-reveal].is-in {
     margin-right: 0;
   }
 }
+
+/* Free-call form: the success mark draws itself (components/consult/ConsultDialog.tsx). */
+.consult-draw {
+  animation: consult-draw 0.9s cubic-bezier(0.65, 0, 0.35, 1) forwards;
+}
+.consult-draw-late {
+  animation-delay: 0.45s;
+}
+@keyframes consult-draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+@media (prefers-reduced-motion: reduce) {
+  .consult-draw {
+    animation: none;
+    stroke-dashoffset: 0 !important;
+  }
+}

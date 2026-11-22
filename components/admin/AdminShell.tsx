@@ -19,6 +19,7 @@ const NAV: { group: string; items: Item[] }[] = [
     group: 'Inbox',
     items: [
       { href: '/admin/enquiries', label: 'Enquiries', min: 'viewer', icon: 'M3 6h18v12H3zM3 7l9 7 9-7' },
+      { href: '/admin/consultations', label: 'Free consultation calls', min: 'viewer', icon: 'M5 4h4l2 5-2.5 1.5a11 11 0 005 5L15 13l5 2v4a2 2 0 01-2 2A16 16 0 013 6a2 2 0 012-2z' },
       { href: '/admin/subscribers', label: 'Subscribers', min: 'viewer', icon: 'M16 11a4 4 0 10-8 0 4 4 0 008 0zM4 21c1-4 4-6 8-6s7 2 8 6' },
     ],
   },
@@ -73,7 +74,7 @@ function Icon({ d }: { d: string }) {
   );
 }
 
-export default function AdminShell({ member, newEnquiries, children, languages = [] }: { member: Member; newEnquiries: number; children: ReactNode; languages?: Language[] }) {
+export default function AdminShell({ member, newEnquiries, newConsultations = 0, children, languages = [] }: { member: Member; newEnquiries: number; newConsultations?: number; children: ReactNode; languages?: Language[] }) {
   const pathname = usePathname();
   const router = useRouter();
   const [open, setOpen] = useState(false);
@@ -112,9 +113,10 @@ export default function AdminShell({ member, newEnquiries, children, languages =
                 >
                   <Icon d={i.icon} />
                   <span className="flex-1">{i.label}</span>
-                  {i.href === '/admin/enquiries' && newEnquiries > 0 && (
-                    <span className="rounded-full bg-gold px-2 py-0.5 text-[0.7rem] font-semibold text-night">{newEnquiries}</span>
-                  )}
+                  {(() => {
+                    const n = i.href === '/admin/enquiries' ? newEnquiries : i.href === '/admin/consultations' ? newConsultations : 0;
+                    return n > 0 ? <span className="rounded-full bg-gold px-2 py-0.5 text-[0.7rem] font-semibold text-night">{n}</span> : null;
+                  })()}
                 </Link>
               </li>
             ))}

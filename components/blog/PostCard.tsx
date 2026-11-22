@@ -1,5 +1,6 @@
 import Image from 'next/image';
 import Link from '@/components/HoverLink';
+import ConsultButton from '@/components/consult/ConsultButton';
 import { fmt, type Dictionary } from '@/lib/i18n';
 import { localizePath, type Locale } from '@/lib/i18n/config';
 import { formatDate, type PostCard as Card } from '@/lib/blog';
@@ -59,7 +60,11 @@ export function BlogCta({ t, locale }: { t: Dictionary; locale: Locale }) {
           <GoldTitle text={t.blog.ctaTitle} />
         </h2>
         <p className="body-lg mx-auto mt-6 max-w-2xl text-bone/70">{t.blog.ctaBody}</p>
-        <Link href={localizePath(locale, '/contact')} className="btn btn-solid mt-10">{t.blog.ctaButton}</Link>
+        {/* The free call opens right here; the contact page stays one click away. */}
+        <div className="mt-10 flex flex-col items-center gap-5 sm:flex-row sm:justify-center">
+          <ConsultButton trigger="blog-cta" className="btn btn-solid w-full max-w-xs sm:w-auto sm:max-w-none">{t.consult.endCta}</ConsultButton>
+          <Link href={localizePath(locale, '/contact')} className="label link-line text-bone/60 hover:text-gold">{t.consult.endOr}</Link>
+        </div>
       </div>
     </section>
   );

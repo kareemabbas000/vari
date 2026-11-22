@@ -299,6 +299,78 @@ export type Database = {
           },
         ]
       }
+      consultation_requests: {
+        Row: {
+          created_at: string
+          email: string
+          handled_by: string | null
+          id: string
+          ip_hash: string | null
+          locale: string
+          message: string | null
+          name: string
+          notes: string | null
+          notified_at: string | null
+          phone: string | null
+          preferred_time: string | null
+          project_type: string
+          scheduled_at: string | null
+          source_path: string | null
+          source_title: string | null
+          status: string
+          timezone: string | null
+          trigger: string | null
+          updated_at: string
+          user_agent: string | null
+        }
+        Insert: {
+          created_at?: string
+          email: string
+          handled_by?: string | null
+          id?: string
+          ip_hash?: string | null
+          locale?: string
+          message?: string | null
+          name: string
+          notes?: string | null
+          notified_at?: string | null
+          phone?: string | null
+          preferred_time?: string | null
+          project_type?: string
+          scheduled_at?: string | null
+          source_path?: string | null
+          source_title?: string | null
+          status?: string
+          timezone?: string | null
+          trigger?: string | null
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Update: {
+          created_at?: string
+          email?: string
+          handled_by?: string | null
+          id?: string
+          ip_hash?: string | null
+          locale?: string
+          message?: string | null
+          name?: string
+          notes?: string | null
+          notified_at?: string | null
+          phone?: string | null
+          preferred_time?: string | null
+          project_type?: string
+          scheduled_at?: string | null
+          source_path?: string | null
+          source_title?: string | null
+          status?: string
+          timezone?: string | null
+          trigger?: string | null
+          updated_at?: string
+          user_agent?: string | null
+        }
+        Relationships: []
+      }
       contact_submissions: {
         Row: {
           created_at: string
@@ -849,6 +921,24 @@ export type Database = {
       }
       mark_contact_notified: { Args: { p_id: string }; Returns: undefined }
       my_role: { Args: never; Returns: Database["public"]["Enums"]["app_role"] }
+      submit_consultation: {
+        Args: {
+          p_email: string
+          p_ip_hash?: string
+          p_locale?: string
+          p_message?: string
+          p_name: string
+          p_phone?: string
+          p_preferred_time?: string
+          p_project_type?: string
+          p_source_path?: string
+          p_source_title?: string
+          p_timezone?: string
+          p_trigger?: string
+          p_user_agent?: string
+        }
+        Returns: string
+      }
       submit_contact: {
         Args: {
           p_email: string
